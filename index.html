@@ -24,16 +24,16 @@
     .header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
     .header-logo-container { background: white; padding: 2px 5px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0; }
     .header-logo { height: 28px; width: auto; }
-    .event-select { padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: bold; color: #0f172a; background: white; cursor: pointer; min-width: 200px; max-width: 280px; white-space: nowrap; text-overflow: ellipsis; }
+    .event-select { padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: bold; color: #0f172a; background: white; cursor: pointer; min-width: 180px; max-width: 260px; white-space: nowrap; text-overflow: ellipsis; }
     
     .admin-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; }
 
     .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; }
 
-    /* 導覽列分頁：手機板上下垂直排列 */
-    .nav-tabs { display: flex; flex-direction: column; background: white; border-bottom: 1px solid var(--border-color); }
-    .tab-btn { width: 100%; padding: 0.7rem; text-align: center; font-weight: bold; font-size: 0.95rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid #e5e7eb; }
-    .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background: #f0f9ff; }
+    /* 恢復左右雙欄橫向排列 */
+    .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border-color); }
+    .tab-btn { flex: 1; padding: 0.8rem 0.3rem; text-align: center; font-weight: bold; font-size: 0.9rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: #f0f9ff; }
 
     .container { max-width: 600px; margin: 1rem auto; padding: 0 1rem; }
     .card { background: var(--card-bg); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -83,8 +83,9 @@
     .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; align-items: center; justify-content: center; font-weight: bold; color: var(--primary-color); }
     .loading-overlay.active { display: flex; }
 
+    /* 狗狗圖片區塊與祝福語 */
     .home-grid-imgs { display: flex; gap: 10px; margin-top: 1rem; align-items: center; background: #f8fafc; padding: 8px; border-radius: 8px; }
-    .home-grid-imgs img { width: 130px; height: 140px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+    .home-grid-imgs img { width: 120px; height: 130px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
 
     .top-btn { position: fixed; bottom: 80px; right: 15px; background: var(--primary-color); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; z-index: 99; }
 
@@ -114,14 +115,14 @@
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
   </div>
 
-  <div class="time-notice-bar">
+  <div class="time-notice-bar" id="timeNoticeBar">
     ⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！
   </div>
 
-  <!-- 分頁導覽：改為手機上下獨立兩行 -->
+  <!-- 精簡左右雙欄分頁 -->
   <div class="nav-tabs">
     <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
-    <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">❌ 取消訂單 / 🔍 查詢訂單</button>
+    <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">🔍 查詢/X取消訂單</button>
   </div>
 
   <div class="container">
@@ -142,7 +143,7 @@
         <div class="home-grid-imgs">
           <img src="dog.png" alt="柴柴照片" onerror="this.style.display='none'">
           <div style="flex:1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:0.8rem; font-size:0.9rem; color:#166534; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:bold;">
-            🐾 祝大家用餐愉快~😊
+            🐾 祝大家用餐愉快😊
           </div>
         </div>
       </div>
@@ -192,7 +193,6 @@
 
   <button class="top-btn" onclick="scrollToTop()">TOP</button>
 
-  <!-- 二次點餐確認彈窗 (已加回品項金額顯示) -->
   <div class="modal" id="confirmModal">
     <div class="modal-content" style="max-width:380px;">
       <div class="modal-header">
@@ -266,14 +266,22 @@
           <button class="btn-action" style="background:#059669;" onclick="copyBatchLineText('all')">全單彙整 LINE 格式</button>
         </div>
 
-        <!-- 快顯統計相同總品項與總金額區塊 -->
+        <!-- 獨立分單試算按鈕與快顯統計區塊 -->
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:8px; border-radius:6px; margin-top:8px;">
-          <div style="font-weight:bold; font-size:0.85rem; color:#166534; margin-bottom:4px;">⚡ 快顯品項與金額總計：</div>
-          <div id="quickSummaryBox" style="font-size:0.8rem; color:#15803d; line-height:1.5;"></div>
+          <div style="font-weight:bold; font-size:0.85rem; color:#166534; margin-bottom:4px;">📊 分單快顯品項試算：</div>
+          <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
+            <button class="btn-action" style="background:#16a34a; padding:2px 6px;" onclick="calculateQuickSummary(1)">第 1 單試算</button>
+            <button class="btn-action" style="background:#16a34a; padding:2px 6px;" onclick="calculateQuickSummary(2)">第 2 單試算</button>
+            <button class="btn-action" style="background:#16a34a; padding:2px 6px;" onclick="calculateQuickSummary(3)">第 3 單試算</button>
+            <button class="btn-action" style="background:#15803d; padding:2px 6px;" onclick="calculateQuickSummary('all')">全單試算</button>
+          </div>
+          <div id="quickSummaryBox" style="font-size:0.8rem; color:#15803d; line-height:1.5;">請點擊上方試算按鈕...</div>
         </div>
 
+        <!-- 功能控制按鈕（新增藍色解除截止鎖定按鈕） -->
         <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; border-top:1px solid #e2e8f0; padding-top:0.5rem;">
           <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印對帳卡 (☐)</button>
+          <button class="btn-action" style="background:#0284c7;" onclick="toggleForceUnlock()">🔓 重新開啟/關閉點餐</button>
           <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有點餐資料</button>
         </div>
       </div>
@@ -421,6 +429,7 @@
     let currentEventKey = "rules";
     let currentOrder = {};
     let globalAllOrders = [];
+    let isForceUnlocked = false; // 是否手動解除截止
 
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
@@ -561,7 +570,6 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
-    // 二次點餐確認彈窗 (已加回金額顯示)
     function openConfirmModal() {
       const name = document.getElementById('userName').value.trim();
       const dept = document.getElementById('userDept').value.trim();
@@ -722,10 +730,6 @@
       body.innerHTML = '';
       
       const eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
-      
-      // 快顯品項與總金額計算
-      let quickSummary = {};
-      let totalAmount = 0;
 
       if (eventOrders.length === 0) {
         body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280; padding:1rem;">此場次尚無點餐紀錄</td></tr>`;
@@ -734,7 +738,6 @@
       }
 
       eventOrders.forEach(o => {
-        totalAmount += o.total;
         let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
         body.innerHTML += `
           <tr>
@@ -745,19 +748,66 @@
             <td><strong>$${o.total}</strong></td>
           </tr>
         `;
+      });
 
+      calculateQuickSummary('all');
+    }
+
+    // 獨立分單快顯試算按鈕功能 (支援 1/2/3 單與全單)
+    function calculateQuickSummary(targetBatch) {
+      const selectedKey = document.getElementById('adminEventFilter').value;
+      let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
+
+      if (targetBatch !== 'all') {
+        eventOrders = eventOrders.filter(o => (o.batch || 1) === targetBatch);
+      }
+
+      if (eventOrders.length === 0) {
+        const batchTag = targetBatch === 'all' ? '全單' : `第 ${targetBatch} 單`;
+        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${batchTag}】點餐資料`;
+        return;
+      }
+
+      let quickSummary = {};
+      let totalAmount = 0;
+      let totalItemsCount = 0;
+
+      eventOrders.forEach(o => {
+        totalAmount += o.total;
         o.items.forEach(i => {
           let key = i.name + (i.remark ? `(${i.remark})` : '');
           quickSummary[key] = (quickSummary[key] || 0) + i.qty;
+          totalItemsCount += i.qty;
         });
       });
 
-      let summaryHtml = '';
+      const batchTag = targetBatch === 'all' ? '全單彙整' : `第 ${targetBatch} 單`;
+      let summaryHtml = `<div style="font-weight:bold; color:#0369a1; margin-bottom:2px;">📋【${batchTag}試算結果】</div>`;
       for (let item in quickSummary) {
         summaryHtml += `• ${item}：<b>${quickSummary[item]}</b> 份<br>`;
       }
-      summaryHtml += `<div style="margin-top:4px; font-weight:bold; color:#0369a1; border-top:1px dashed #cbd5e1; padding-top:2px;">💰 應收總金額：$${totalAmount} 元 (共 ${eventOrders.length} 筆訂單)</div>`;
+      summaryHtml += `<div style="margin-top:6px; font-weight:bold; color:#15803d; border-top:1px dashed #bbf7d0; padding-top:4px;">
+        📦 總品項份數：<b>${totalItemsCount}</b> 份<br>
+        💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆訂單)
+      </div>`;
       document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
+    }
+
+    // 解除 / 強制鎖定 10:30 截止按鈕功能
+    function toggleForceUnlock() {
+      isForceUnlocked = !isForceUnlocked;
+      const noticeBar = document.getElementById('timeNoticeBar');
+      if (isForceUnlocked) {
+        noticeBar.innerHTML = '🔓 【管理員權限】已解除點餐時間限制，目前開放自由點餐！';
+        noticeBar.style.backgroundColor = '#dcfce7';
+        noticeBar.style.color = '#15803d';
+        alert('✅ 已強制開放點餐！同仁現在可不受 10:30 限制繼續下單。');
+      } else {
+        noticeBar.innerHTML = '⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！';
+        noticeBar.style.backgroundColor = '#e0f2fe';
+        noticeBar.style.color = '#0369a1';
+        alert('🔒 已恢復標準時間限制模式。');
+      }
     }
 
     async function setBatchCutoff(batchNum) {
