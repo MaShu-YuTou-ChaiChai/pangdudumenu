@@ -30,7 +30,6 @@
 
     .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; }
 
-    /* 恢復左右雙欄橫向排列 */
     .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border-color); }
     .tab-btn { flex: 1; padding: 0.8rem 0.3rem; text-align: center; font-weight: bold; font-size: 0.9rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
     .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: #f0f9ff; }
@@ -83,7 +82,6 @@
     .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; align-items: center; justify-content: center; font-weight: bold; color: var(--primary-color); }
     .loading-overlay.active { display: flex; }
 
-    /* 狗狗圖片區塊與祝福語 */
     .home-grid-imgs { display: flex; gap: 10px; margin-top: 1rem; align-items: center; background: #f8fafc; padding: 8px; border-radius: 8px; }
     .home-grid-imgs img { width: 120px; height: 130px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
 
@@ -119,10 +117,10 @@
     ⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！
   </div>
 
-  <!-- 精簡左右雙欄分頁 -->
+  <!-- 分頁按鈕：已加上 ❌ 紅色取消圖示 -->
   <div class="nav-tabs">
     <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
-    <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">🔍 查詢/X取消訂單</button>
+    <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">🔍 查詢 / ❌ 取消訂單</button>
   </div>
 
   <div class="container">
@@ -266,7 +264,6 @@
           <button class="btn-action" style="background:#059669;" onclick="copyBatchLineText('all')">全單彙整 LINE 格式</button>
         </div>
 
-        <!-- 獨立分單試算按鈕與快顯統計區塊 -->
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:8px; border-radius:6px; margin-top:8px;">
           <div style="font-weight:bold; font-size:0.85rem; color:#166534; margin-bottom:4px;">📊 分單快顯品項試算：</div>
           <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
@@ -278,7 +275,6 @@
           <div id="quickSummaryBox" style="font-size:0.8rem; color:#15803d; line-height:1.5;">請點擊上方試算按鈕...</div>
         </div>
 
-        <!-- 功能控制按鈕（新增藍色解除截止鎖定按鈕） -->
         <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; border-top:1px solid #e2e8f0; padding-top:0.5rem;">
           <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印對帳卡 (☐)</button>
           <button class="btn-action" style="background:#0284c7;" onclick="toggleForceUnlock()">🔓 重新開啟/關閉點餐</button>
@@ -429,7 +425,7 @@
     let currentEventKey = "rules";
     let currentOrder = {};
     let globalAllOrders = [];
-    let isForceUnlocked = false; // 是否手動解除截止
+    let isForceUnlocked = false;
 
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
@@ -455,11 +451,24 @@
 
     function renderEventDropdown() {
       const select = document.getElementById('eventSelect');
+      const previousValue = currentEventKey;
       select.innerHTML = '<option value="rules">👉 點這裡選擇投票結果菜單</option>';
+      
+      let exists = false;
       globalActiveEvents.forEach(ev => {
-        select.innerHTML += `<option value="${ev.date}_${ev.store}">${ev.date} - ${ev.store}</option>`;
+        const key = `${ev.date}_${ev.store}`;
+        if (key === previousValue) exists = true;
+        select.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
       });
-      select.value = currentEventKey;
+
+      if (exists) {
+        select.value = previousValue;
+      } else {
+        // 如果原本選的場次已經被關閉，自動切回首頁
+        currentEventKey = "rules";
+        select.value = "rules";
+        onEventSelectChange();
+      }
     }
 
     function initStoreSelectOptions() {
@@ -570,7 +579,19 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
-    function openConfirmModal() {
+    async function openConfirmModal() {
+      // 提交前先向雲端確認該場次是否已被關閉
+      showLoading(true);
+      await loadCloudData();
+      showLoading(false);
+
+      const isStillActive = globalActiveEvents.some(ev => `${ev.date}_${ev.store}` === currentEventKey);
+      if (!isStillActive) {
+        alert('⚠️ 此點餐場次已被管理員關閉或不存在，無法繼續點餐！');
+        location.reload();
+        return;
+      }
+
       const name = document.getElementById('userName').value.trim();
       const dept = document.getElementById('userDept').value.trim();
 
@@ -729,7 +750,7 @@
       const body = document.querySelector('#detailTable tbody');
       body.innerHTML = '';
       
-      const eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
+      const eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey);
 
       if (eventOrders.length === 0) {
         body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280; padding:1rem;">此場次尚無點餐紀錄</td></tr>`;
@@ -737,14 +758,16 @@
         return;
       }
 
+      // 渲染所有訂單（包括已取消的，並加上刪除線樣式）
       eventOrders.forEach(o => {
         let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
+        let styleStr = o.cancelled ? 'text-decoration: line-through; color: #9ca3af; background: #fef2f2;' : '';
         body.innerHTML += `
-          <tr>
-            <td style="text-align:center;">☐</td>
+          <tr style="${styleStr}">
+            <td style="text-align:center;">${o.cancelled ? '❌' : '☐'}</td>
             <td style="text-align:center;">第${o.batch || 1}單</td>
             <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
-            <td>${itemStr}</td>
+            <td>${itemStr} ${o.cancelled ? '<br><b style="color:red;">(已取消)</b>' : ''}</td>
             <td><strong>$${o.total}</strong></td>
           </tr>
         `;
@@ -753,9 +776,9 @@
       calculateQuickSummary('all');
     }
 
-    // 獨立分單快顯試算按鈕功能 (支援 1/2/3 單與全單)
     function calculateQuickSummary(targetBatch) {
       const selectedKey = document.getElementById('adminEventFilter').value;
+      // 快顯統計只計算未取消的有效訂單
       let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
 
       if (targetBatch !== 'all') {
@@ -764,7 +787,7 @@
 
       if (eventOrders.length === 0) {
         const batchTag = targetBatch === 'all' ? '全單' : `第 ${targetBatch} 單`;
-        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${batchTag}】點餐資料`;
+        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${batchTag}】有效點餐資料`;
         return;
       }
 
@@ -788,12 +811,11 @@
       }
       summaryHtml += `<div style="margin-top:6px; font-weight:bold; color:#15803d; border-top:1px dashed #bbf7d0; padding-top:4px;">
         📦 總品項份數：<b>${totalItemsCount}</b> 份<br>
-        💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆訂單)
+        💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆有效訂單)
       </div>`;
       document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
     }
 
-    // 解除 / 強制鎖定 10:30 截止按鈕功能
     function toggleForceUnlock() {
       isForceUnlocked = !isForceUnlocked;
       const noticeBar = document.getElementById('timeNoticeBar');
