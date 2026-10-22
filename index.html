@@ -28,7 +28,6 @@
     
     .admin-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; }
 
-    /* 頂部截止提醒與倒數計時 */
     .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.5rem 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
     .countdown-badge { background: #0284c7; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; letter-spacing: 0.5px; }
 
@@ -115,7 +114,6 @@
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
   </div>
 
-  <!-- 頂部截止時間與即時倒數計時器 -->
   <div class="time-notice-bar" id="timeNoticeBar">
     <span>⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！</span>
     <span class="countdown-badge" id="countdownTimer">⏳ 計算中...</span>
@@ -433,7 +431,6 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
-    // 實時 10:30 倒數計時器
     function startCountdownTimer() {
       setInterval(() => {
         const timerEl = document.getElementById('countdownTimer');
@@ -527,6 +524,7 @@
         document.getElementById('currentStoreNameDisplay').innerText = `${date} ${store}`;
         renderMenu(store);
       }
+      scrollToTop(); // 強制切換選單時回頂部
     }
 
     function switchTab(tab) {
@@ -545,6 +543,7 @@
         document.getElementById('tabOrder').classList.remove('active');
         document.getElementById('tabCancel').classList.add('active');
       }
+      scrollToTop(); // 切換分頁時絕對確保回到頂部，不卡在下方
     }
 
     function renderMenu(storeName) {
@@ -855,7 +854,6 @@
 
     function toggleForceUnlock() {
       isForceUnlocked = !isForceUnlocked;
-      const noticeBar = document.getElementById('timeNoticeBar');
       if (isForceUnlocked) {
         alert('✅ 已強制開放點餐！同仁現在可不受 10:30 限制繼續下單。');
       } else {
@@ -948,13 +946,11 @@
       } finally { showLoading(false); }
     }
 
-    // 關閉場次修復：同步將該關閉場次的點餐資料標記取消/隱藏
     async function removeActiveEvent(idx) {
       const closedEvent = globalActiveEvents[idx];
       const closedKey = `${closedEvent.date}_${closedEvent.store}`;
       globalActiveEvents.splice(idx, 1);
 
-      // 將被關閉場次的所有訂單自動標記為取消（不再顯示於查詢頁面）
       globalAllOrders.forEach(o => {
         if (o.eventKey === closedKey) {
           o.cancelled = true;
@@ -973,7 +969,6 @@
       } finally { showLoading(false); }
     }
 
-    // 查詢修復：搜尋後自動平滑滾動至結果卡片
     async function searchUserOrder() {
       const name = document.getElementById('cancelName').value.trim();
       const dept = document.getElementById('cancelDept').value.trim();
@@ -983,7 +978,6 @@
       await loadCloudData();
       showLoading(false);
 
-      // 篩選：姓名、部門相符、未取消，且該場次目前仍為「開放狀態」的訂單
       const activeEventKeys = globalActiveEvents.map(e => `${e.date}_${e.store}`);
       const userOrders = globalAllOrders.filter(o => 
         o.name === name && 
@@ -1014,13 +1008,8 @@
         container.innerHTML = html;
       }
 
-      // 平滑滾動定位至查詢結果，確保不掉到首頁底部
-      setTimeout(() => {
-        const targetCard = document.getElementById('userOrderCard');
-        if (targetCard) {
-          targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
+      // 搜尋完後強制滾動對齊到頂部，不掉到首頁下方
+      scrollToTop();
     }
 
     async function cancelOrder(orderId) {
