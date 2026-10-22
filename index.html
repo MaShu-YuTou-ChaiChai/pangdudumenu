@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>胖嘟柴柴點餐平台</title>
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; touch-action: manipulation; }
+    html { scroll-behavior: smooth; }
+    body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 90px; }
+    
+    .header { background-color: var(--primary-color); color: white; padding: 0.8rem 1rem; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-height: 60px; }
+    .header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .header-logo-container { background: white; padding: 2px 5px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0; }
+    .header-logo { height: 28px; width: auto; }
+    .event-select { padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: bold; color: #0f172a; background: white; cursor: pointer; min-width: 200px; max-width: 280px; white-space: nowrap; text-overflow: ellipsis; }
+    
+    .admin-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; }
+
+    .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border-color); }
+    .tab-btn { flex: 1; padding: 0.8rem; text-align: center; font-weight: bold; font-size: 0.95rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+
+    .container { max-width: 600px; margin: 1rem auto; padding: 0 1rem; }
+    .card { background: var(--card-bg); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .card h2 { font-size: 1.05rem; color: var(--primary-color); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+    .rule-title { color: var(--primary-color); font-weight: bold; }
+
+    .form-group { margin-bottom: 0.8rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
+    .form-group input, .form-group select { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; }
+
+    .menu-item { display: flex; flex-direction: column; padding: 0.7rem 0; border-bottom: 1px solid var(--border-color); }
+    .menu-item:last-child { border-bottom: none; }
+    .item-main { display: flex; justify-content: space-between; align-items: center; }
+    .item-info { flex: 1; }
+    .item-name { font-weight: bold; font-size: 0.95rem; }
+    .item-price { color: #6b7280; font-size: 0.85rem; margin-top: 0.1rem; }
+    .item-remark-input { margin-top: 6px; }
+    .item-remark-input input { width: 100%; padding: 0.4rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 4px; }
+    .disabled-option { opacity: 0.4; pointer-events: none; }
+
+    .quantity-control { display: flex; align-items: center; gap: 0.6rem; }
+    .btn-qty { width: 38px; height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 1.3rem; font-weight: bold; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qty-display { font-weight: bold; min-width: 20px; text-align: center; font-size: 1rem; }
+
+    .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 0.8rem 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    .total-price { font-size: 1.1rem; font-weight: bold; }
+    .total-price span { color: var(--primary-color); }
+    .btn-submit { background: var(--primary-color); color: white; border: none; padding: 0.7rem 1.4rem; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; }
+    .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 550px; max-height: 85vh; overflow-y: auto; padding: 1.2rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+
+    .btn-action { background: #0284c7; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; margin-right: 0.3rem; margin-top: 0.4rem; }
+    .btn-danger { background: var(--danger-color); }
+    .btn-success { background: var(--success-color); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.8rem; }
+    th, td { border: 1px solid var(--border-color); padding: 0.4rem; text-align: left; }
+    th { background: #f9fafb; }
+
+    .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; align-items: center; justify-content: center; font-weight: bold; color: var(--primary-color); }
+    .loading-overlay.active { display: flex; }
+
+    .home-grid-imgs { display: flex; gap: 10px; margin-top: 1rem; align-items: center; }
+    .home-grid-imgs img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printSection, #printSection * { visibility: visible; }
+      #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading-overlay" id="loadingOverlay">☁️ 雲端資料同步中，請稍候...</div>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo-container">
+        <img src="logo.png" class="header-logo" alt="Logo" onerror="this.style.display='none'">
+      </div>
+      <select id="eventSelect" class="event-select" onchange="onEventSelectChange()">
+        <option value="rules">👉 點這裡選擇投票結果菜單</option>
+      </select>
+    </div>
+    <button class="admin-btn" onclick="openAdminModal()">管理員</button>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
+    <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">❌ 取消訂單 / 🔍 查詢訂單</button>
+  </div>
+
+  <div class="container">
+    <div id="pageRules">
+      <div class="card">
+        <h2>🐶 胖嘟柴柴點餐平台與報餐須知</h2>
+        
+        <div style="font-size:0.9rem; line-height:1.7; color:#334155;">
+          <p style="margin-bottom:0.5rem;">歡迎公旭/群旭同仁使用點餐系統，請在點餐前遵守以下事項：</p>
+          <ul style="margin-left:1.2rem; list-style-type: disc;">
+            <li><span class="rule-title">選擇店家：</span>菜單請點擊左上角下拉選取當日最終投票結果【店家】進行點餐。</li>
+            <li><span class="rule-title">截止時間：</span>點餐截止時間為上午10:30，逾時將無法下單或修改，須修改或加點請告知。</li>
+            <li><span class="rule-title">實名填寫：</span>請務必填寫「姓名或綽號」與「完整部門」，方便取餐發放與對帳。</li>
+            <li><span class="rule-title">付款方式：</span>請至指定位置領餐並交付現金，付款後將已對帳單現場進行勾選確認付款。</li>
+          </ul>
+        </div>
+
+        <div class="home-grid-imgs">
+          <img src="dog.png" alt="柴柴照片" onerror="this.style.display='none'">
+          <div style="flex:1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:0.8rem; font-size:0.9rem; color:#166534; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:bold;">
+            🐾 祝大家用餐愉快~~ 😊
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pageOrder" style="display: none;">
+      <div class="card">
+        <h2>1. 基本資料</h2>
+        <div class="form-group">
+          <label>姓名或綽號 *</label>
+          <input type="text" id="userName" placeholder="請輸入姓名或綽號">
+        </div>
+        <div class="form-group">
+          <label>部門 *</label>
+          <input type="text" id="userDept" placeholder="請輸入完整部門">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. 選擇餐點 (<span id="currentStoreNameDisplay">未選擇</span>)</h2>
+        <div id="menuList"></div>
+      </div>
+    </div>
+
+    <div id="pageCancel" style="display: none;">
+      <div class="card">
+        <h2>🔍 查詢或取消已點餐點</h2>
+        <div class="form-group">
+          <label>姓名或綽號 *</label>
+          <input type="text" id="cancelName" placeholder="請輸入姓名或綽號">
+        </div>
+        <div class="form-group">
+          <label>部門 *</label>
+          <input type="text" id="cancelDept" placeholder="請輸入完整部門">
+        </div>
+        <button class="btn-submit" style="width: 100%; margin-top: 0.5rem;" onclick="searchUserOrder()">搜尋我的點餐紀錄</button>
+      </div>
+
+      <div id="userOrderResult"></div>
+    </div>
+  </div>
+
+  <div class="footer-bar" id="footerBar" style="display: none;">
+    <div class="total-price">合計：$<span id="grandTotal">0</span></div>
+    <button class="btn-submit" id="btnSubmitOrder" disabled onclick="submitOrder()">確認送出點餐</button>
+  </div>
+
+  <div class="modal" id="adminAuthModal">
+    <div class="modal-content" style="max-width:320px;">
+      <div class="modal-header">
+        <h3>管理員驗證</h3>
+        <button class="close-btn" onclick="closeAdminAuthModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>請輸入管理員密碼</label>
+        <input type="password" id="adminPasswordInput" placeholder="請輸入密碼">
+      </div>
+      <button class="btn-submit" style="width:100%;" onclick="verifyAdminPassword()">登入</button>
+    </div>
+  </div>
+
+  <div class="modal" id="adminModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>胖嘟柴柴後台控制中心</h3>
+        <button class="close-btn" onclick="closeAdminModal()">&times;</button>
+      </div>
+
+      <div style="margin-bottom: 1rem; background:#f0f9ff; border:1px solid #7dd3fc; padding:0.8rem; border-radius:6px;">
+        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#0369a1;">📢 發起投票結果店家場次：</div>
+        <div style="display:flex; gap:0.4rem; margin-bottom:0.5rem;">
+          <input type="text" id="newEventDate" placeholder="例如: 10/28" style="flex:1; padding:0.4rem; font-size:0.85rem; border:1px solid #ccc; border-radius:4px;">
+          <select id="newEventStore" style="flex:1.2; padding:0.4rem; font-size:0.85rem; border:1px solid #ccc; border-radius:4px;"></select>
+          <button class="btn-action btn-success" style="margin:0;" onclick="addActiveEvent()">發起開放</button>
+        </div>
+        <div style="font-size:0.8rem; font-weight:bold; color:#334155;">目前開放場次：</div>
+        <div id="activeEventsList" style="margin-top:0.3rem;"></div>
+      </div>
+
+      <div style="margin-bottom: 0.8rem; background:#edf2f7; padding:0.6rem; border-radius:6px;">
+        <div style="font-weight:bold; font-size:0.85rem; margin-bottom:0.4rem;">資料導出與列印對帳：</div>
+        <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印紙本對帳卡 (含方格 ☐)</button>
+        <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有雲端點餐資料</button>
+      </div>
+
+      <h4 style="margin-top: 1rem; font-size:0.9rem;">個人點餐與收費核對明細</h4>
+      <table id="detailTable">
+        <thead>
+          <tr><th>核對</th><th>姓名 (部門)</th><th>餐點明細</th><th>金額</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="printSection" style="display:none;"></div>
+
+  <script>
+    // 已更新為最新的 API 網址
+    const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
+
+    const allStoresData = {
+      "臻可味 精緻快餐": [
+        { category: "主餐便當", items: [
+          { name: "油雞便當", price: 100 }, { name: "菜飯便當(5樣菜)", price: 70 },
+          { name: "鯖魚便當", price: 90 }, { name: "糖醋排骨便當", price: 85 },
+          { name: "日式無骨雞排便當", price: 85 }, { name: "蒲燒鯛便當", price: 90 },
+          { name: "板煎雞腿排便當", price: 90 }, { name: "鮮魚(切片)便當", price: 90 },
+          { name: "板煎排骨便當", price: 90 }, { name: "蒜泥白肉便當", price: 90 },
+          { name: "香滷控肉便當", price: 90 }, { name: "泰式椒麻雞便當", price: 95 },
+          { name: "鮮魚(整尾)便當", price: 100 }, { name: "香酥雞排便當", price: 100 },
+          { name: "酥炸大雞腿(滷)", price: 100 }
+        ]}
+      ],
+      "嬌麻雞 精緻自助餐": [
+        { category: "精緻餐盒", items: [
+          { name: "酸甜香辣嬌麻雞", price: 130 }, { name: "脆皮炸雞腿", price: 110 },
+          { name: "香酥無骨雞排", price: 85 }, { name: "三杯雞丁", price: 80 },
+          { name: "炒肉片", price: 80 }, { name: "宮保雞丁", price: 80 },
+          { name: "煎厚切肉排", price: 100 }, { name: "糖醋肉塊", price: 90 },
+          { name: "滷控肉", price: 90 }, { name: "黑胡椒肉柳", price: 80 },
+          { name: "紅糟肉", price: 90 }, { name: "清蒸雞胸", price: 90 },
+          { name: "紹興紅露醉雞腿", price: 110 }, { name: "清蒸鮮魚", price: 100 },
+          { name: "香煎鮭魚", price: 140 }
+        ]}
+      ],
+      "好卷不見": [
+        { category: "海苔飯卷/便當", items: [
+          { name: "泡菜燒肉卷", price: 70 }, { name: "泡菜牛肉卷", price: 85 },
+          { name: "原味燒肉卷", price: 70 }, { name: "辣味燒肉卷", price: 75 },
+          { name: "忠武飯卷", price: 110 }, { name: "輕食餐盒(無飯)", price: 115 },
+          { name: "速便當", price: 95 }, { name: "柴魚烏龍麵", price: 90 },
+          { name: "辛拉麵", price: 100 }
+        ]}
+      ],
+      "日日鴻 咖哩炒麵": [
+        { category: "招牌炒麵/湯品", items: [
+          { name: "嘴邊肉炒麵", price: 100 }, { name: "豬肝炒麵", price: 100 },
+          { name: "牛肉炒麵", price: 110 }, { name: "鮮蝦炒麵", price: 110 },
+          { name: "什錦炒麵", price: 110 }, { name: "爆蛋小卷炒麵", price: 110 },
+          { name: "炒青菜", price: 60 }, { name: "蛤仔湯", price: 60 }
+        ]}
+      ],
+      "銹 涼麵": [
+        { category: "涼麵系列", items: [
+          { name: "原味涼麵", price: 50 }, { name: "泡菜涼麵", price: 65 },
+          { name: "黑胡椒豬肉涼麵", price: 55 }, { name: "香菜皮蛋涼麵", price: 55 },
+          { name: "牛三寶涼麵", price: 90 }, { name: "涼拌牛三寶", price: 160 }
+        ]}
+      ],
+      "金門雞腿丸": [
+        { category: "經典飯盒", items: [
+          { name: "秘醬大雞排飯", price: 110 }, { name: "蔥爆牛肉飯", price: 110 },
+          { name: "蒜泥白肉飯", price: 110 }, { name: "酥炸排骨飯", price: 100 },
+          { name: "脆皮大雞腿飯", price: 100 }, { name: "香滷大雞腿飯", price: 100 },
+          { name: "薄鹽鯖魚飯", price: 95 }, { name: "經濟六菜飯", price: 80 }
+        ]}
+      ],
+      "湘園 燒臘": [
+        { category: "特餐燒臘 (一律95元)", items: [
+          { name: "招牌飯", price: 95 }, { name: "烤雞腿飯", price: 95 },
+          { name: "炸雞腿飯", price: 95 }, { name: "滷雞腿飯", price: 95 },
+          { name: "臘味飯", price: 95 }, { name: "三寶飯", price: 95 },
+          { name: "叉鴨飯", price: 95 }, { name: "叉雞飯", price: 95 },
+          { name: "燒鴨飯", price: 95 }, { name: "油雞飯", price: 95 },
+          { name: "炸燒肉飯", price: 95 }, { name: "控肉飯", price: 95 }
+        ]}
+      ],
+      "花蓮扁食": [
+        { category: "抄手/扁食/麵類", items: [
+          { name: "鮮蝦紅油抄手", price: 100 }, { name: "鮮肉紅油抄手", price: 90 },
+          { name: "鮮蝦扁食湯", price: 90 }, { name: "鮮肉扁食湯", price: 80 },
+          { name: "鮮蝦扁食麵", price: 90 }, { name: "蘋果咖哩飯", price: 85 },
+          { name: "鮮蝦高麗菜鍋貼(10粒)", price: 85 }, { name: "鮮肉韭菜鍋貼(10粒)", price: 75 }
+        ]}
+      ],
+      "鑫吉野烤肉飯（民安西店）": [
+        { category: "烤肉飯盒", items: [
+          { name: "烤肉飯", price: 110 }, { name: "烤排骨飯", price: 110 },
+          { name: "烤雞柳飯", price: 110 }, { name: "烤五花肉飯", price: 120 },
+          { name: "烤雙拼飯", price: 120 }, { name: "烤雞腿飯", price: 120 },
+          { name: "黑胡椒雞排飯", price: 110 }, { name: "香酥雞腿飯", price: 120 }
+        ]}
+      ],
+      "食全 養生飯便當": [
+        { category: "養生便當", items: [
+          { name: "養生飯", price: 100 }, { name: "起司豬排飯", price: 80 },
+          { name: "酥炸雞翅飯", price: 85 }, { name: "滷雞腿飯", price: 120 },
+          { name: "炸雞腿飯", price: 120 }, { name: "紅燒牛腩飯", price: 110 },
+          { name: "椒麻雞飯", price: 130 }, { name: "椒鹽雞丁飯", price: 90 }
+        ]}
+      ],
+      "豐禾飯製所": [
+        { category: "主打紅藜飯餐盒", items: [
+          { name: "香酥雞腿便當", price: 120 }, { name: "招牌滷排骨便當", price: 110 },
+          { name: "香雞排便當", price: 110 }, { name: "古早味炸排骨便當", price: 110 },
+          { name: "清蒸魚排便當", price: 110 }, { name: "香煎魚排便當", price: 110 },
+          { name: "三杯醬香雞便當", price: 100 }, { name: "糖醋咕咾肉便當", price: 100 },
+          { name: "控肉便當", price: 95 }, { name: "時蔬便當(非素食)", price: 75 }
+        ]}
+      ],
+      "秦小家排骨": [
+        { category: "精緻主食區", items: [
+          { name: "現炸雞腿飯", price: 120 }, { name: "滷香雞腿飯", price: 120 },
+          { name: "紅燒鮭魚飯", price: 120 }, { name: "清蒸鱈魚飯", price: 135 },
+          { name: "現炸雞排飯", price: 115 }, { name: "特製炸排骨飯", price: 115 },
+          { name: "滷排骨飯", price: 110 }, { name: "蔥爆牛肉飯", price: 115 },
+          { name: "泰式打拋雞飯", price: 105 }, { name: "蔬菜飯(5菜)", price: 80 }
+        ]}
+      ],
+      "八方雲集": [
+        { category: "鍋貼/水餃/湯品", items: [
+          { name: "招牌鍋貼(10顆)", price: 65 }, { name: "韭菜鍋貼(10顆)", price: 65 },
+          { name: "韓式辣味水餃(10顆)", price: 70 }, { name: "酸辣湯", price: 35 }, { name: "玉米濃湯", price: 35 }
+        ]}
+      ],
+      "竹林雞肉（中華店）": [
+        { category: "飯類", items: [
+          { name: "竹林嫩胸飯", price: 110 }, { name: "雞肉雙拼飯", price: 125 },
+          { name: "竹林雞腿飯", price: 130 }, { name: "銷魂雞飯", price: 85 },
+          { name: "全菜不飯", price: 85 }, { name: "菜飯", price: 85 }
+        ]}
+      ]
+    };
+
+    let globalActiveEvents = [];
+    let currentEventKey = "rules";
+    let currentOrder = {};
+    let globalAllOrders = [];
+
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
+
+    async function loadCloudData() {
+      showLoading(true);
+      try {
+        const res = await fetch(`${API_URL}?action=getSystemData`);
+        const data = await res.json();
+        if (data && data.status === 'success') {
+          globalAllOrders = data.orders || [];
+          globalActiveEvents = data.activeEvents || [];
+          renderEventDropdown();
+          return true;
+        }
+        return false;
+      } catch(e) {
+        return false;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderEventDropdown() {
+      const select = document.getElementById('eventSelect');
+      select.innerHTML = '<option value="rules">👉 點這裡選擇投票結果菜單</option>';
+      globalActiveEvents.forEach(ev => {
+        select.innerHTML += `<option value="${ev.date}_${ev.store}">${ev.date} - ${ev.store}</option>`;
+      });
+      select.value = currentEventKey;
+    }
+
+    function initStoreSelectOptions() {
+      const select = document.getElementById('newEventStore');
+      select.innerHTML = '';
+      for (let store in allStoresData) {
+        select.innerHTML += `<option value="${store}">${store}</option>`;
+      }
+    }
+
+    function onEventSelectChange() {
+      const val = document.getElementById('eventSelect').value;
+      currentEventKey = val;
+      currentOrder = {};
+
+      if (val === 'rules') {
+        document.getElementById('pageRules').style.display = 'block';
+        document.getElementById('pageOrder').style.display = 'none';
+        document.getElementById('footerBar').style.display = 'none';
+      } else {
+        document.getElementById('pageRules').style.display = 'none';
+        document.getElementById('pageOrder').style.display = 'block';
+        document.getElementById('footerBar').style.display = 'flex';
+
+        const [date, store] = val.split('_');
+        document.getElementById('currentStoreNameDisplay').innerText = `${date} ${store}`;
+        renderMenu(store);
+      }
+    }
+
+    function switchTab(tab) {
+      if (tab === 'order') {
+        document.getElementById('pageOrder').style.display = currentEventKey === 'rules' ? 'none' : 'block';
+        document.getElementById('pageRules').style.display = currentEventKey === 'rules' ? 'block' : 'none';
+        document.getElementById('pageCancel').style.display = 'none';
+        document.getElementById('footerBar').style.display = currentEventKey === 'rules' ? 'none' : 'flex';
+        document.getElementById('tabOrder').classList.add('active');
+        document.getElementById('tabCancel').classList.remove('active');
+      } else {
+        document.getElementById('pageRules').style.display = 'none';
+        document.getElementById('pageOrder').style.display = 'none';
+        document.getElementById('pageCancel').style.display = 'block';
+        document.getElementById('footerBar').style.display = 'none';
+        document.getElementById('tabOrder').classList.remove('active');
+        document.getElementById('tabCancel').classList.add('active');
+      }
+    }
+
+    function renderMenu(storeName) {
+      const menu = allStoresData[storeName] || [];
+      const container = document.getElementById('menuList');
+      let html = '';
+
+      menu.forEach(cat => {
+        html += `<h3 style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${cat.category}</h3>`;
+        cat.items.forEach(item => {
+          const id = item.name;
+          html += `
+            <div class="menu-item">
+              <div class="item-main">
+                <div class="item-info">
+                  <div class="item-name">${item.name}</div>
+                  <div class="item-price">$${item.price}</div>
+                </div>
+                <div class="quantity-control">
+                  <button class="btn-qty" onclick="updateQty('${id}', -1, ${item.price})">-</button>
+                  <span class="qty-display" id="qty-${id}">0</span>
+                  <button class="btn-qty" onclick="updateQty('${id}', 1, ${item.price})">+</button>
+                </div>
+              </div>
+              <div class="item-remark-input disabled-option" id="remark-group-${id}">
+                <input type="text" id="remark-${id}" placeholder="備註 (例如: 不要辣)" oninput="updateRemark('${id}')">
+              </div>
+            </div>
+          `;
+        });
+      });
+      container.innerHTML = html;
+    }
+
+    function updateQty(id, change, price) {
+      if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: price, remark: '' };
+      currentOrder[id].qty += change;
+
+      const remGroup = document.getElementById(`remark-group-${id}`);
+
+      if (currentOrder[id].qty <= 0) {
+        delete currentOrder[id];
+        document.getElementById(`qty-${id}`).innerText = 0;
+        if (remGroup) remGroup.classList.add('disabled-option');
+      } else {
+        document.getElementById(`qty-${id}`).innerText = currentOrder[id].qty;
+        if (remGroup) remGroup.classList.remove('disabled-option');
+      }
+      calculateTotal();
+    }
+
+    function updateRemark(id) {
+      if (currentOrder[id]) {
+        currentOrder[id].remark = document.getElementById(`remark-${id}`).value.trim();
+      }
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      for (let k in currentOrder) total += currentOrder[k].qty * currentOrder[k].price;
+      document.getElementById('grandTotal').innerText = total;
+      document.getElementById('btnSubmitOrder').disabled = total === 0;
+    }
+
+    async function submitOrder() {
+      const name = document.getElementById('userName').value.trim();
+      const dept = document.getElementById('userDept').value.trim();
+
+      if (!name || !dept) { alert('請填寫姓名/綽號與部門！'); return; }
+
+      const items = [];
+      let total = 0;
+      for (let k in currentOrder) {
+        items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price, remark: currentOrder[k].remark });
+        total += currentOrder[k].qty * currentOrder[k].price;
+      }
+
+      const orderData = {
+        id: 'ord_' + Date.now(),
+        eventKey: currentEventKey,
+        name, dept, items, total,
+        timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      };
+
+      showLoading(true);
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'submitOrder', order: orderData })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+          alert('點餐成功！資料已同步寫入雲端。');
+          location.reload();
+        }
+      } catch(e) {
+        alert('同步失敗，請重試！');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function printChecklist() {
+      const activeOrders = globalAllOrders.filter(o => o.eventKey === currentEventKey && !o.cancelled);
+      
+      if (activeOrders.length === 0) { alert('當前場次無點餐紀錄可供列印！'); return; }
+
+      const [date, store] = currentEventKey.split('_');
+      let html = `
+        <div style="padding:20px; font-family:sans-serif;">
+          <h2 style="text-align:center; margin-bottom:5px;">📋 ${date} ${store} - 現場領餐對帳單</h2>
+          <div style="text-align:right; font-size:12px; margin-bottom:15px;">列印時間：${new Date().toLocaleString()}</div>
+          <table style="width:100%; border-collapse:collapse;" border="1">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="width:50px; text-align:center;">已收錢</th>
+                <th style="width:120px;">姓名 (部門)</th>
+                <th>點餐品項明細</th>
+                <th style="width:80px; text-align:right;">應收金額</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      activeOrders.forEach(o => {
+        let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join(', ');
+        html += `
+          <tr>
+            <td style="text-align:center; font-size:18px;">☐</td>
+            <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
+            <td>${itemStr}</td>
+            <td style="text-align:right; font-weight:bold;">$${o.total}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('printSection').innerHTML = html;
+      document.getElementById('printSection').style.display = 'block';
+      window.print();
+      document.getElementById('printSection').style.display = 'none';
+    }
+
+    function openAdminModal() { document.getElementById('adminAuthModal').classList.add('active'); }
+    function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.remove('active'); }
+    function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
+
+    async function verifyAdminPassword() {
+      const pwd = document.getElementById('adminPasswordInput').value;
+      if (pwd === "170809") {
+        document.getElementById('adminPasswordInput').value = "";
+        closeAdminAuthModal();
+        document.getElementById('adminModal').classList.add('active');
+        renderAdminData();
+      } else {
+        alert('密碼錯誤！');
+      }
+    }
+
+    function renderAdminData() {
+      const list = document.getElementById('activeEventsList');
+      list.innerHTML = '';
+      globalActiveEvents.forEach((ev, idx) => {
+        list.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:0.85rem;">
+            <span>${ev.date} - ${ev.store}</span>
+            <button class="btn-action btn-danger" style="padding:2px 6px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
+          </div>
+        `;
+      });
+
+      const body = document.querySelector('#detailTable tbody');
+      body.innerHTML = '';
+      const eventOrders = globalAllOrders.filter(o => o.eventKey === currentEventKey);
+      eventOrders.forEach(o => {
+        let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
+        body.innerHTML += `
+          <tr>
+            <td style="text-align:center;">☐</td>
+            <td>${o.name}<br><small>${o.dept}</small></td>
+            <td>${itemStr}</td>
+            <td>$${o.total}</td>
+          </tr>
+        `;
+      });
+    }
+
+    async function addActiveEvent() {
+      const date = document.getElementById('newEventDate').value.trim();
+      const store = document.getElementById('newEventStore').value;
+      if (!date) { alert('請輸入日期！'); return; }
+
+      globalActiveEvents.push({ date, store });
+      showLoading(true);
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
+        });
+        document.getElementById('newEventDate').value = '';
+        await loadCloudData();
+        renderAdminData();
+        alert(`已成功發起【${date} - ${store}】！左上角選單已更新。`);
+      } catch(e) {
+        alert('發起失敗，請重試');
+      } finally { showLoading(false); }
+    }
+
+    async function removeActiveEvent(idx) {
+      globalActiveEvents.splice(idx, 1);
+      showLoading(true);
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
+        });
+        await loadCloudData();
+        renderAdminData();
+      } finally { showLoading(false); }
+    }
+
+    async function searchUserOrder() {
+      const name = document.getElementById('cancelName').value.trim();
+      const dept = document.getElementById('cancelDept').value.trim();
+      if(!name || !dept) { alert('請輸入姓名與部門！'); return; }
+
+      showLoading(true);
+      await loadCloudData();
+      showLoading(false);
+
+      const userOrders = globalAllOrders.filter(o => o.name === name && o.dept === dept && !o.cancelled);
+      const container = document.getElementById('userOrderResult');
+      
+      if(userOrders.length === 0) {
+        container.innerHTML = `<div class="card" style="text-align:center; color:#6b7280;">查無您的點餐紀錄。</div>`;
+        return;
+      }
+
+      let html = `<div class="card"><h2>您的點餐紀錄</h2>`;
+      userOrders.forEach(o => {
+        let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+        html += `
+          <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong>${o.eventKey}</strong><br>
+              <small>${itemStr} (共 $${o.total})</small>
+            </div>
+            <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    async function cancelOrder(orderId) {
+      if(!confirm('確定要取消這筆訂單嗎？')) return;
+      const order = globalAllOrders.find(o => o.id === orderId);
+      if(!order) return;
+      order.cancelled = true;
+
+      showLoading(true);
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateOrder', orderId: orderId, order: order })
+        });
+        alert('訂單已取消！');
+        searchUserOrder();
+      } catch(e) {
+        alert('取消失敗！');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function clearAllOrders() {
+      if(!confirm('確定要清空所有雲端點餐資料嗎？')) return;
+      showLoading(true);
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'clearAll' })
+        });
+        await loadCloudData();
+        renderAdminData();
+        alert('已清空！');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    initStoreSelectOptions();
+    loadCloudData();
+  </script>
+</body>
+</html>
