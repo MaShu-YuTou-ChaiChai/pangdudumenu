@@ -117,7 +117,6 @@
     ⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！
   </div>
 
-  <!-- 分頁按鈕：已加上 ❌ 紅色取消圖示 -->
   <div class="nav-tabs">
     <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
     <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">🔍 查詢 / ❌ 取消訂單</button>
@@ -285,7 +284,7 @@
       <h4 style="margin-top: 1rem; font-size:0.9rem; border-bottom:1px solid #ccc; padding-bottom:4px;">個人點餐與收費核對明細</h4>
       <table id="detailTable">
         <thead>
-          <tr><th>核對</th><th>批次</th><th>姓名 (部門)</th><th>餐點明細</th><th>金額</th></tr>
+          <tr><th>核對</th><th>批次</th><th>姓名 (部門)</th><th>金額</th><th>餐點明細</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -464,7 +463,6 @@
       if (exists) {
         select.value = previousValue;
       } else {
-        // 如果原本選的場次已經被關閉，自動切回首頁
         currentEventKey = "rules";
         select.value = "rules";
         onEventSelectChange();
@@ -579,8 +577,8 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
+    // 二次點餐確認前，先向雲端二次檢查場次是否尚在開放中
     async function openConfirmModal() {
-      // 提交前先向雲端確認該場次是否已被關閉
       showLoading(true);
       await loadCloudData();
       showLoading(false);
@@ -658,6 +656,7 @@
       }
     }
 
+    // 列印對帳卡：將金額移至姓名右側
     function printChecklist() {
       const selectedKey = document.getElementById('adminEventFilter').value;
       const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
@@ -672,11 +671,11 @@
           <table style="width:100%; border-collapse:collapse;" border="1">
             <thead>
               <tr style="background:#f1f5f9;">
-                <th style="width:40px; text-align:center;">已收</th>
+                <th style="width:35px; text-align:center;">已收</th>
                 <th style="width:40px; text-align:center;">批次</th>
                 <th style="width:110px;">姓名 (部門)</th>
-                <th>點餐品項明細</th>
                 <th style="width:60px; text-align:right;">金額</th>
+                <th>點餐品項明細</th>
               </tr>
             </thead>
             <tbody>
@@ -689,8 +688,8 @@
             <td style="text-align:center; font-size:14px;">☐</td>
             <td style="text-align:center;">第${o.batch || 1}單</td>
             <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
+            <td style="text-align:right; font-weight:bold; font-size:11px;">$${o.total}</td>
             <td>${itemStr}</td>
-            <td style="text-align:right; font-weight:bold;">$${o.total}</td>
           </tr>
         `;
       });
@@ -723,6 +722,7 @@
       }
     }
 
+    // 後台明細表格：金額移至姓名右側
     function renderAdminData() {
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
@@ -758,7 +758,6 @@
         return;
       }
 
-      // 渲染所有訂單（包括已取消的，並加上刪除線樣式）
       eventOrders.forEach(o => {
         let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
         let styleStr = o.cancelled ? 'text-decoration: line-through; color: #9ca3af; background: #fef2f2;' : '';
@@ -767,8 +766,8 @@
             <td style="text-align:center;">${o.cancelled ? '❌' : '☐'}</td>
             <td style="text-align:center;">第${o.batch || 1}單</td>
             <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
-            <td>${itemStr} ${o.cancelled ? '<br><b style="color:red;">(已取消)</b>' : ''}</td>
             <td><strong>$${o.total}</strong></td>
+            <td>${itemStr} ${o.cancelled ? '<br><b style="color:red;">(已取消)</b>' : ''}</td>
           </tr>
         `;
       });
@@ -778,7 +777,6 @@
 
     function calculateQuickSummary(targetBatch) {
       const selectedKey = document.getElementById('adminEventFilter').value;
-      // 快顯統計只計算未取消的有效訂單
       let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
 
       if (targetBatch !== 'all') {
