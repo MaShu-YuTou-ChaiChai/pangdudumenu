@@ -28,6 +28,9 @@
     
     .admin-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; }
 
+    /* 頂部截止時間提醒列 */
+    .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; }
+
     .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border-color); }
     .tab-btn { flex: 1; padding: 0.8rem; text-align: center; font-weight: bold; font-size: 0.95rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; }
     .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
@@ -66,11 +69,12 @@
     .modal.active { display: flex; }
     .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; padding: 1.2rem; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 8px; }
 
     .btn-action { background: #0284c7; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; margin-right: 0.3rem; margin-top: 0.4rem; }
     .btn-danger { background: var(--danger-color); }
     .btn-success { background: var(--success-color); }
+    .btn-warning { background: #f59e0b; color: white; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.8rem; }
     th, td { border: 1px solid var(--border-color); padding: 0.4rem; text-align: left; }
@@ -79,13 +83,20 @@
     .loading-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; align-items: center; justify-content: center; font-weight: bold; color: var(--primary-color); }
     .loading-overlay.active { display: flex; }
 
-    .home-grid-imgs { display: flex; gap: 10px; margin-top: 1rem; align-items: center; }
-    .home-grid-imgs img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    /* 下方狗狗照片與版框優化 (不裁切) */
+    .home-grid-imgs { display: flex; gap: 10px; margin-top: 1rem; align-items: center; background: #f8fafc; padding: 8px; border-radius: 8px; }
+    .home-grid-imgs img { width: 130px; height: 140px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
 
+    /* TOP 回至頂部按鈕 */
+    .top-btn { position: fixed; bottom: 80px; right: 15px; background: var(--primary-color); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; z-index: 99; }
+
+    /* 列印專用精簡排版 (容納高人數) */
     @media print {
       body * { visibility: hidden; }
       #printSection, #printSection * { visibility: visible; }
-      #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+      #printSection { position: absolute; left: 0; top: 0; width: 100%; font-size: 10px !important; }
+      #printSection table { width: 100%; border-collapse: collapse; }
+      #printSection th, #printSection td { padding: 2px 4px !important; border: 1px solid #000 !important; font-size: 10px !important; }
       .no-print { display: none !important; }
     }
   </style>
@@ -94,6 +105,7 @@
 
   <div class="loading-overlay" id="loadingOverlay">☁️ 雲端資料同步中，請稍候...</div>
 
+  <!-- 頂部 Header -->
   <div class="header">
     <div class="header-left">
       <div class="header-logo-container">
@@ -106,15 +118,21 @@
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
   </div>
 
+  <!-- 點餐截止時間提醒橫幅 -->
+  <div class="time-notice-bar">
+    ⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！
+  </div>
+
   <div class="nav-tabs">
     <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
     <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">❌ 取消訂單 / 🔍 查詢訂單</button>
   </div>
 
   <div class="container">
+    <!-- 首頁點餐須知與柴柴照片 -->
     <div id="pageRules">
       <div class="card">
-        <h2>🐶 胖嘟柴柴點餐平台與報餐須知</h2>
+        <h2>🐶 胖嘟柴柴點餐平台與點餐須知</h2>
         
         <div style="font-size:0.9rem; line-height:1.7; color:#334155;">
           <p style="margin-bottom:0.5rem;">歡迎公旭/群旭同仁使用點餐系統，請在點餐前遵守以下事項：</p>
@@ -135,6 +153,7 @@
       </div>
     </div>
 
+    <!-- 點餐區 -->
     <div id="pageOrder" style="display: none;">
       <div class="card">
         <h2>1. 基本資料</h2>
@@ -154,6 +173,7 @@
       </div>
     </div>
 
+    <!-- 查詢/取消訂單區 -->
     <div id="pageCancel" style="display: none;">
       <div class="card">
         <h2>🔍 查詢或取消已點餐點</h2>
@@ -172,11 +192,37 @@
     </div>
   </div>
 
+  <!-- 底部合計與送出按鈕 -->
   <div class="footer-bar" id="footerBar" style="display: none;">
     <div class="total-price">合計：$<span id="grandTotal">0</span></div>
-    <button class="btn-submit" id="btnSubmitOrder" disabled onclick="submitOrder()">確認送出點餐</button>
+    <button class="btn-submit" id="btnSubmitOrder" disabled onclick="openConfirmModal()">確認送出點餐</button>
   </div>
 
+  <!-- TOP 回至頂部按鈕 -->
+  <button class="top-btn" onclick="scrollToTop()">TOP</button>
+
+  <!-- 二次點餐確認彈窗 -->
+  <div class="modal" id="confirmModal">
+    <div class="modal-content" style="max-width:380px;">
+      <div class="modal-header">
+        <h3>📋 請確認您的點餐資料</h3>
+        <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
+      </div>
+      <div style="font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+        <p><strong>姓名/綽號：</strong><span id="confirmName"></span></p>
+        <p><strong>部門：</strong><span id="confirmDept"></span></p>
+        <p style="margin-top:0.5rem; font-weight:bold; color:var(--primary-color);">點餐品項：</p>
+        <div id="confirmItemsList" style="background:#f8fafc; padding:8px; border-radius:4px; font-size:0.85rem; margin:4px 0 8px 0;"></div>
+        <p style="font-size:1.05rem; font-weight:bold; text-align:right;">總計金額：$<span id="confirmTotal" style="color:var(--primary-color);"></span> 元</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-submit" style="flex:1; background:#6b7280;" onclick="closeConfirmModal()">返回修改</button>
+        <button class="btn-submit" style="flex:1;" onclick="submitOrder()">確定送出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理員驗證彈窗 -->
   <div class="modal" id="adminAuthModal">
     <div class="modal-content" style="max-width:320px;">
       <div class="modal-header">
@@ -191,7 +237,7 @@
     </div>
   </div>
 
-  <!-- 升級版後台管理中心 -->
+  <!-- 管理員後台控制中心 (修復 X 關閉、新增 1-3 單結算與 LINE 格式) -->
   <div class="modal" id="adminModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -211,24 +257,38 @@
         <div id="activeEventsList" style="margin-top:0.3rem;"></div>
       </div>
 
-      <!-- 後台管理功能區：選擇檢視場次 + LINE 複製 + 列印 -->
+      <!-- 後台功能區：選擇場次、結單按鈕、複製 LINE 點餐格式 -->
       <div style="margin-bottom: 1rem; background:#f8fafc; border:1px solid #cbd5e1; padding:0.8rem; border-radius:6px;">
-        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#334155;">📊 報餐統計與 LINE 格式：</div>
+        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#334155;">📊 選擇檢視與控制場次：</div>
         <div class="form-group" style="margin-bottom:0.5rem;">
-          <label style="font-size:0.8rem;">選擇要檢視統計的場次：</label>
           <select id="adminEventFilter" class="form-control" onchange="renderAdminData()" style="padding:0.4rem; font-size:0.85rem;"></select>
         </div>
-        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-          <button class="btn-action" style="background:#10b981;" onclick="copyLineOrderText()">📋 複製 LINE 報餐格式</button>
+
+        <div style="font-weight:bold; font-size:0.85rem; margin:0.6rem 0 0.3rem 0; color:#0f172a;">⚡ 階段性結算設定：</div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+          <button class="btn-action btn-warning" onclick="setBatchCutoff(1)">第 1 單結算</button>
+          <button class="btn-action btn-warning" onclick="setBatchCutoff(2)">第 2 單結算</button>
+          <button class="btn-action btn-warning" onclick="setBatchCutoff(3)">第 3 單結算</button>
+        </div>
+
+        <div style="font-weight:bold; font-size:0.85rem; margin:0.6rem 0 0.3rem 0; color:#0f172a;">📋 複製 LINE 點餐格式：</div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+          <button class="btn-action" style="background:#10b981;" onclick="copyBatchLineText(1)">第 1 單 LINE 格式</button>
+          <button class="btn-action" style="background:#10b981;" onclick="copyBatchLineText(2)">第 2 單 LINE 格式</button>
+          <button class="btn-action" style="background:#10b981;" onclick="copyBatchLineText(3)">第 3 單 LINE 格式</button>
+          <button class="btn-action" style="background:#059669;" onclick="copyBatchLineText('all')">全單彙整 LINE 格式</button>
+        </div>
+
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; border-top:1px solid #e2e8f0; padding-top:0.5rem;">
           <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印對帳卡 (☐)</button>
           <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有點餐資料</button>
         </div>
       </div>
 
-      <h4 style="margin-top: 1rem; font-size:0.9rem; border-bottom:1px solid #ccc; padding-bottom:4px;">該場次個人點餐與收費核對明細</h4>
+      <h4 style="margin-top: 1rem; font-size:0.9rem; border-bottom:1px solid #ccc; padding-bottom:4px;">個人點餐與收費核對明細</h4>
       <table id="detailTable">
         <thead>
-          <tr><th>核對</th><th>姓名 (部門)</th><th>餐點明細</th><th>金額</th></tr>
+          <tr><th>核對</th><th>批次</th><th>姓名 (部門)</th><th>餐點明細</th><th>金額</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -240,6 +300,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
 
+    // 完整 14 家店家菜單資料庫
     const allStoresData = {
       "臻可味 精緻快餐": [
         { category: "主餐便當", items: [
@@ -369,6 +430,7 @@
     let currentOrder = {};
     let globalAllOrders = [];
 
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
     async function loadCloudData() {
@@ -507,11 +569,36 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
-    async function submitOrder() {
+    // 二次送出確認彈窗
+    function openConfirmModal() {
       const name = document.getElementById('userName').value.trim();
       const dept = document.getElementById('userDept').value.trim();
 
       if (!name || !dept) { alert('請填寫姓名/綽號與部門！'); return; }
+
+      document.getElementById('confirmName').innerText = name;
+      document.getElementById('confirmDept').innerText = dept;
+
+      let itemsHtml = '';
+      let total = 0;
+      for (let k in currentOrder) {
+        itemsHtml += `<div>• ${k} x${currentOrder[k].qty} ${currentOrder[k].remark ? '('+currentOrder[k].remark+')':''}</div>`;
+        total += currentOrder[k].qty * currentOrder[k].price;
+      }
+
+      document.getElementById('confirmItemsList').innerHTML = itemsHtml;
+      document.getElementById('confirmTotal').innerText = total;
+      document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('active');
+    }
+
+    async function submitOrder() {
+      closeConfirmModal();
+      const name = document.getElementById('userName').value.trim();
+      const dept = document.getElementById('userDept').value.trim();
 
       const items = [];
       let total = 0;
@@ -520,9 +607,14 @@
         total += currentOrder[k].qty * currentOrder[k].price;
       }
 
+      // 判斷當前結單批次 (預設第 1 單)
+      const currentEvent = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+      const batchNumber = (currentEvent && currentEvent.cutoffBatch) ? currentEvent.cutoffBatch + 1 : 1;
+
       const orderData = {
         id: 'ord_' + Date.now(),
         eventKey: currentEventKey,
+        batch: batchNumber,
         name, dept, items, total,
         timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
       };
@@ -553,16 +645,17 @@
 
       const [date, store] = selectedKey.split('_');
       let html = `
-        <div style="padding:20px; font-family:sans-serif;">
-          <h2 style="text-align:center; margin-bottom:5px;">📋 ${date} ${store} - 現場領餐對帳單</h2>
-          <div style="text-align:right; font-size:12px; margin-bottom:15px;">列印時間：${new Date().toLocaleString()}</div>
+        <div style="padding:10px; font-family:sans-serif;">
+          <h3 style="text-align:center; margin-bottom:5px;">📋 ${date} ${store} - 現場領餐對帳單</h3>
+          <div style="text-align:right; font-size:10px; margin-bottom:5px;">列印時間：${new Date().toLocaleString()}</div>
           <table style="width:100%; border-collapse:collapse;" border="1">
             <thead>
               <tr style="background:#f1f5f9;">
-                <th style="width:50px; text-align:center;">已收錢</th>
-                <th style="width:120px;">姓名 (部門)</th>
+                <th style="width:40px; text-align:center;">已收</th>
+                <th style="width:40px; text-align:center;">批次</th>
+                <th style="width:110px;">姓名 (部門)</th>
                 <th>點餐品項明細</th>
-                <th style="width:80px; text-align:right;">應收金額</th>
+                <th style="width:60px; text-align:right;">金額</th>
               </tr>
             </thead>
             <tbody>
@@ -572,7 +665,8 @@
         let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join(', ');
         html += `
           <tr>
-            <td style="text-align:center; font-size:18px;">☐</td>
+            <td style="text-align:center; font-size:14px;">☐</td>
+            <td style="text-align:center;">第${o.batch || 1}單</td>
             <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
             <td>${itemStr}</td>
             <td style="text-align:right; font-weight:bold;">$${o.total}</td>
@@ -594,7 +688,9 @@
 
     function openAdminModal() { document.getElementById('adminAuthModal').classList.add('active'); }
     function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.remove('active'); }
-    function closeAdminModal() { document.getElementById('adminModal').classList.add('active'); }
+    
+    // 修復後台 X 關閉按鈕
+    function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
 
     async function verifyAdminPassword() {
       const pwd = document.getElementById('adminPasswordInput').value;
@@ -609,19 +705,17 @@
     }
 
     function renderAdminData() {
-      // 1. 渲染開放場次列表
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
       globalActiveEvents.forEach((ev, idx) => {
         list.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:0.85rem;">
-            <span>${ev.date} - ${ev.store}</span>
+            <span>${ev.date} - ${ev.store} ${ev.cutoffBatch ? '(已結算至第'+ev.cutoffBatch+'單)':''}</span>
             <button class="btn-action btn-danger" style="padding:2px 6px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
           </div>
         `;
       });
 
-      // 2. 渲染後台檢視場次的下拉選單
       const filterSelect = document.getElementById('adminEventFilter');
       const currentSelected = filterSelect.value;
       filterSelect.innerHTML = '';
@@ -633,14 +727,13 @@
         filterSelect.value = currentSelected;
       }
 
-      // 3. 根據選定的場次渲染明細表格
       const selectedKey = filterSelect.value;
       const body = document.querySelector('#detailTable tbody');
       body.innerHTML = '';
       
       const eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
       if (eventOrders.length === 0) {
-        body.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#6b7280; padding:1rem;">此場次尚無點餐紀錄</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280; padding:1rem;">此場次尚無點餐紀錄</td></tr>`;
         return;
       }
 
@@ -649,6 +742,7 @@
         body.innerHTML += `
           <tr>
             <td style="text-align:center;">☐</td>
+            <td style="text-align:center;">第${o.batch || 1}單</td>
             <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
             <td>${itemStr}</td>
             <td><strong>$${o.total}</strong></td>
@@ -657,17 +751,44 @@
       });
     }
 
-    // 複製 LINE 報餐格式
-    function copyLineOrderText() {
+    // 階段性結算設定 (第 1/2/3 單)
+    async function setBatchCutoff(batchNum) {
+      const selectedKey = document.getElementById('adminEventFilter').value;
+      if (!selectedKey) return;
+
+      const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === selectedKey);
+      if (ev) {
+        ev.cutoffBatch = batchNum;
+        showLoading(true);
+        try {
+          await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
+          });
+          renderAdminData();
+          alert(`✅ 已將【${ev.date} ${ev.store}】設定完成【第 ${batchNum} 單結算】！後續新點單將自動計入第 ${batchNum + 1} 單。`);
+        } finally {
+          showLoading(false);
+        }
+      }
+    }
+
+    // 複製分批 LINE 點餐格式
+    function copyBatchLineText(batchTarget) {
       const selectedKey = document.getElementById('adminEventFilter').value;
       if (!selectedKey) { alert('請先選擇場次！'); return; }
 
       const [date, store] = selectedKey.split('_');
-      const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
+      let activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
 
-      if (activeOrders.length === 0) { alert('此場次無點餐紀錄可供複製！'); return; }
+      if (batchTarget !== 'all') {
+        activeOrders = activeOrders.filter(o => (o.batch || 1) === batchTarget);
+      }
 
-      let text = `📢 【${date} ${store} 報餐統計】\n`;
+      if (activeOrders.length === 0) { alert(`該場次尚無【第 ${batchTarget} 單】點餐紀錄！`); return; }
+
+      let titleTag = batchTarget === 'all' ? '全單彙整' : `第 ${batchTarget} 單`;
+      let text = `📢 【${date} ${store} LINE點餐格式 - ${titleTag}】\n`;
       let itemSummary = {};
       let grandTotal = 0;
 
@@ -676,7 +797,6 @@
         let details = o.items.map(i => `${i.name} x${i.qty}${i.remark ? '('+i.remark+')':''}`).join(', ');
         text += `${index + 1}. ${o.name} (${o.dept})：${details} ($${o.total})\n`;
 
-        // 統計各品項總數
         o.items.forEach(i => {
           let key = i.name + (i.remark ? `(${i.remark})` : '');
           itemSummary[key] = (itemSummary[key] || 0) + i.qty;
@@ -691,7 +811,7 @@
       text += `--- 胖嘟柴柴系統自動彙整 ---`;
 
       navigator.clipboard.writeText(text).then(() => {
-        alert('✅ 已成功複製 LINE 報餐格式！可直接貼上至群組。');
+        alert(`✅ 已成功複製【${titleTag}】LINE 點餐格式！可直接貼上至群組。`);
       }).catch(err => {
         alert('複製失敗，請手動複製。');
       });
@@ -702,7 +822,7 @@
       const store = document.getElementById('newEventStore').value;
       if (!date) { alert('請輸入日期！'); return; }
 
-      globalActiveEvents.push({ date, store });
+      globalActiveEvents.push({ date, store, cutoffBatch: 0 });
       showLoading(true);
       try {
         await fetch(API_URL, {
@@ -754,7 +874,7 @@
         html += `
           <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <strong>${o.eventKey}</strong><br>
+              <strong>${o.eventKey} (第${o.batch || 1}單)</strong><br>
               <small>${itemStr} (總計 $${o.total})</small>
             </div>
             <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
