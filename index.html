@@ -28,7 +28,9 @@
     
     .admin-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; }
 
-    .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; }
+    /* 頂部截止提醒與倒數計時 */
+    .time-notice-bar { background-color: #e0f2fe; color: #0369a1; text-align: center; padding: 0.5rem 0.4rem; font-size: 0.85rem; font-weight: bold; border-bottom: 1px solid #bae6fd; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .countdown-badge { background: #0284c7; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; letter-spacing: 0.5px; }
 
     .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border-color); }
     .tab-btn { flex: 1; padding: 0.8rem 0.3rem; text-align: center; font-weight: bold; font-size: 0.9rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
@@ -113,8 +115,10 @@
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
   </div>
 
+  <!-- 頂部截止時間與即時倒數計時器 -->
   <div class="time-notice-bar" id="timeNoticeBar">
-    ⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！
+    <span>⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！</span>
+    <span class="countdown-badge" id="countdownTimer">⏳ 計算中...</span>
   </div>
 
   <div class="nav-tabs">
@@ -429,6 +433,34 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
+    // 實時 10:30 倒數計時器
+    function startCountdownTimer() {
+      setInterval(() => {
+        const timerEl = document.getElementById('countdownTimer');
+        if (!timerEl) return;
+
+        if (isForceUnlocked) {
+          timerEl.innerText = '🔓 管理員已開放點餐';
+          return;
+        }
+
+        const now = new Date();
+        const target = new Date();
+        target.setHours(10, 30, 0, 0);
+
+        const diff = target - now;
+
+        if (diff <= 0) {
+          timerEl.innerText = '⛔ 今日點餐已截止';
+        } else {
+          const hrs = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+          const mins = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+          const secs = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+          timerEl.innerText = `⏳ 距離截止剩餘 ${hrs}:${mins}:${secs}`;
+        }
+      }, 1000);
+    }
+
     async function loadCloudData() {
       showLoading(true);
       try {
@@ -577,7 +609,6 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
-    // 防呆：送出確認前再次向雲端確認場次是否仍有效
     async function openConfirmModal() {
       const name = document.getElementById('userName').value.trim();
       const dept = document.getElementById('userDept').value.trim();
@@ -826,14 +857,8 @@
       isForceUnlocked = !isForceUnlocked;
       const noticeBar = document.getElementById('timeNoticeBar');
       if (isForceUnlocked) {
-        noticeBar.innerHTML = '🔓 【管理員權限】已解除點餐時間限制，目前開放自由點餐！';
-        noticeBar.style.backgroundColor = '#dcfce7';
-        noticeBar.style.color = '#15803d';
         alert('✅ 已強制開放點餐！同仁現在可不受 10:30 限制繼續下單。');
       } else {
-        noticeBar.innerHTML = '⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！';
-        noticeBar.style.backgroundColor = '#e0f2fe';
-        noticeBar.style.color = '#0369a1';
         alert('🔒 已恢復標準時間限制模式。');
       }
     }
@@ -923,8 +948,19 @@
       } finally { showLoading(false); }
     }
 
+    // 關閉場次修復：同步將該關閉場次的點餐資料標記取消/隱藏
     async function removeActiveEvent(idx) {
+      const closedEvent = globalActiveEvents[idx];
+      const closedKey = `${closedEvent.date}_${closedEvent.store}`;
       globalActiveEvents.splice(idx, 1);
+
+      // 將被關閉場次的所有訂單自動標記為取消（不再顯示於查詢頁面）
+      globalAllOrders.forEach(o => {
+        if (o.eventKey === closedKey) {
+          o.cancelled = true;
+        }
+      });
+
       showLoading(true);
       try {
         await fetch(API_URL, {
@@ -933,9 +969,11 @@
         });
         await loadCloudData();
         renderAdminData();
+        alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，且已同步自動隱藏該場次之歷史查詢紀錄！`);
       } finally { showLoading(false); }
     }
 
+    // 查詢修復：搜尋後自動平滑滾動至結果卡片
     async function searchUserOrder() {
       const name = document.getElementById('cancelName').value.trim();
       const dept = document.getElementById('cancelDept').value.trim();
@@ -945,29 +983,44 @@
       await loadCloudData();
       showLoading(false);
 
-      const userOrders = globalAllOrders.filter(o => o.name === name && o.dept === dept && !o.cancelled);
+      // 篩選：姓名、部門相符、未取消，且該場次目前仍為「開放狀態」的訂單
+      const activeEventKeys = globalActiveEvents.map(e => `${e.date}_${e.store}`);
+      const userOrders = globalAllOrders.filter(o => 
+        o.name === name && 
+        o.dept === dept && 
+        !o.cancelled && 
+        activeEventKeys.includes(o.eventKey)
+      );
+
       const container = document.getElementById('userOrderResult');
       
       if(userOrders.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center; color:#6b7280;">查無您的點餐紀錄。</div>`;
-        return;
+        container.innerHTML = `<div class="card" id="userOrderCard" style="text-align:center; color:#6b7280;">查無您目前開放場次的有效點餐紀錄。</div>`;
+      } else {
+        let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
+        userOrders.forEach(o => {
+          let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+          html += `
+            <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>${o.eventKey} (第${o.batch || 1}單)</strong><br>
+                <small>${itemStr} (總計 $${o.total})</small>
+              </div>
+              <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
       }
 
-      let html = `<div class="card"><h2>您的點餐紀錄</h2>`;
-      userOrders.forEach(o => {
-        let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
-        html += `
-          <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <strong>${o.eventKey} (第${o.batch || 1}單)</strong><br>
-              <small>${itemStr} (總計 $${o.total})</small>
-            </div>
-            <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
-          </div>
-        `;
-      });
-      html += `</div>`;
-      container.innerHTML = html;
+      // 平滑滾動定位至查詢結果，確保不掉到首頁底部
+      setTimeout(() => {
+        const targetCard = document.getElementById('userOrderCard');
+        if (targetCard) {
+          targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
 
     async function cancelOrder(orderId) {
@@ -1009,6 +1062,7 @@
 
     initStoreSelectOptions();
     loadCloudData();
+    startCountdownTimer();
   </script>
 </body>
 </html>
