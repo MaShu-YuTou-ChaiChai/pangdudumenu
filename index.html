@@ -64,7 +64,7 @@
 
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
     .modal.active { display: flex; }
-    .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 550px; max-height: 85vh; overflow-y: auto; padding: 1.2rem; }
+    .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; padding: 1.2rem; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
     .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
@@ -191,6 +191,7 @@
     </div>
   </div>
 
+  <!-- 升級版後台管理中心 -->
   <div class="modal" id="adminModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -198,6 +199,7 @@
         <button class="close-btn" onclick="closeAdminModal()">&times;</button>
       </div>
 
+      <!-- 發起場次區 -->
       <div style="margin-bottom: 1rem; background:#f0f9ff; border:1px solid #7dd3fc; padding:0.8rem; border-radius:6px;">
         <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#0369a1;">📢 發起投票結果店家場次：</div>
         <div style="display:flex; gap:0.4rem; margin-bottom:0.5rem;">
@@ -209,13 +211,21 @@
         <div id="activeEventsList" style="margin-top:0.3rem;"></div>
       </div>
 
-      <div style="margin-bottom: 0.8rem; background:#edf2f7; padding:0.6rem; border-radius:6px;">
-        <div style="font-weight:bold; font-size:0.85rem; margin-bottom:0.4rem;">資料導出與列印對帳：</div>
-        <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印紙本對帳卡 (含方格 ☐)</button>
-        <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有雲端點餐資料</button>
+      <!-- 後台管理功能區：選擇檢視場次 + LINE 複製 + 列印 -->
+      <div style="margin-bottom: 1rem; background:#f8fafc; border:1px solid #cbd5e1; padding:0.8rem; border-radius:6px;">
+        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#334155;">📊 報餐統計與 LINE 格式：</div>
+        <div class="form-group" style="margin-bottom:0.5rem;">
+          <label style="font-size:0.8rem;">選擇要檢視統計的場次：</label>
+          <select id="adminEventFilter" class="form-control" onchange="renderAdminData()" style="padding:0.4rem; font-size:0.85rem;"></select>
+        </div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <button class="btn-action" style="background:#10b981;" onclick="copyLineOrderText()">📋 複製 LINE 報餐格式</button>
+          <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印對帳卡 (☐)</button>
+          <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有點餐資料</button>
+        </div>
       </div>
 
-      <h4 style="margin-top: 1rem; font-size:0.9rem;">個人點餐與收費核對明細</h4>
+      <h4 style="margin-top: 1rem; font-size:0.9rem; border-bottom:1px solid #ccc; padding-bottom:4px;">該場次個人點餐與收費核對明細</h4>
       <table id="detailTable">
         <thead>
           <tr><th>核對</th><th>姓名 (部門)</th><th>餐點明細</th><th>金額</th></tr>
@@ -228,7 +238,6 @@
   <div id="printSection" style="display:none;"></div>
 
   <script>
-    // 已更新為最新的 API 網址
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
 
     const allStoresData = {
@@ -537,11 +546,12 @@
     }
 
     function printChecklist() {
-      const activeOrders = globalAllOrders.filter(o => o.eventKey === currentEventKey && !o.cancelled);
+      const selectedKey = document.getElementById('adminEventFilter').value;
+      const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
       
-      if (activeOrders.length === 0) { alert('當前場次無點餐紀錄可供列印！'); return; }
+      if (activeOrders.length === 0) { alert('當前選擇的場次無點餐紀錄可供列印！'); return; }
 
-      const [date, store] = currentEventKey.split('_');
+      const [date, store] = selectedKey.split('_');
       let html = `
         <div style="padding:20px; font-family:sans-serif;">
           <h2 style="text-align:center; margin-bottom:5px;">📋 ${date} ${store} - 現場領餐對帳單</h2>
@@ -584,7 +594,7 @@
 
     function openAdminModal() { document.getElementById('adminAuthModal').classList.add('active'); }
     function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.remove('active'); }
-    function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
+    function closeAdminModal() { document.getElementById('adminModal').classList.add('active'); }
 
     async function verifyAdminPassword() {
       const pwd = document.getElementById('adminPasswordInput').value;
@@ -599,6 +609,7 @@
     }
 
     function renderAdminData() {
+      // 1. 渲染開放場次列表
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
       globalActiveEvents.forEach((ev, idx) => {
@@ -610,19 +621,79 @@
         `;
       });
 
+      // 2. 渲染後台檢視場次的下拉選單
+      const filterSelect = document.getElementById('adminEventFilter');
+      const currentSelected = filterSelect.value;
+      filterSelect.innerHTML = '';
+      globalActiveEvents.forEach(ev => {
+        const key = `${ev.date}_${ev.store}`;
+        filterSelect.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
+      });
+      if (currentSelected && [...filterSelect.options].some(o => o.value === currentSelected)) {
+        filterSelect.value = currentSelected;
+      }
+
+      // 3. 根據選定的場次渲染明細表格
+      const selectedKey = filterSelect.value;
       const body = document.querySelector('#detailTable tbody');
       body.innerHTML = '';
-      const eventOrders = globalAllOrders.filter(o => o.eventKey === currentEventKey);
+      
+      const eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
+      if (eventOrders.length === 0) {
+        body.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#6b7280; padding:1rem;">此場次尚無點餐紀錄</td></tr>`;
+        return;
+      }
+
       eventOrders.forEach(o => {
         let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
         body.innerHTML += `
           <tr>
             <td style="text-align:center;">☐</td>
-            <td>${o.name}<br><small>${o.dept}</small></td>
+            <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
             <td>${itemStr}</td>
-            <td>$${o.total}</td>
+            <td><strong>$${o.total}</strong></td>
           </tr>
         `;
+      });
+    }
+
+    // 複製 LINE 報餐格式
+    function copyLineOrderText() {
+      const selectedKey = document.getElementById('adminEventFilter').value;
+      if (!selectedKey) { alert('請先選擇場次！'); return; }
+
+      const [date, store] = selectedKey.split('_');
+      const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
+
+      if (activeOrders.length === 0) { alert('此場次無點餐紀錄可供複製！'); return; }
+
+      let text = `📢 【${date} ${store} 報餐統計】\n`;
+      let itemSummary = {};
+      let grandTotal = 0;
+
+      activeOrders.forEach((o, index) => {
+        grandTotal += o.total;
+        let details = o.items.map(i => `${i.name} x${i.qty}${i.remark ? '('+i.remark+')':''}`).join(', ');
+        text += `${index + 1}. ${o.name} (${o.dept})：${details} ($${o.total})\n`;
+
+        // 統計各品項總數
+        o.items.forEach(i => {
+          let key = i.name + (i.remark ? `(${i.remark})` : '');
+          itemSummary[key] = (itemSummary[key] || 0) + i.qty;
+        });
+      });
+
+      text += `\n📦 【總計品項】\n`;
+      for (let k in itemSummary) {
+        text += `- ${k}：${itemSummary[k]} 份\n`;
+      }
+      text += `\n💰 總金額：$${grandTotal} 元\n`;
+      text += `--- 胖嘟柴柴系統自動彙整 ---`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ 已成功複製 LINE 報餐格式！可直接貼上至群組。');
+      }).catch(err => {
+        alert('複製失敗，請手動複製。');
       });
     }
 
@@ -684,7 +755,7 @@
           <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
             <div>
               <strong>${o.eventKey}</strong><br>
-              <small>${itemStr} (共 $${o.total})</small>
+              <small>${itemStr} (總計 $${o.total})</small>
             </div>
             <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
           </div>
