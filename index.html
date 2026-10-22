@@ -577,8 +577,25 @@
       document.getElementById('btnSubmitOrder').disabled = total === 0;
     }
 
-    // 二次點餐確認前，先向雲端二次檢查場次是否尚在開放中
+    // 防呆：送出確認前再次向雲端確認場次是否仍有效
     async function openConfirmModal() {
+      const name = document.getElementById('userName').value.trim();
+      const dept = document.getElementById('userDept').value.trim();
+
+      if (!name || !dept) { 
+        alert('⚠️ 請務必填寫「姓名或綽號」與「部門」！'); 
+        return; 
+      }
+
+      let total = 0;
+      for (let k in currentOrder) {
+        total += currentOrder[k].qty * currentOrder[k].price;
+      }
+      if (total <= 0) {
+        alert('⚠️ 請至少選擇一項餐點！');
+        return;
+      }
+
       showLoading(true);
       await loadCloudData();
       showLoading(false);
@@ -590,20 +607,13 @@
         return;
       }
 
-      const name = document.getElementById('userName').value.trim();
-      const dept = document.getElementById('userDept').value.trim();
-
-      if (!name || !dept) { alert('請填寫姓名/綽號與部門！'); return; }
-
       document.getElementById('confirmName').innerText = name;
       document.getElementById('confirmDept').innerText = dept;
 
       let itemsHtml = '';
-      let total = 0;
       for (let k in currentOrder) {
         const itemTotal = currentOrder[k].qty * currentOrder[k].price;
         itemsHtml += `<div>• ${k} x${currentOrder[k].qty} ($${itemTotal}) ${currentOrder[k].remark ? '['+currentOrder[k].remark+']':''}</div>`;
-        total += itemTotal;
       }
 
       document.getElementById('confirmItemsList').innerHTML = itemsHtml;
@@ -656,7 +666,6 @@
       }
     }
 
-    // 列印對帳卡：將金額移至姓名右側
     function printChecklist() {
       const selectedKey = document.getElementById('adminEventFilter').value;
       const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
@@ -722,7 +731,6 @@
       }
     }
 
-    // 後台明細表格：金額移至姓名右側
     function renderAdminData() {
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
