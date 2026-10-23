@@ -46,6 +46,11 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
     .form-group input, .form-group select { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; }
 
+    /* 分類快速導覽列 */
+    .category-nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 1rem; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    .category-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+    .category-btn:hover { background: #e0f2fe; color: var(--primary-color); border-color: #7dd3fc; }
+
     .menu-item { display: flex; flex-direction: column; padding: 0.7rem 0; border-bottom: 1px solid var(--border-color); }
     .menu-item:last-child { border-bottom: none; }
     .item-main { display: flex; justify-content: space-between; align-items: center; }
@@ -53,7 +58,7 @@
     .item-name { font-weight: bold; font-size: 0.95rem; }
     .item-price { color: #6b7280; font-size: 0.85rem; margin-top: 0.1rem; }
     
-    .item-options { display: flex; gap: 12px; margin-top: 6px; font-size: 0.8rem; color: #475569; font-weight: bold; }
+    .item-options { display: flex; gap: 12px; margin-top: 6px; font-size: 0.8rem; color: #475569; font-weight: bold; flex-wrap: wrap; }
     .item-options label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
     .item-options input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
 
@@ -93,7 +98,6 @@
     .home-grid-imgs { display: flex; gap: 12px; margin-top: 1rem; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px; }
     .home-grid-imgs img { width: 110px; height: 120px; object-fit: contain; border-radius: 6px; flex-shrink: 0; order: 2; }
     
-    /* 聊天對話框造型 */
     .speech-bubble {
       flex: 1;
       position: relative;
@@ -109,7 +113,6 @@
       order: 1;
       line-height: 1.6;
     }
-    /* 漫畫對話框小尖角 (指向右側的狗狗) */
     .speech-bubble::after {
       content: '';
       position: absolute;
@@ -202,6 +205,7 @@
 
       <div class="card">
         <h2>2. 選擇餐點 (<span id="currentStoreNameDisplay">未選擇</span>)</h2>
+        <div id="categoryNavContainer" class="category-nav"></div>
         <div id="menuList"></div>
       </div>
     </div>
@@ -362,12 +366,41 @@
         ]}
       ],
       "好卷不見": [
-        { category: "海苔飯卷/便當", items: [
-          { name: "泡菜燒肉卷", price: 70 }, { name: "泡菜牛肉卷", price: 85 },
-          { name: "原味燒肉卷", price: 70 }, { name: "辣味燒肉卷", price: 75 },
-          { name: "忠武飯卷", price: 110 }, { name: "輕食餐盒(無飯)", price: 115 },
-          { name: "速便當", price: 95 }, { name: "柴魚烏龍麵", price: 90 },
-          { name: "辛拉麵", price: 100 }
+        { category: "🍙 海苔飯卷", items: [
+          { name: "泡菜燒肉", price: 70 }, { name: "泡菜牛肉", price: 85 }, { name: "泡菜鮪魚", price: 75 }, { name: "泡菜燻雞", price: 75 }, { name: "泡菜豬排", price: 75 },
+          { name: "辣味燒肉", price: 75 }, { name: "辣味牛肉", price: 85 }, { name: "辣味豬排", price: 75 }, { name: "辣味燻雞", price: 75 }, { name: "辣味雞條", price: 75 },
+          { name: "原味燒肉", price: 70 }, { name: "原味牛肉", price: 85 }, { name: "原味豬排", price: 70 }, { name: "原味燻雞", price: 70 }, { name: "原味雞條", price: 70 },
+          { name: "大漢香腸", price: 60 }, { name: "肉鬆玉米蛋", price: 60 }, { name: "鮪魚玉米", price: 60 }, { name: "蛋蛋雞卷(無飯)", price: 85 },
+          { name: "牛蒡香鬆(素)", price: 70 }, { name: "全部是菜(素)", price: 70 }, { name: "香鬆玉米蛋(素食)", price: 60 },
+          { name: "龍蝦沙拉", price: 85 }, { name: "龍蝦鮪魚", price: 85 }, { name: "龍蝦蟹肉", price: 85 }
+        ]},
+        { category: "🍱 拌飯 / 丼飯", items: [
+          { name: "泡菜系 燒肉", price: 105, optType: "rice_bowl" }, { name: "泡菜系 豬排", price: 105, optType: "rice_bowl" }, { name: "泡菜系 嫩雞", price: 105, optType: "rice_bowl" }, { name: "泡菜系 牛肉", price: 110, optType: "rice_bowl" },
+          { name: "原味系 燒肉", price: 100, optType: "rice_bowl" }, { name: "原味系 牛肉", price: 105, optType: "rice_bowl" }, { name: "原味系 豬排", price: 100, optType: "rice_bowl" }, { name: "原味系 嫩雞", price: 100, optType: "rice_bowl" }, { name: "原味系 全部是菜(素)", price: 100, optType: "rice_bowl" },
+          { name: "雙拼系 燒肉豬排", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉香腸", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉嫩雞", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉牛肉", price: 110, optType: "rice_bowl" }, { name: "雙拼系 香腸豬排", price: 110, optType: "rice_bowl" },
+          { name: "經典烤肉拌飯(辣)", price: 130, optType: "rice_bowl" }, { name: "壽喜豬肉丼飯", price: 95, optType: "rice_bowl" }, { name: "壽喜牛肉丼飯", price: 110, optType: "rice_bowl" }
+        ]},
+        { category: "🍱 餐盒系列", items: [
+          { name: "忠武飯卷", price: 110, optType: "chungwu" },
+          { name: "輕食餐盒(無飯)", price: 115, optType: "light_box" },
+          { name: "忠武兒童餐盒", price: 85 },
+          { name: "速便當(平日午餐供應)", price: 95 }
+        ]},
+        { category: "🍜 麵食系列", items: [
+          { name: "德國香腸飯卷", price: 80 }, { name: "GDF原/辣三軍飯卷", price: 90 }, { name: "GDF原/辣三軍拌飯", price: 110 }, { name: "烏龍冷麵(夏季供應)", price: 90 }, { name: "芽花湯泡飯", price: 55 },
+          { name: "柴魚烏龍麵(湯)", price: 90 }, { name: "泡菜烏龍麵(湯)", price: 100 }, { name: "麻辣燒肉(乾)", price: 100 }, { name: "壽喜豬肉(乾)", price: 95 }, { name: "壽喜嫩雞(乾)", price: 95 },
+          { name: "辣炒年糕", price: 90 }, { name: "不辣的炒年糕", price: 90 }, { name: "年糕炒泡麵", price: 100, optType: "tteokbokki_noodle" },
+          { name: "辛拉麵", price: 100, optType: "shin_ramen" }, { name: "奶奶Q拉麵", price: 120 }
+        ]},
+        { category: "🥗 經典小菜", items: [
+          { name: "韓式甜漬蘿蔔", price: 40 }, { name: "涼拌海帶芽", price: 40 }, { name: "日式牛蒡絲", price: 40 },
+          { name: "韓式泡菜", price: 55 }, { name: "日式嫩蘿蔔", price: 55 }, { name: "醬燒杏包菇", price: 70 }
+        ]},
+        { category: "🍲 湯品系列", items: [
+          { name: "蛋花湯", price: 25 }, { name: "海帶芽湯", price: 35 }, { name: "玉米濃湯(冬季供應)", price: 50 }
+        ]},
+        { category: "🥤 飲料系列", items: [
+          { name: "麥仔香紅茶", price: 25 }, { name: "麥仔香奶茶", price: 35 }
         ]}
       ],
       "日日鴻 咖哩炒麵": [
@@ -395,25 +428,11 @@
       ],
       "湘園 燒臘": [
         { category: "港式燒臘便當系列", items: [
-          { name: "招牌飯", price: 95 },
-          { name: "烤雞腿飯", price: 95 },
-          { name: "炸雞腿飯", price: 95 },
-          { name: "滷雞腿飯", price: 95 },
-          { name: "臘味飯", price: 95 },
-          { name: "三寶飯", price: 95 },
-          { name: "叉鴨飯", price: 95 },
-          { name: "叉雞飯", price: 95 },
-          { name: "雞鴨飯", price: 95 },
-          { name: "化皮燒肉飯", price: 95 },
-          { name: "燒鴨飯", price: 95 },
-          { name: "油雞飯", price: 95 },
-          { name: "炸燒肉飯", price: 95 },
-          { name: "叉燒飯", price: 95 },
-          { name: "豬腳飯", price: 95 },
-          { name: "控肉飯", price: 95 },
-          { name: "香腸飯", price: 95 },
-          { name: "特餐", price: 95 },
-          { name: "菜飯", price: 80 }
+          { name: "招牌飯", price: 95 }, { name: "烤雞腿飯", price: 95 }, { name: "炸雞腿飯", price: 95 }, { name: "滷雞腿飯", price: 95 },
+          { name: "臘味飯", price: 95 }, { name: "三寶飯", price: 95 }, { name: "叉鴨飯", price: 95 }, { name: "叉雞飯", price: 95 },
+          { name: "雞鴨飯", price: 95 }, { name: "化皮燒肉飯", price: 95 }, { name: "燒鴨飯", price: 95 }, { name: "油雞飯", price: 95 },
+          { name: "炸燒肉飯", price: 95 }, { name: "叉燒飯", price: 95 }, { name: "豬腳飯", price: 95 }, { name: "控肉飯", price: 95 },
+          { name: "香腸飯", price: 95 }, { name: "特餐", price: 95 }, { name: "菜飯", price: 80 }
         ]}
       ],
       "花蓮扁食": [
@@ -703,15 +722,67 @@
       scrollToTop();
     }
 
+    function scrollToCategory(catId) {
+      const el = document.getElementById(catId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
     function renderMenu(storeName) {
       const menu = allStoresData[storeName] || [];
       const container = document.getElementById('menuList');
+      const navContainer = document.getElementById('categoryNavContainer');
+      
+      let navHtml = '';
       let html = '';
 
-      menu.forEach(cat => {
-        html += `<h3 style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${cat.category}</h3>`;
+      menu.forEach((cat, cIdx) => {
+        const catId = `cat-${cIdx}`;
+        navHtml += `<button class="category-btn" onclick="scrollToCategory('${catId}')">${cat.category}</button>`;
+
+        html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${cat.category}</h3>`;
+        
         cat.items.forEach(item => {
           const id = item.name;
+          
+          // 根據 optType 生成對應的勾選選項
+          let optionsHtml = '';
+          if (item.optType === 'tteokbokki_noodle') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="tteok-orig-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'orig')"> 原味</label>
+                <label><input type="checkbox" id="tteok-spicy-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'spicy')"> 辣味</label>
+              </div>`;
+          } else if (item.optType === 'shin_ramen') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="shin-kimchi-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'kimchi')"> 泡菜</label>
+                <label><input type="checkbox" id="shin-milk-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'milk')"> 牛奶</label>
+                <label><input type="checkbox" id="shin-cheese-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'cheese')"> 起司 +$10</label>
+              </div>`;
+          } else if (item.optType === 'rice_bowl') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="rb-rice-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'rice')"> 拌飯</label>
+                <label><input type="checkbox" id="rb-bowl-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'bowl')"> 丼飯</label>
+              </div>`;
+          } else if (item.optType === 'chungwu' || item.optType === 'light_box') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="meat-chicken-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'chicken')"> 雞肉</label>
+                <label><input type="checkbox" id="meat-pork-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'pork')"> 豬肉</label>
+                <label><input type="checkbox" id="meat-beef-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'beef')"> 牛肉 +10元</label>
+              </div>`;
+          } else {
+            // 預設標準飯類或一般品項的 半飯/不飯 選項
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="halfRice-${id}" onchange="toggleRiceOption('${id}', 'half')"> 半飯</label>
+                <label><input type="checkbox" id="noRice-${id}" onchange="toggleRiceOption('${id}', 'no')"> 不飯</label>
+              </div>`;
+          }
+
           html += `
             <div class="menu-item">
               <div class="item-main">
@@ -720,30 +791,28 @@
                   <div class="item-price">$${item.price}</div>
                 </div>
                 <div class="quantity-control">
-                  <button class="btn-qty" onclick="updateQty('${id}', -1, ${item.price})">-</button>
+                  <button class="btn-qty" onclick="updateQty('${id}', -1, ${item.price}, '${item.optType || ''}')">-</button>
                   <span class="qty-display" id="qty-${id}">0</span>
-                  <button class="btn-qty" onclick="updateQty('${id}', 1, ${item.price})">+</button>
+                  <button class="btn-qty" onclick="updateQty('${id}', 1, ${item.price}, '${item.optType || ''}')">+</button>
                 </div>
               </div>
               
-              <div class="item-options disabled-option" id="options-group-${id}">
-                <label><input type="checkbox" id="halfRice-${id}" onchange="toggleRiceOption('${id}', 'half')"> 半飯</label>
-                <label><input type="checkbox" id="noRice-${id}" onchange="toggleRiceOption('${id}', 'no')"> 不飯</label>
-              </div>
+              ${optionsHtml}
 
               <div class="item-remark-input disabled-option" id="remark-group-${id}">
-                <input type="text" id="remark-${id}" placeholder="其他備註 (例如: 不要辣)" oninput="updateRemark('${id}')" onclick="checkRemarkClick(event)">
+                <input type="text" id="remark-${id}" placeholder="其他備註 (例如: 不要辣)" oninput="updateRemark('${id}', '${item.optType || ''}')" onclick="checkRemarkClick(event)">
               </div>
             </div>
           `;
         });
       });
+
+      navContainer.innerHTML = navHtml;
       container.innerHTML = html;
     }
 
     function toggleRiceOption(id, type) {
       if (isEventExpired()) return;
-
       const halfBox = document.getElementById(`halfRice-${id}`);
       const noBox = document.getElementById(`noRice-${id}`);
 
@@ -752,8 +821,39 @@
       } else if (type === 'no' && noBox.checked) {
         if (halfBox) halfBox.checked = false;
       }
+      updateRemark(id, '');
+    }
 
-      updateRemark(id);
+    function toggleSpecialOption(id, group, type) {
+      if (isEventExpired()) return;
+
+      if (group === 'tteok') {
+        const orig = document.getElementById(`tteok-orig-${id}`);
+        const spicy = document.getElementById(`tteok-spicy-${id}`);
+        if (type === 'orig' && orig.checked) spicy.checked = false;
+        if (type === 'spicy' && spicy.checked) orig.checked = false;
+      } else if (group === 'shin') {
+        const kimchi = document.getElementById(`shin-kimchi-${id}`);
+        const milk = document.getElementById(`shin-milk-${id}`);
+        const cheese = document.getElementById(`shin-cheese-${id}`);
+        if (type === 'kimchi' && kimchi.checked) { milk.checked = false; cheese.checked = false; }
+        if (type === 'milk' && milk.checked) { kimchi.checked = false; cheese.checked = false; }
+        if (type === 'cheese' && cheese.checked) { kimchi.checked = false; milk.checked = false; }
+      } else if (group === 'rb') {
+        const rbRice = document.getElementById(`rb-rice-${id}`);
+        const rbBowl = document.getElementById(`rb-bowl-${id}`);
+        if (type === 'rice' && rbRice.checked) rbBowl.checked = false;
+        if (type === 'bowl' && rbBowl.checked) rbRice.checked = false;
+      } else if (group === 'meat') {
+        const c = document.getElementById(`meat-chicken-${id}`);
+        const p = document.getElementById(`meat-pork-${id}`);
+        const b = document.getElementById(`meat-beef-${id}`);
+        if (type === 'chicken' && c.checked) { p.checked = false; b.checked = false; }
+        if (type === 'pork' && p.checked) { c.checked = false; b.checked = false; }
+        if (type === 'beef' && b.checked) { c.checked = false; p.checked = false; }
+      }
+
+      updateRemark(id, group === 'meat' ? 'chungwu' : (group === 'rb' ? 'rice_bowl' : (group === 'shin' ? 'shin_ramen' : 'tteokbokki_noodle')));
     }
 
     function checkRemarkClick(e) {
@@ -764,7 +864,7 @@
       }
     }
 
-    function updateQty(id, change, price) {
+    function updateQty(id, change, basePrice, optType) {
       if (isEventExpired()) {
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
         if (curEv && curEv.cutoffBatch >= 3) {
@@ -775,7 +875,20 @@
         return;
       }
 
-      if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: price, remark: '' };
+      // 計算動態價格（若勾選起司或牛肉需加 10 元）
+      let finalPrice = basePrice;
+      if (optType === 'shin_ramen') {
+        const cheeseBox = document.getElementById(`shin-cheese-${id}`);
+        if (cheeseBox && cheeseBox.checked) finalPrice += 10;
+      } else if (optType === 'chungwu' || optType === 'light_box') {
+        const beefBox = document.getElementById(`meat-beef-${id}`);
+        if (beefBox && beefBox.checked) finalPrice += 10;
+      }
+
+      if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: finalPrice, basePrice: basePrice, optType: optType, remark: '' };
+      
+      // 更新價格（如果品項價格有因選項改變）
+      currentOrder[id].price = finalPrice;
       currentOrder[id].qty += change;
 
       const optGroup = document.getElementById(`options-group-${id}`);
@@ -785,11 +898,10 @@
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
         
-        const halfBox = document.getElementById(`halfRice-${id}`);
-        const noBox = document.getElementById(`noRice-${id}`);
+        // 清除所有勾選與備註
+        const checkboxes = document.querySelectorAll(`[id*="-${id}"]`);
+        checkboxes.forEach(cb => { if(cb.type === 'checkbox') cb.checked = false; });
         const textRemark = document.getElementById(`remark-${id}`);
-        if (halfBox) halfBox.checked = false;
-        if (noBox) noBox.checked = false;
         if (textRemark) textRemark.value = '';
 
         if (optGroup) optGroup.classList.add('disabled-option');
@@ -802,19 +914,37 @@
       calculateTotal();
     }
 
-    function updateRemark(id) {
+    function updateRemark(id, optType) {
       if (isEventExpired()) return;
       if (currentOrder[id]) {
         let remarks = [];
-        const halfBox = document.getElementById(`halfRice-${id}`);
-        const noBox = document.getElementById(`noRice-${id}`);
-        const textRemark = document.getElementById(`remark-${id}`).value.trim();
+        
+        if (optType === 'tteokbokki_noodle') {
+          if (document.getElementById(`tteok-orig-${id}`)?.checked) remarks.push('原味');
+          if (document.getElementById(`tteok-spicy-${id}`)?.checked) remarks.push('辣味');
+        } else if (optType === 'shin_ramen') {
+          if (document.getElementById(`shin-kimchi-${id}`)?.checked) remarks.push('泡菜');
+          if (document.getElementById(`shin-milk-${id}`)?.checked) remarks.push('牛奶');
+          if (document.getElementById(`shin-cheese-${id}`)?.checked) { remarks.push('起司'); currentOrder[id].price = currentOrder[id].basePrice + 10; }
+          else { currentOrder[id].price = currentOrder[id].basePrice; }
+        } else if (optType === 'rice_bowl') {
+          if (document.getElementById(`rb-rice-${id}`)?.checked) remarks.push('拌飯');
+          if (document.getElementById(`rb-bowl-${id}`)?.checked) remarks.push('丼飯');
+        } else if (optType === 'chungwu' || optType === 'light_box') {
+          if (document.getElementById(`meat-chicken-${id}`)?.checked) remarks.push('雞肉');
+          if (document.getElementById(`meat-pork-${id}`)?.checked) remarks.push('豬肉');
+          if (document.getElementById(`meat-beef-${id}`)?.checked) { remarks.push('牛肉'); currentOrder[id].price = currentOrder[id].basePrice + 10; }
+          else { currentOrder[id].price = currentOrder[id].basePrice; }
+        } else {
+          if (document.getElementById(`halfRice-${id}`)?.checked) remarks.push('半飯');
+          if (document.getElementById(`noRice-${id}`)?.checked) remarks.push('不飯');
+        }
 
-        if (halfBox && halfBox.checked) remarks.push('半飯');
-        if (noBox && noBox.checked) remarks.push('不飯');
+        const textRemark = document.getElementById(`remark-${id}`).value.trim();
         if (textRemark) remarks.push(textRemark);
 
         currentOrder[id].remark = remarks.join('，');
+        calculateTotal();
       }
     }
 
