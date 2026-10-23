@@ -1223,7 +1223,7 @@
       const batchNumber = (currentEvent && currentEvent.cutoffBatch) ? currentEvent.cutoffBatch + 1 : 1;
 
       const orderData = {
-        id: 'ord_' + Date.now(),
+        id: 'ord_' + crypto.randomUUID(), // V8：UUID，不再以毫秒時間作為唯一編號。
         eventKey: currentEventKey,
         batch: batchNumber,
         name, dept, items, total,
