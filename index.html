@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>胖嘟柴柴點餐平台</title>
+  <title>胖嘟嘟柴柴點餐平台</title>
   <style>
     :root {
       --primary-color: #0284c7;
@@ -157,14 +157,14 @@
   </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">✍️ 我要點餐</button>
+    <button class="tab-btn active" id="tabOrder" onclick="switchTab('order')">🐾 我要點餐</button>
     <button class="tab-btn" id="tabCancel" onclick="switchTab('cancel')">🔍 查詢 / ❌ 取消訂單</button>
   </div>
 
   <div class="container">
     <div id="pageRules">
       <div class="card">
-        <h2>🐶 胖嘟柴柴點餐平台與點餐須知</h2>
+        <h2>🐶 胖嘟嘟柴柴點餐平台與點餐須知</h2>
         
         <div style="font-size:0.88rem; line-height:1.7; color:#334155;">
           <p style="margin-bottom:0.5rem;">歡迎公旭/群旭同仁使用點餐系統，請在點餐前遵守以下事項：</p>
@@ -268,7 +268,7 @@
   <div class="modal" id="adminModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>胖嘟柴柴後台控制中心</h3>
+        <h3>胖嘟嘟柴柴後台控制中心</h3>
         <button class="close-btn" onclick="closeAdminModal()">&times;</button>
       </div>
 
@@ -1204,7 +1204,7 @@
         text += `- ${k}：${itemSummary[k]} 份\n`;
       });
       text += `\n💰 總金額：$${grandTotal} 元\n`;
-      text += `--- 胖嘟柴柴系統自動彙整 ---`;
+      text += `--- 胖嘟嘟柴柴系統自動彙整 ---`;
 
       navigator.clipboard.writeText(text).then(() => {
         alert(`✅ 已成功複製【${titleTag}】LINE 點餐格式！可直接貼上至群組。`);
