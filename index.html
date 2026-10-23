@@ -1080,13 +1080,13 @@
       const store = document.getElementById('newEventStore').value;
       if (!rawDate) { alert('請選擇日期！'); return; }
 
-      // 自動計算星期幾 (例如: 週一、週二...)
-      const d = new Date(rawDate);
+      // 自動計算星期幾 (支援時區與正確日期字串解析)
+      const parts = rawDate.split('-');
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
       const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
       const weekString = weekdays[d.getDay()];
 
-      const dateParts = rawDate.split('-');
-      const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])} (${weekString})`;
+      const formattedDate = `${parseInt(parts[1])}/${parseInt(parts[2])} (${weekString})`;
 
       globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false });
       showLoading(true);
