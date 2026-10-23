@@ -255,7 +255,7 @@
         <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem;">
           <button class="btn-action btn-warning" onclick="setBatchCutoff(1)">第 1 單結算</button>
           <button class="btn-action btn-warning" onclick="setBatchCutoff(2)">第 2 單結算</button>
-          <button class="btn-action btn-warning" onclick="setBatchCutoff(3)">第 3 單結算</button>
+          <button class="btn-action btn-warning" onclick="setBatchCutoff(3)">第 3 單結算 (完全截止)</button>
         </div>
 
         <div style="font-weight:bold; font-size:0.85rem; margin:0.6rem 0 0.3rem 0; color:#0f172a;">📋 複製 LINE 點餐格式：</div>
@@ -454,9 +454,15 @@
       return cutoffDate;
     }
 
+    // 關鍵判斷：判定是否截止（包含第 3 單結算完全鎖定）
     function isEventExpired() {
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
-      if (curEv && curEv.alwaysOpen) return false;
+      if (!curEv) return false;
+
+      // 若管理員已結算至第 3 單 (cutoffBatch >= 3)，強制判定完全截止
+      if (curEv.cutoffBatch >= 3) return true;
+
+      if (curEv.alwaysOpen) return false;
 
       const targetTime = getTargetCutoffTime();
       if (!targetTime) return false;
@@ -470,6 +476,17 @@
         if (!timerEl) return;
 
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+        
+        // 若已完成 3 單結算
+        if (curEv && curEv.cutoffBatch >= 3) {
+          timerEl.innerText = '⛔ 今日點餐已完結 (已完成3單)';
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = '🔒 點餐已完結 (已滿3單)';
+          }
+          return;
+        }
+
         if (curEv && curEv.alwaysOpen) {
           timerEl.innerText = '🔓 全天開放點餐中';
           if (submitBtn && calculateGrandTotalValue() > 0) {
@@ -569,7 +586,6 @@
       currentEventKey = val;
       currentOrder = {};
 
-      // 若目前停留在「查詢」分頁，切換菜單時不強制切回點餐頁
       const isCancelTabActive = document.getElementById('tabCancel').classList.contains('active');
 
       if (val === 'rules') {
@@ -589,10 +605,8 @@
       scrollToTop();
     }
 
-    // 重點修正：頁面分頁切換邏輯
     function switchTab(tab) {
       if (tab === 'order') {
-        // 我要點餐分頁
         document.getElementById('pageRules').style.display = currentEventKey === 'rules' ? 'block' : 'none';
         document.getElementById('pageOrder').style.display = currentEventKey === 'rules' ? 'none' : 'block';
         document.getElementById('pageCancel').style.display = 'none';
@@ -601,7 +615,7 @@
         document.getElementById('tabOrder').classList.add('active');
         document.getElementById('tabCancel').classList.remove('active');
       } else {
-        // 查詢 / 取消訂單分頁 (不管選單選什麼，一律隱藏首頁與點餐頁)
+        // 嚴格隔離：切到查詢分頁時，首頁須知必為隱藏 (display: none)
         document.getElementById('pageRules').style.display = 'none';
         document.getElementById('pageOrder').style.display = 'none';
         document.getElementById('pageCancel').style.display = 'block';
@@ -649,13 +663,18 @@
       if (isEventExpired()) {
         e.preventDefault();
         e.target.blur();
-        alert('⚠️ 點餐時間已截止，無法修改餐點備註！');
+        alert('⚠️ 點餐已截止，無法修改餐點備註！');
       }
     }
 
     function updateQty(id, change, price) {
       if (isEventExpired()) {
-        alert('⚠️ 點餐時間已截止，無法新增或修改餐點！');
+        const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+        if (curEv && curEv.cutoffBatch >= 3) {
+          alert('⚠️ 此場次已完成【第 3 單結算】，點餐已全單完結，無法再加點！');
+        } else {
+          alert('⚠️ 點餐時間已截止，無法新增或修改餐點！');
+        }
         return;
       }
 
@@ -687,7 +706,12 @@
       document.getElementById('grandTotal').innerText = total;
       
       const submitBtn = document.getElementById('btnSubmitOrder');
-      if (isEventExpired()) {
+      const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+
+      if (curEv && curEv.cutoffBatch >= 3) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = '🔒 點餐已完結 (已滿3單)';
+      } else if (isEventExpired()) {
         submitBtn.disabled = true;
         submitBtn.innerText = '🔒 點餐時間已截止';
       } else {
@@ -698,7 +722,7 @@
 
     async function openConfirmModal() {
       if (isEventExpired()) {
-        alert('⚠️ 點餐時間已截止，無法繼續下單！');
+        alert('⚠️ 點餐已截止，無法繼續下單！');
         return;
       }
 
@@ -857,10 +881,11 @@
       globalActiveEvents.forEach((ev, idx) => {
         const toggleBtnLabel = ev.alwaysOpen ? '🔓 全天開放' : '⏰ 限時 10:30';
         const toggleBtnBg = ev.alwaysOpen ? '#f59e0b' : '#0284c7';
-        
+        const batchStatusTag = ev.cutoffBatch >= 3 ? ' <b style="color:red;">(已全單截止)</b>' : (ev.cutoffBatch ? `(已結算第${ev.cutoffBatch}單)` : '');
+
         list.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:0.85rem; border:1px solid #e2e8f0;">
-            <span style="font-weight:bold;">${ev.date} - ${ev.store} ${ev.cutoffBatch ? '(已結算第'+ev.cutoffBatch+'單)':''}</span>
+            <span style="font-weight:bold;">${ev.date} - ${ev.store} ${batchStatusTag}</span>
             <div style="display:flex; gap:4px; align-items:center;">
               <button class="btn-action" style="background:${toggleBtnBg}; padding:2px 8px; margin:0;" onclick="toggleEventTimeLimit(${idx})">${toggleBtnLabel}</button>
               <button class="btn-action btn-danger" style="padding:2px 8px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
@@ -965,6 +990,7 @@
       document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
     }
 
+    // 後台結算設定：最高支援到第 3 單，第 3 單按下後自動完全封單
     async function setBatchCutoff(batchNum) {
       const selectedKey = document.getElementById('adminEventFilter').value;
       if (!selectedKey) return;
@@ -979,7 +1005,12 @@
             body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
           });
           renderAdminData();
-          alert(`✅ 已將【${ev.date} ${ev.store}】設定完成【第 ${batchNum} 單結算】！後續新點單將自動計入第 ${batchNum + 1} 單。`);
+          calculateTotal();
+          if (batchNum >= 3) {
+            alert(`⛔ 已完成【第 3 單結算】！該場次點餐已完全截止鎖定，不會再產生第 4 單。`);
+          } else {
+            alert(`✅ 已將【${ev.date} ${ev.store}】設定完成【第 ${batchNum} 單結算】！後續新點單將自動計入第 ${batchNum + 1} 單。`);
+          }
         } finally {
           showLoading(false);
         }
