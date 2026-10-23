@@ -609,6 +609,16 @@
     let currentOrder = {};
     let globalAllOrders = [];
 
+    // V12: 將來自訂單、備註或場次的文字當成純文字顯示，避免 HTML 注入。
+    function escapeHTML(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
@@ -768,7 +778,7 @@
       globalActiveEvents.forEach(ev => {
         const key = `${ev.date}_${ev.store}`;
         if (key === previousValue) exists = true;
-        select.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
+        select.innerHTML += `<option value="${escapeHTML(key)}">${escapeHTML(formatEventDate(ev.date))} - ${escapeHTML(ev.store)}</option>`;
       });
 
       if (exists) {
@@ -785,7 +795,7 @@
         filterSelect.innerHTML = '';
         globalActiveEvents.forEach(ev => {
           const key = `${ev.date}_${ev.store}`;
-          filterSelect.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
+          filterSelect.innerHTML += `<option value="${escapeHTML(key)}">${escapeHTML(formatEventDate(ev.date))} - ${escapeHTML(ev.store)}</option>`;
         });
         if (currentAdminSelected && [...filterSelect.options].some(o => o.value === currentAdminSelected)) {
           filterSelect.value = currentAdminSelected;
@@ -797,7 +807,7 @@
       const select = document.getElementById('newEventStore');
       select.innerHTML = '';
       for (let store in allStoresData) {
-        select.innerHTML += `<option value="${store}">${store}</option>`;
+        select.innerHTML += `<option value="${escapeHTML(store)}">${escapeHTML(store)}</option>`;
       }
       const today = taipeiToday();
       document.getElementById('newEventDate').value = today;
@@ -869,7 +879,7 @@
       const sInfo = storeDetails[storeName] || { phone: "請參照店家電話" };
       infoContainer.innerHTML = `
         <div class="store-info-box">
-          📞 <span>店家電話：</span>${sInfo.phone}
+          📞 <span>店家電話：</span>${escapeHTML(sInfo.phone)}
         </div>
       `;
 
@@ -878,9 +888,9 @@
 
       menu.forEach((cat, cIdx) => {
         const catId = `cat-${cIdx}`;
-        navHtml += `<button class="category-btn" onclick="scrollToCategory('${catId}')">${cat.category}</button>`;
+        navHtml += `<button class="category-btn" onclick="scrollToCategory('${catId}')">${escapeHTML(cat.category)}</button>`;
 
-        html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${cat.category}</h3>`;
+        html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${escapeHTML(cat.category)}</h3>`;
         
         if (cat.category.includes("拌飯 / 丼飯")) {
           html += `<div style="font-size:0.78rem; color:#ef4444; font-weight:bold; margin-bottom:0.6rem; background:#fef2f2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">⚠️ 點餐請務必勾選【拌飯】或【丼飯】（若未勾選一律預設為丼飯）</div>`;
@@ -956,7 +966,7 @@
             <div class="menu-item">
               <div class="item-main">
                 <div class="item-info">
-                  <div class="item-name">${item.name}</div>
+                  <div class="item-name">${escapeHTML(item.name)}</div>
                   <div class="item-price">$${item.price}</div>
                 </div>
                 <div class="quantity-control">
@@ -1208,7 +1218,7 @@
       let itemsHtml = '';
       for (let k in currentOrder) {
         const itemTotal = currentOrder[k].qty * currentOrder[k].price;
-        itemsHtml += `<div>• ${k} x${currentOrder[k].qty} ($${itemTotal}) ${currentOrder[k].remark ? '['+currentOrder[k].remark+']':''}</div>`;
+        itemsHtml += `<div>• ${escapeHTML(k)} x${currentOrder[k].qty} ($${itemTotal}) ${currentOrder[k].remark ? '['+escapeHTML(currentOrder[k].remark)+']':''}</div>`;
       }
 
       document.getElementById('confirmItemsList').innerHTML = itemsHtml;
@@ -1286,13 +1296,13 @@
       `;
 
       activeOrders.forEach(o => {
-        let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join(', ');
+        let itemStr = o.items.map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)} ${i.remark ? '('+escapeHTML(i.remark)+')':''}`).join(', ');
         html += `
           <tr>
             <td style="text-align:center; font-size:14px;">☐</td>
-            <td style="text-align:center;">第${o.batch || 1}單</td>
-            <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
-            <td style="text-align:right; font-weight:bold; font-size:11px;">$${o.total}</td>
+            <td style="text-align:center;">第${escapeHTML(o.batch || 1)}單</td>
+            <td><strong>${escapeHTML(o.name)}</strong><br><small>${escapeHTML(o.dept)}</small></td>
+            <td style="text-align:right; font-weight:bold; font-size:11px;">$${escapeHTML(o.total)}</td>
             <td>${itemStr}</td>
           </tr>
         `;
@@ -1368,7 +1378,7 @@
 
         list.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:0.85rem; border:1px solid #e2e8f0;">
-            <span style="font-weight:bold;">${formatEventDate(ev.date)} - ${ev.store} ${batchStatusTag}</span>
+            <span style="font-weight:bold;">${escapeHTML(formatEventDate(ev.date))} - ${escapeHTML(ev.store)} ${batchStatusTag}</span>
             <div style="display:flex; gap:4px; align-items:center;">
               <button class="btn-action" style="background:${toggleBtnBg}; padding:2px 8px; margin:0;" onclick="toggleEventTimeLimit(${idx})">${toggleBtnLabel}</button>
               <button class="btn-action btn-danger" style="padding:2px 8px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
@@ -1382,7 +1392,7 @@
       filterSelect.innerHTML = '';
       globalActiveEvents.forEach(ev => {
         const key = `${ev.date}_${ev.store}`;
-        filterSelect.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
+        filterSelect.innerHTML += `<option value="${escapeHTML(key)}">${escapeHTML(formatEventDate(ev.date))} - ${escapeHTML(ev.store)}</option>`;
       });
       if (currentSelected && [...filterSelect.options].some(o => o.value === currentSelected)) {
         filterSelect.value = currentSelected;
@@ -1401,14 +1411,14 @@
       }
 
       eventOrders.forEach(o => {
-        let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join('<br>');
+        let itemStr = o.items.map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)} ${i.remark ? '('+escapeHTML(i.remark)+')':''}`).join('<br>');
         let styleStr = o.cancelled ? 'text-decoration: line-through; color: #9ca3af; background: #fef2f2;' : '';
         body.innerHTML += `
           <tr style="${styleStr}">
             <td style="text-align:center;">${o.cancelled ? '❌' : '☐'}</td>
-            <td style="text-align:center;">第${o.batch || 1}單</td>
-            <td><strong>${o.name}</strong><br><small>${o.dept}</small></td>
-            <td><strong>$${o.total}</strong></td>
+            <td style="text-align:center;">第${escapeHTML(o.batch || 1)}單</td>
+            <td><strong>${escapeHTML(o.name)}</strong><br><small>${escapeHTML(o.dept)}</small></td>
+            <td><strong>$${escapeHTML(o.total)}</strong></td>
             <td>${itemStr} ${o.cancelled ? '<br><b style="color:red;">(已取消)</b>' : ''}</td>
           </tr>
         `;
@@ -1460,7 +1470,7 @@
 
       if (eventOrders.length === 0) {
         const batchTag = targetBatch === 'all' ? '全單' : `第 ${targetBatch} 單`;
-        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${batchTag}】有效點餐資料`;
+        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${escapeHTML(batchTag)}】有效點餐資料`;
         return;
       }
 
@@ -1491,7 +1501,7 @@
       const batchTag = targetBatch === 'all' ? '全單彙整' : `第 ${targetBatch} 單`;
       let summaryHtml = `<div style="font-weight:bold; color:#0369a1; margin-bottom:2px;">📋【${batchTag}試算結果】</div>`;
       sortedKeys.forEach(item => {
-        summaryHtml += `• ${item}：<b>${quickSummary[item]}</b> 份<br>`;
+        summaryHtml += `• ${escapeHTML(item)}：<b>${quickSummary[item]}</b> 份<br>`;
       });
 
       summaryHtml += `<div style="margin-top:6px; font-weight:bold; color:#15803d; border-top:1px dashed #bbf7d0; padding-top:4px;">
@@ -1546,7 +1556,7 @@
 
       activeOrders.forEach((o, index) => {
         grandTotal += o.total;
-        let details = o.items.map(i => `${i.name} x${i.qty}${i.remark ? '('+i.remark+')':''}`).join(', ');
+        let details = o.items.map(i => `${i.name} x${escapeHTML(i.qty)}${i.remark ? '('+i.remark+')':''}`).join(', ');
         text += `${index + 1}. ${o.name} (${o.dept})：${details} ($${o.total})\n`;
 
         o.items.forEach(i => {
@@ -1648,21 +1658,21 @@
         let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
         userOrders.sort((a, b) => parseEventDate(a.eventKey.split('_')[0]) - parseEventDate(b.eventKey.split('_')[0]));
         userOrders.forEach(o => {
-          let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+          let itemStr = o.items.map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)}`).join(', ');
           const isExpired = checkEventExpiredByKey(o.eventKey);
 
           let actionBtnHtml = '';
           if (isExpired) {
             actionBtnHtml = `<button class="btn-action btn-success" style="margin:0;" onclick="alert('⚠️ 該場次已結單！如需緊急取消，請直接聯繫阿杰。')">已結單須取消請聯繫阿杰</button>`;
           } else {
-            actionBtnHtml = `<button class="btn-action btn-danger" style="margin:0;" onclick="cancelOrder('${o.id}')">取消訂單</button>`;
+            actionBtnHtml = `<button class="btn-action btn-danger" style="margin:0;" data-order-id="${escapeHTML(o.id)}" onclick="cancelOrder(this.dataset.orderId)">取消訂單</button>`;
           }
 
           html += `
             <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong>${formatEventKey(o.eventKey)} (第${o.batch || 1}單)</strong><br>
-                <small>${itemStr} (總計 $${o.total})</small>
+                <strong>${escapeHTML(formatEventKey(o.eventKey))} (第${escapeHTML(o.batch || 1)}單)</strong><br>
+                <small>${itemStr} (總計 $${escapeHTML(o.total)})</small>
               </div>
               <div>${actionBtnHtml}</div>
             </div>
