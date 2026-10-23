@@ -454,19 +454,36 @@
       return cutoffDate;
     }
 
-    // 關鍵判斷：判定是否截止（包含第 3 單結算完全鎖定）
-    function isEventExpired() {
-      const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+    // 判斷特定場次（或目前場次）是否已截止
+    function checkEventExpiredByKey(eventKey) {
+      const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === eventKey);
       if (!curEv) return false;
 
-      // 若管理員已結算至第 3 單 (cutoffBatch >= 3)，強制判定完全截止
       if (curEv.cutoffBatch >= 3) return true;
-
       if (curEv.alwaysOpen) return false;
 
-      const targetTime = getTargetCutoffTime();
-      if (!targetTime) return false;
-      return new Date() >= targetTime;
+      const dateStr = eventKey.split('_')[0];
+      const now = new Date();
+      let targetYear = now.getFullYear();
+      let month = 0, day = 0;
+
+      if (dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        targetYear = parseInt(parts[0]);
+        month = parseInt(parts[1]) - 1;
+        day = parseInt(parts[2]);
+      } else if (dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        month = parseInt(parts[0]) - 1;
+        day = parseInt(parts[1]);
+      }
+
+      const cutoffDate = new Date(targetYear, month, day, 10, 30, 0, 0);
+      return new Date() >= cutoffDate;
+    }
+
+    function isEventExpired() {
+      return checkEventExpiredByKey(currentEventKey);
     }
 
     function startCountdownTimer() {
@@ -477,7 +494,6 @@
 
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
         
-        // 若已完成 3 單結算
         if (curEv && curEv.cutoffBatch >= 3) {
           timerEl.innerText = '⛔ 今日點餐已完結 (已完成3單)';
           if (submitBtn) {
@@ -615,7 +631,6 @@
         document.getElementById('tabOrder').classList.add('active');
         document.getElementById('tabCancel').classList.remove('active');
       } else {
-        // 嚴格隔離：切到查詢分頁時，首頁須知必為隱藏 (display: none)
         document.getElementById('pageRules').style.display = 'none';
         document.getElementById('pageOrder').style.display = 'none';
         document.getElementById('pageCancel').style.display = 'block';
@@ -990,7 +1005,6 @@
       document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
     }
 
-    // 後台結算設定：最高支援到第 3 單，第 3 單按下後自動完全封單
     async function setBatchCutoff(batchNum) {
       const selectedKey = document.getElementById('adminEventFilter').value;
       if (!selectedKey) return;
@@ -1131,13 +1145,22 @@
         let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
         userOrders.forEach(o => {
           let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+          const isExpired = checkEventExpiredByKey(o.eventKey);
+
+          let actionBtnHtml = '';
+          if (isExpired) {
+            actionBtnHtml = `<button class="btn-action btn-success" style="margin:0;" onclick="alert('⚠️ 該場次已結單！如需緊急取消，請直接聯繫阿杰。')">已結單須取消請聯繫阿杰</button>`;
+          } else {
+            actionBtnHtml = `<button class="btn-action btn-danger" style="margin:0;" onclick="cancelOrder('${o.id}')">取消訂單</button>`;
+          }
+
           html += `
             <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <strong>${o.eventKey} (第${o.batch || 1}單)</strong><br>
                 <small>${itemStr} (總計 $${o.total})</small>
               </div>
-              <button class="btn-action btn-danger" onclick="cancelOrder('${o.id}')">取消訂單</button>
+              <div>${actionBtnHtml}</div>
             </div>
           `;
         });
