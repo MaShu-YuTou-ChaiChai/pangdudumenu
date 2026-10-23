@@ -279,7 +279,6 @@
 
         <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; border-top:1px solid #e2e8f0; padding-top:0.5rem;">
           <button class="btn-action btn-success" onclick="printChecklist()">🖨️ 列印對帳卡 (☐)</button>
-          <button class="btn-action" style="background:#0284c7;" onclick="toggleForceUnlock()">🔓 重新開啟/關閉點餐</button>
           <button class="btn-action btn-danger" onclick="clearAllOrders()">清空所有點餐資料</button>
         </div>
       </div>
@@ -427,7 +426,6 @@
     let currentEventKey = "rules";
     let currentOrder = {};
     let globalAllOrders = [];
-    let isForceUnlocked = false;
 
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
@@ -456,8 +454,11 @@
       return cutoffDate;
     }
 
+    // 判斷當前選擇場次是否過期 (支援單一場次全天開放)
     function isEventExpired() {
-      if (isForceUnlocked) return false;
+      const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+      if (curEv && curEv.alwaysOpen) return false; // 若該場次設定為全天開放則不過期
+
       const targetTime = getTargetCutoffTime();
       if (!targetTime) return false;
       return new Date() >= targetTime;
@@ -469,8 +470,9 @@
         const submitBtn = document.getElementById('btnSubmitOrder');
         if (!timerEl) return;
 
-        if (isForceUnlocked) {
-          timerEl.innerText = '🔓 管理員已開放點餐';
+        const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+        if (curEv && curEv.alwaysOpen) {
+          timerEl.innerText = '🔓 全天開放點餐中';
           if (submitBtn && calculateGrandTotalValue() > 0) {
             submitBtn.disabled = false;
             submitBtn.innerText = '確認送出點餐';
@@ -636,7 +638,6 @@
       container.innerHTML = html;
     }
 
-    // 當點擊備註輸入框時的防呆檢查
     function checkRemarkClick(e) {
       if (isEventExpired()) {
         e.preventDefault();
@@ -645,7 +646,6 @@
       }
     }
 
-    // 點擊數量加減號時的防呆檢查與彈窗提示
     function updateQty(id, change, price) {
       if (isEventExpired()) {
         alert('⚠️ 點餐時間已截止，無法新增或修改餐點！');
@@ -844,14 +844,21 @@
       }
     }
 
+    // 渲染管理員頁面：包含【全天開放 / 限時 10:30】按鈕與【關閉場次】按鈕
     function renderAdminData() {
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
       globalActiveEvents.forEach((ev, idx) => {
+        const toggleBtnLabel = ev.alwaysOpen ? '🔓 全天開放' : '⏰ 限時 10:30';
+        const toggleBtnBg = ev.alwaysOpen ? '#f59e0b' : '#0284c7';
+        
         list.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:0.85rem;">
-            <span>${ev.date} - ${ev.store} ${ev.cutoffBatch ? '(已結算至第'+ev.cutoffBatch+'單)':''}</span>
-            <button class="btn-action btn-danger" style="padding:2px 6px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:0.85rem; border:1px solid #e2e8f0;">
+            <span style="font-weight:bold;">${ev.date} - ${ev.store} ${ev.cutoffBatch ? '(已結算第'+ev.cutoffBatch+'單)':''}</span>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <button class="btn-action" style="background:${toggleBtnBg}; padding:2px 8px; margin:0;" onclick="toggleEventTimeLimit(${idx})">${toggleBtnLabel}</button>
+              <button class="btn-action btn-danger" style="padding:2px 8px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
+            </div>
           </div>
         `;
       });
@@ -896,6 +903,24 @@
       calculateQuickSummary('all');
     }
 
+    // 單一場次時間限制開關切換 (全天開放 / 限時 10:30)
+    async function toggleEventTimeLimit(idx) {
+      globalActiveEvents[idx].alwaysOpen = !globalActiveEvents[idx].alwaysOpen;
+      showLoading(true);
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
+        });
+        renderAdminData();
+        calculateTotal();
+        const stateText = globalActiveEvents[idx].alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
+        alert(`✅ 已將【${globalActiveEvents[idx].date} ${globalActiveEvents[idx].store}】調整為 ${stateText}！`);
+      } finally {
+        showLoading(false);
+      }
+    }
+
     function calculateQuickSummary(targetBatch) {
       const selectedKey = document.getElementById('adminEventFilter').value;
       let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
@@ -933,16 +958,6 @@
         💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆有效訂單)
       </div>`;
       document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
-    }
-
-    function toggleForceUnlock() {
-      isForceUnlocked = !isForceUnlocked;
-      if (isForceUnlocked) {
-        alert('✅ 已強制開放點餐！同仁現在可不受 10:30 限制繼續下單。');
-      } else {
-        alert('🔒 已恢復標準時間限制模式。');
-      }
-      calculateTotal();
     }
 
     async function setBatchCutoff(batchNum) {
@@ -1017,7 +1032,7 @@
       const dateParts = rawDate.split('-');
       const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])}`;
 
-      globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0 });
+      globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false });
       showLoading(true);
       try {
         await fetch(API_URL, {
