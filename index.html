@@ -396,18 +396,22 @@
       "湘園 燒臘": [
         { category: "港式燒臘便當系列", items: [
           { name: "招牌飯", price: 95 },
-          { name: "三寶飯", price: 95 },
-          { name: "臘味飯", price: 95 },
           { name: "烤雞腿飯", price: 95 },
           { name: "炸雞腿飯", price: 95 },
           { name: "滷雞腿飯", price: 95 },
-          { name: "燒鴨飯", price: 95 },
-          { name: "油雞飯", price: 95 },
+          { name: "臘味飯", price: 95 },
+          { name: "三寶飯", price: 95 },
           { name: "叉鴨飯", price: 95 },
           { name: "叉雞飯", price: 95 },
-          { name: "鴨雞飯", price: 95 },
+          { name: "雞鴨飯", price: 95 },
+          { name: "化皮燒肉飯", price: 95 },
+          { name: "燒鴨飯", price: 95 },
+          { name: "油雞飯", price: 95 },
           { name: "炸燒肉飯", price: 95 },
+          { name: "叉燒飯", price: 95 },
+          { name: "豬腳飯", price: 95 },
           { name: "控肉飯", price: 95 },
+          { name: "香腸飯", price: 95 },
           { name: "特餐", price: 95 },
           { name: "菜飯", price: 80 }
         ]}
@@ -772,7 +776,7 @@
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
         
-        // 自動清空勾選框與備註
+        // 自動清除勾選與備註
         const halfBox = document.getElementById(`halfRice-${id}`);
         const noBox = document.getElementById(`noRice-${id}`);
         const textRemark = document.getElementById(`remark-${id}`);
