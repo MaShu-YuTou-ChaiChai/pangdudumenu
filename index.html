@@ -445,7 +445,8 @@
         month = parseInt(parts[1]) - 1;
         day = parseInt(parts[2]);
       } else if (dateStr.includes('/')) {
-        const parts = dateStr.split('/');
+        const cleanDateStr = dateStr.split(' ')[0]; // 濾掉週幾文字
+        const parts = cleanDateStr.split('/');
         month = parseInt(parts[0]) - 1;
         day = parseInt(parts[1]);
       }
@@ -454,7 +455,6 @@
       return cutoffDate;
     }
 
-    // 判斷特定場次（或目前場次）是否已截止
     function checkEventExpiredByKey(eventKey) {
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === eventKey);
       if (!curEv) return false;
@@ -473,7 +473,8 @@
         month = parseInt(parts[1]) - 1;
         day = parseInt(parts[2]);
       } else if (dateStr.includes('/')) {
-        const parts = dateStr.split('/');
+        const cleanDateStr = dateStr.split(' ')[0];
+        const parts = cleanDateStr.split('/');
         month = parseInt(parts[0]) - 1;
         day = parseInt(parts[1]);
       }
@@ -1079,8 +1080,13 @@
       const store = document.getElementById('newEventStore').value;
       if (!rawDate) { alert('請選擇日期！'); return; }
 
+      // 自動計算星期幾 (例如: 週一、週二...)
+      const d = new Date(rawDate);
+      const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+      const weekString = weekdays[d.getDay()];
+
       const dateParts = rawDate.split('-');
-      const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])}`;
+      const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])} (${weekString})`;
 
       globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false });
       showLoading(true);
