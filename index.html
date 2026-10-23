@@ -1436,6 +1436,9 @@
       await loadCloudData();
       showLoading(false);
 
+      // 搜尋後手動確保保持在查詢/取消頁面，不被重置
+      switchTab('cancel');
+
       const activeEventKeys = globalActiveEvents.map(e => `${e.date}_${e.store}`);
       const userOrders = globalAllOrders.filter(o => 
         o.name === name && 
