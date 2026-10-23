@@ -52,6 +52,11 @@
     .item-info { flex: 1; }
     .item-name { font-weight: bold; font-size: 0.95rem; }
     .item-price { color: #6b7280; font-size: 0.85rem; margin-top: 0.1rem; }
+    
+    .item-options { display: flex; gap: 12px; margin-top: 6px; font-size: 0.8rem; color: #475569; font-weight: bold; }
+    .item-options label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+    .item-options input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+
     .item-remark-input { margin-top: 6px; }
     .item-remark-input input { width: 100%; padding: 0.4rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 4px; }
     .disabled-option { opacity: 0.4; pointer-events: none; }
@@ -267,7 +272,7 @@
         </div>
 
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:8px; border-radius:6px; margin-top:8px;">
-          <div style="font-weight:bold; font-size:0.85rem; color:#166534; margin-bottom:4px;">📊 分單快顯品項試算：</div>
+          <div style="font-weight:bold; font-size:0.85rem; color:#166534; margin-bottom:4px;">📊 分單快顯品項試算 (按菜單順序排列)：</div>
           <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
             <button class="btn-action" style="background:#16a34a; padding:2px 6px;" onclick="calculateQuickSummary(1)">第 1 單試算</button>
             <button class="btn-action" style="background:#16a34a; padding:2px 6px;" onclick="calculateQuickSummary(2)">第 2 單試算</button>
@@ -356,13 +361,22 @@
         ]}
       ],
       "湘園 燒臘": [
-        { category: "特餐燒臘 (一律95元)", items: [
-          { name: "招牌飯", price: 95 }, { name: "烤雞腿飯", price: 95 },
-          { name: "炸雞腿飯", price: 95 }, { name: "滷雞腿飯", price: 95 },
-          { name: "臘味飯", price: 95 }, { name: "三寶飯", price: 95 },
-          { name: "叉鴨飯", price: 95 }, { name: "叉雞飯", price: 95 },
-          { name: "燒鴨飯", price: 95 }, { name: "油雞飯", price: 95 },
-          { name: "炸燒肉飯", price: 95 }, { name: "控肉飯", price: 95 }
+        { category: "港式燒臘便當系列", items: [
+          { name: "招牌飯", price: 95 },
+          { name: "三寶飯", price: 95 },
+          { name: "臘味飯", price: 95 },
+          { name: "烤雞腿飯", price: 95 },
+          { name: "炸雞腿飯", price: 95 },
+          { name: "滷雞腿飯", price: 95 },
+          { name: "燒鴨飯", price: 95 },
+          { name: "油雞飯", price: 95 },
+          { name: "叉鴨飯", price: 95 },
+          { name: "叉雞飯", price: 95 },
+          { name: "鴨雞飯", price: 95 },
+          { name: "炸燒肉飯", price: 95 },
+          { name: "控肉飯", price: 95 },
+          { name: "特餐", price: 95 },
+          { name: "菜飯", price: 80 }
         ]}
       ],
       "花蓮扁食": [
@@ -445,7 +459,7 @@
         month = parseInt(parts[1]) - 1;
         day = parseInt(parts[2]);
       } else if (dateStr.includes('/')) {
-        const cleanDateStr = dateStr.split(' ')[0]; // 濾掉週幾文字
+        const cleanDateStr = dateStr.split(' ')[0];
         const parts = cleanDateStr.split('/');
         month = parseInt(parts[0]) - 1;
         day = parseInt(parts[1]);
@@ -665,14 +679,35 @@
                   <button class="btn-qty" onclick="updateQty('${id}', 1, ${item.price})">+</button>
                 </div>
               </div>
+              
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="halfRice-${id}" onchange="toggleRiceOption('${id}', 'half')"> 半飯</label>
+                <label><input type="checkbox" id="noRice-${id}" onchange="toggleRiceOption('${id}', 'no')"> 不飯</label>
+              </div>
+
               <div class="item-remark-input disabled-option" id="remark-group-${id}">
-                <input type="text" id="remark-${id}" placeholder="備註 (例如: 不要辣)" oninput="updateRemark('${id}')" onclick="checkRemarkClick(event)">
+                <input type="text" id="remark-${id}" placeholder="其他備註 (例如: 不要辣)" oninput="updateRemark('${id}')" onclick="checkRemarkClick(event)">
               </div>
             </div>
           `;
         });
       });
       container.innerHTML = html;
+    }
+
+    function toggleRiceOption(id, type) {
+      if (isEventExpired()) return;
+
+      const halfBox = document.getElementById(`halfRice-${id}`);
+      const noBox = document.getElementById(`noRice-${id}`);
+
+      if (type === 'half' && halfBox.checked) {
+        if (noBox) noBox.checked = false;
+      } else if (type === 'no' && noBox.checked) {
+        if (halfBox) halfBox.checked = false;
+      }
+
+      updateRemark(id);
     }
 
     function checkRemarkClick(e) {
@@ -697,14 +732,17 @@
       if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: price, remark: '' };
       currentOrder[id].qty += change;
 
+      const optGroup = document.getElementById(`options-group-${id}`);
       const remGroup = document.getElementById(`remark-group-${id}`);
 
       if (currentOrder[id].qty <= 0) {
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
+        if (optGroup) optGroup.classList.add('disabled-option');
         if (remGroup) remGroup.classList.add('disabled-option');
       } else {
         document.getElementById(`qty-${id}`).innerText = currentOrder[id].qty;
+        if (optGroup) optGroup.classList.remove('disabled-option');
         if (remGroup) remGroup.classList.remove('disabled-option');
       }
       calculateTotal();
@@ -713,7 +751,16 @@
     function updateRemark(id) {
       if (isEventExpired()) return;
       if (currentOrder[id]) {
-        currentOrder[id].remark = document.getElementById(`remark-${id}`).value.trim();
+        let remarks = [];
+        const halfBox = document.getElementById(`halfRice-${id}`);
+        const noBox = document.getElementById(`noRice-${id}`);
+        const textRemark = document.getElementById(`remark-${id}`).value.trim();
+
+        if (halfBox && halfBox.checked) remarks.push('半飯');
+        if (noBox && noBox.checked) remarks.push('不飯');
+        if (textRemark) remarks.push(textRemark);
+
+        currentOrder[id].remark = remarks.join('，');
       }
     }
 
@@ -967,8 +1014,23 @@
       }
     }
 
+    // 取得當前店家的原始菜單順序清單
+    function getStoreMenuOrder(storeName) {
+      const storeMenu = allStoresData[storeName] || [];
+      const orderList = [];
+      storeMenu.forEach(cat => {
+        cat.items.forEach(i => {
+          orderList.push(i.name);
+        });
+      });
+      return orderList;
+    }
+
     function calculateQuickSummary(targetBatch) {
       const selectedKey = document.getElementById('adminEventFilter').value;
+      if (!selectedKey) return;
+
+      const [date, store] = selectedKey.split('_');
       let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
 
       if (targetBatch !== 'all') {
@@ -994,11 +1056,24 @@
         });
       });
 
+      // 按照菜單原始順序排序
+      const storeOrderList = getStoreMenuOrder(store);
+      const sortedKeys = Object.keys(quickSummary).sort((a, b) => {
+        const nameA = a.split('(')[0];
+        const nameB = b.split('(')[0];
+        let idxA = storeOrderList.indexOf(nameA);
+        let idxB = storeOrderList.indexOf(nameB);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
+      });
+
       const batchTag = targetBatch === 'all' ? '全單彙整' : `第 ${targetBatch} 單`;
       let summaryHtml = `<div style="font-weight:bold; color:#0369a1; margin-bottom:2px;">📋【${batchTag}試算結果】</div>`;
-      for (let item in quickSummary) {
+      sortedKeys.forEach(item => {
         summaryHtml += `• ${item}：<b>${quickSummary[item]}</b> 份<br>`;
-      }
+      });
+
       summaryHtml += `<div style="margin-top:6px; font-weight:bold; color:#15803d; border-top:1px dashed #bbf7d0; padding-top:4px;">
         📦 總品項份數：<b>${totalItemsCount}</b> 份<br>
         💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆有效訂單)
@@ -1061,10 +1136,22 @@
         });
       });
 
-      text += `\n📦 【總計品項】\n`;
-      for (let k in itemSummary) {
+      // 按照菜單原始順序排序
+      const storeOrderList = getStoreMenuOrder(store);
+      const sortedKeys = Object.keys(itemSummary).sort((a, b) => {
+        const nameA = a.split('(')[0];
+        const nameB = b.split('(')[0];
+        let idxA = storeOrderList.indexOf(nameA);
+        let idxB = storeOrderList.indexOf(nameB);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
+      });
+
+      text += `\n📦 【總計品項 (按菜單順序)】\n`;
+      sortedKeys.forEach(k => {
         text += `- ${k}：${itemSummary[k]} 份\n`;
-      }
+      });
       text += `\n💰 總金額：$${grandTotal} 元\n`;
       text += `--- 胖嘟柴柴系統自動彙整 ---`;
 
@@ -1080,7 +1167,6 @@
       const store = document.getElementById('newEventStore').value;
       if (!rawDate) { alert('請選擇日期！'); return; }
 
-      // 自動計算星期幾 (支援時區與正確日期字串解析)
       const parts = rawDate.split('-');
       const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
       const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
@@ -1150,7 +1236,7 @@
       } else {
         let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
         userOrders.forEach(o => {
-          let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+          let itemStr = o.items.map(i => `${i.name} x${i.qty} ${i.remark ? '('+i.remark+')':''}`).join(', ');
           const isExpired = checkEventExpiredByKey(o.eventKey);
 
           let actionBtnHtml = '';
