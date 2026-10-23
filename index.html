@@ -361,6 +361,25 @@
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
 
+    // V5：所有寫入與登入請求都要確認後端真的回傳 success。
+    async function postCloudJSON(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('雲端連線異常（HTTP ' + res.status + '）');
+      let result;
+      try {
+        result = await res.json();
+      } catch (e) {
+        throw new Error('雲端回應格式錯誤，請先查詢訂單狀態');
+      }
+      if (!result || result.status !== 'success') {
+        throw new Error((result && result.message) || '雲端未確認操作成功');
+      }
+      return result;
+    }
+
     const storeDetails = {
       "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
       "好卷不見": { phone: "0958-688-461" },
@@ -1246,19 +1265,11 @@
 
       showLoading(true);
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'submitOrder', order: orderData })
-        });
-        const result = await res.json();
-        if (result.status === 'success') {
-          alert('點餐成功！資料已同步寫入雲端。');
-          location.reload();
-        } else {
-          alert('⚠️ 點餐失敗：' + (result.message || '請稍後重試'));
-        }
+        await postCloudJSON({ action: 'submitOrder', order: orderData });
+        alert('點餐成功！資料已同步寫入雲端。');
+        location.reload();
       } catch(e) {
-        alert('同步失敗，請重試！');
+        alert('⚠️ 點餐未確認成功：' + e.message + '\n請先查詢訂單是否存在，避免重複送單。');
       } finally {
         showLoading(false);
       }
@@ -1323,22 +1334,15 @@
       if (!pwd) { alert('請輸入管理員密碼！'); return; }
       showLoading(true);
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'adminLogin', password: pwd })
-        });
-        const result = await res.json();
-        if (result.status !== 'success' || !result.token) {
-          alert(result.message || '管理員驗證失敗');
-          return;
-        }
+        const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
+        if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
         input.value = '';
         closeAdminAuthModal();
         document.getElementById('adminModal').classList.add('active');
         renderAdminData();
       } catch(e) {
-        alert('管理員登入失敗，請檢查網路後重試。');
+        alert('管理員登入失敗：' + e.message);
       } finally {
         showLoading(false);
       }
@@ -1349,21 +1353,15 @@
       try {
         const payload = { action: 'adminAction', token: adminToken, subAction };
         if (subAction === 'setActiveEvents') payload.events = events;
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const result = await res.json();
-        if (result.status !== 'success') {
-          alert(result.message || '管理操作失敗，請重試');
-          if ((result.message || '').includes('登入已失效')) {
-            adminToken = '';
-            closeAdminModal();
-            openAdminModal();
-          }
-          await loadCloudData();
-          return false;
-        }
+        await postCloudJSON(payload);
         return true;
       } catch(e) {
-        alert('管理操作無法連線，請確認網路後重試。');
+        alert('管理操作未確認成功：' + e.message);
+        if (e.message.includes('登入已失效')) {
+          adminToken = '';
+          closeAdminModal();
+          openAdminModal();
+        }
         await loadCloudData();
         return false;
       }
@@ -1432,10 +1430,12 @@
     }
 
     async function toggleEventTimeLimit(idx) {
-      globalActiveEvents[idx].alwaysOpen = !globalActiveEvents[idx].alwaysOpen;
+      const nextEvents = globalActiveEvents.map(ev => ({ ...ev }));
+      nextEvents[idx].alwaysOpen = !nextEvents[idx].alwaysOpen;
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
+        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
+        globalActiveEvents = nextEvents;
         renderAdminData();
         calculateTotal();
         const stateText = globalActiveEvents[idx].alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
@@ -1516,10 +1516,13 @@
 
       const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === selectedKey);
       if (ev) {
-        ev.cutoffBatch = batchNum;
+        const nextEvents = globalActiveEvents.map(e => ({ ...e }));
+        const nextEv = nextEvents.find(e => `${e.date}_${e.store}` === selectedKey);
+        nextEv.cutoffBatch = batchNum;
         showLoading(true);
         try {
-          if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
+          if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
+          globalActiveEvents = nextEvents;
           renderAdminData();
           calculateTotal();
           if (batchNum >= 3) {
@@ -1599,12 +1602,11 @@
 
       const formattedDate = `${parseInt(parts[1])}/${parseInt(parts[2])} (${weekString})`;
 
-      globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false });
-      sortActiveEventsByDate();
+      const nextEvents = [...globalActiveEvents, { date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false }];
 
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
+        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已成功發起【${formattedDate} - ${store}】！選單已更新並按日期自動排序。`);
@@ -1616,17 +1618,11 @@
     async function removeActiveEvent(idx) {
       const closedEvent = globalActiveEvents[idx];
       const closedKey = `${closedEvent.date}_${closedEvent.store}`;
-      globalActiveEvents.splice(idx, 1);
-
-      globalAllOrders.forEach(o => {
-        if (o.eventKey === closedKey) {
-          o.cancelled = true;
-        }
-      });
+      const nextEvents = globalActiveEvents.filter((_, i) => i !== idx);
 
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
+        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，且已同步自動隱藏該場次之歷史查詢紀錄！`);
@@ -1688,21 +1684,20 @@
       if(!confirm('確定要取消這筆訂單嗎？')) return;
       const order = globalAllOrders.find(o => o.id === orderId);
       if(!order) return;
-      order.cancelled = true;
+      const cancelledOrder = { ...order, cancelled: true };
 
       showLoading(true);
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'updateOrder', orderId: orderId, order: order })
-        });
+        await postCloudJSON({ action: 'updateOrder', orderId: orderId, order: cancelledOrder });
+        order.cancelled = true;
         alert('訂單已取消！');
-        searchUserOrder();
       } catch(e) {
-        alert('取消失敗！');
+        alert('⚠️ 取消訂單未確認成功：' + e.message + '\n請重新查詢訂單狀態。');
+        return;
       } finally {
         showLoading(false);
       }
+      await searchUserOrder();
     }
 
     async function clearAllOrders() {
