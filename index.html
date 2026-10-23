@@ -754,12 +754,12 @@
     }
 
     function renderEventDropdown() {
+      sortActiveEventsByDate();
+
       const select = document.getElementById('eventSelect');
       const previousValue = currentEventKey;
       select.innerHTML = '<option value="rules">👉 點這裡選擇投票結果菜單</option>';
       
-      sortActiveEventsByDate();
-
       let exists = false;
       globalActiveEvents.forEach(ev => {
         const key = `${ev.date}_${ev.store}`;
@@ -773,6 +773,20 @@
         currentEventKey = "rules";
         select.value = "rules";
         onEventSelectChange();
+      }
+
+      // 同步更新後台篩選下拉選單並維持排序
+      const filterSelect = document.getElementById('adminEventFilter');
+      if (filterSelect) {
+        const currentAdminSelected = filterSelect.value;
+        filterSelect.innerHTML = '';
+        globalActiveEvents.forEach(ev => {
+          const key = `${ev.date}_${ev.store}`;
+          filterSelect.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
+        });
+        if (currentAdminSelected && [...filterSelect.options].some(o => o.value === currentAdminSelected)) {
+          filterSelect.value = currentAdminSelected;
+        }
       }
     }
 
@@ -1293,6 +1307,7 @@
         `;
       });
 
+      // 同步更新後台篩選下拉選單並維持排序
       const filterSelect = document.getElementById('adminEventFilter');
       const currentSelected = filterSelect.value;
       filterSelect.innerHTML = '';
@@ -1518,7 +1533,7 @@
         });
         await loadCloudData();
         renderAdminData();
-        alert(`已成功發起【${formattedDate} - ${store}】！左上角選單已更新並按日期自動排序。`);
+        alert(`已成功發起【${formattedDate} - ${store}】！選單已更新並按日期自動排序。`);
       } catch(e) {
         alert('發起失敗，請重試');
       } finally { showLoading(false); }
