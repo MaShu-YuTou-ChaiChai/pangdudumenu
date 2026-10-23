@@ -1252,6 +1252,8 @@
         if (result.status === 'success') {
           alert('點餐成功！資料已同步寫入雲端。');
           location.reload();
+        } else {
+          alert('⚠️ 點餐失敗：' + (result.message || '請稍後重試'));
         }
       } catch(e) {
         alert('同步失敗，請重試！');
