@@ -46,7 +46,7 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
     .form-group input, .form-group select { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; }
 
-    /* 分類快速導覽列（修復吸頂懸浮效果） */
+    /* 分類快速導覽列（吸頂懸浮效果） */
     .category-nav { 
       display: flex; 
       gap: 6px; 
@@ -394,7 +394,7 @@
           { name: "泡菜系 燒肉", price: 105, optType: "rice_bowl" }, { name: "泡菜系 豬排", price: 105, optType: "rice_bowl" }, { name: "泡菜系 嫩雞", price: 105, optType: "rice_bowl" }, { name: "泡菜系 牛肉", price: 110, optType: "rice_bowl" },
           { name: "原味系 燒肉", price: 100, optType: "rice_bowl" }, { name: "原味系 牛肉", price: 105, optType: "rice_bowl" }, { name: "原味系 豬排", price: 100, optType: "rice_bowl" }, { name: "原味系 嫩雞", price: 100, optType: "rice_bowl" }, { name: "原味系 全部是菜(素)", price: 100, optType: "rice_bowl" },
           { name: "雙拼系 燒肉豬排", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉香腸", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉嫩雞", price: 105, optType: "rice_bowl" }, { name: "雙拼系 燒肉牛肉", price: 110, optType: "rice_bowl" }, { name: "雙拼系 香腸豬排", price: 110, optType: "rice_bowl" },
-          { name: "經典烤肉拌飯(辣)", price: 130, optType: "rice_bowl" }, { name: "壽喜豬肉丼飯", price: 95, optType: "rice_bowl" }, { name: "壽喜牛肉丼飯", price: 110, optType: "rice_bowl" }
+          { name: "經典烤肉拌飯(辣)", price: 130 }, { name: "壽喜豬肉丼飯", price: 95 }, { name: "壽喜牛肉丼飯", price: 110 }
         ]},
         { category: "🍱 餐盒系列", items: [
           { name: "忠武飯卷", price: 110, optType: "chungwu" },
@@ -402,10 +402,20 @@
           { name: "忠武兒童餐盒", price: 85 },
           { name: "速便當(平日午餐供應)", price: 95 }
         ]},
+        { category: "✨ 獨家風味", items: [
+          { name: "德國香腸飯卷", price: 80 },
+          { name: "GDF原/辣三軍飯卷", price: 90 },
+          { name: "GDF原/辣三軍拌飯", price: 110 },
+          { name: "烏龍冷麵(夏季供應)", price: 90 },
+          { name: "芽花湯泡飯", price: 55 }
+        ]},
+        { category: "🍡 年糕系列", items: [
+          { name: "辣炒年糕", price: 90 },
+          { name: "不辣的炒年糕", price: 90 },
+          { name: "年糕炒泡麵", price: 100, optType: "tteokbokki_noodle" }
+        ]},
         { category: "🍜 麵食系列", items: [
-          { name: "德國香腸飯卷", price: 80 }, { name: "GDF原/辣三軍飯卷", price: 90 }, { name: "GDF原/辣三軍拌飯", price: 110 }, { name: "烏龍冷麵(夏季供應)", price: 90 }, { name: "芽花湯泡飯", price: 55 },
           { name: "柴魚烏龍麵(湯)", price: 90 }, { name: "泡菜烏龍麵(湯)", price: 100 }, { name: "麻辣燒肉(乾)", price: 100 }, { name: "壽喜豬肉(乾)", price: 95 }, { name: "壽喜嫩雞(乾)", price: 95 },
-          { name: "辣炒年糕", price: 90 }, { name: "不辣的炒年糕", price: 90 }, { name: "年糕炒泡麵", price: 100, optType: "tteokbokki_noodle" },
           { name: "辛拉麵", price: 100, optType: "shin_ramen" }, { name: "奶奶Q拉麵", price: 120 }
         ]},
         { category: "🥗 經典小菜", items: [
@@ -761,7 +771,6 @@
 
         html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${cat.category}</h3>`;
         
-        // 如果是拌飯 / 丼飯 分類，加上醒目提示文字
         if (cat.category.includes("拌飯 / 丼飯")) {
           html += `<div style="font-size:0.78rem; color:#ef4444; font-weight:bold; margin-bottom:0.6rem; background:#fef2f2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">⚠️ 點餐請務必勾選【拌飯】或【丼飯】（若未勾選一律預設為丼飯）</div>`;
         }
@@ -773,12 +782,14 @@
           let placeholderText = '其他備註 (例如: 不要辣)';
 
           if (item.optType === 'tteokbokki_noodle') {
+            placeholderText = '須選擇口味，沒勾選視為原味';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="tteok-orig-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'orig')"> 原味</label>
                 <label><input type="checkbox" id="tteok-spicy-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'spicy')"> 辣味</label>
               </div>`;
           } else if (item.optType === 'shin_ramen') {
+            placeholderText = '須選擇口味，沒勾選視為泡菜';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="shin-kimchi-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'kimchi')"> 泡菜</label>
@@ -793,6 +804,7 @@
                 <label><input type="checkbox" id="rb-bowl-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'bowl')"> 丼飯</label>
               </div>`;
           } else if (item.optType === 'chungwu' || item.optType === 'light_box') {
+            placeholderText = '請記得選擇肉品，未選取一律視為雞肉';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="meat-chicken-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'chicken')"> 雞肉</label>
