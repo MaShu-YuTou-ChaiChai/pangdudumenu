@@ -115,7 +115,6 @@
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
   </div>
 
-  <!-- 頂部截止時間提醒與即時倒數 -->
   <div class="time-notice-bar" id="timeNoticeBar">
     <span>⏰ 每日點餐截止時間至上午 10:30，請及早完成點餐！</span>
     <span class="countdown-badge" id="countdownTimer">⏳ 計算中...</span>
@@ -238,7 +237,6 @@
       <div style="margin-bottom: 1rem; background:#f0f9ff; border:1px solid #7dd3fc; padding:0.8rem; border-radius:6px;">
         <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#0369a1;">📢 發起投票結果店家場次：</div>
         <div style="display:flex; gap:0.4rem; margin-bottom:0.5rem;">
-          <!-- 將原先純文字輸入改為標準日期選擇器 -->
           <input type="date" id="newEventDate" style="flex:1; padding:0.4rem; font-size:0.85rem; border:1px solid #ccc; border-radius:4px;">
           <select id="newEventStore" style="flex:1.2; padding:0.4rem; font-size:0.85rem; border:1px solid #ccc; border-radius:4px;"></select>
           <button class="btn-action btn-success" style="margin:0;" onclick="addActiveEvent()">發起開放</button>
@@ -434,10 +432,9 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
-    // 計算當前選擇場次的具體截止時間 (臺灣時間選定日期的 10:30)
     function getTargetCutoffTime() {
       if (currentEventKey === 'rules') return null;
-      const dateStr = currentEventKey.split('_')[0]; // 例如 "10/29" 或 "2026-10-29"
+      const dateStr = currentEventKey.split('_')[0];
       
       const now = new Date();
       let targetYear = now.getFullYear();
@@ -459,7 +456,6 @@
       return cutoffDate;
     }
 
-    // 檢查當前場次是否已超過 10:30 截止
     function isEventExpired() {
       if (isForceUnlocked) return false;
       const targetTime = getTargetCutoffTime();
@@ -467,7 +463,6 @@
       return new Date() >= targetTime;
     }
 
-    // 動態更新 10:30 倒數計時器與送出按鈕狀態
     function startCountdownTimer() {
       setInterval(() => {
         const timerEl = document.getElementById('countdownTimer');
@@ -564,7 +559,6 @@
       for (let store in allStoresData) {
         select.innerHTML += `<option value="${store}">${store}</option>`;
       }
-      // 預設將日期選擇器設為今天
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('newEventDate').value = today;
     }
@@ -633,7 +627,7 @@
                 </div>
               </div>
               <div class="item-remark-input disabled-option" id="remark-group-${id}">
-                <input type="text" id="remark-${id}" placeholder="備註 (例如: 不要辣)" oninput="updateRemark('${id}')">
+                <input type="text" id="remark-${id}" placeholder="備註 (例如: 不要辣)" oninput="updateRemark('${id}')" onclick="checkRemarkClick(event)">
               </div>
             </div>
           `;
@@ -642,7 +636,22 @@
       container.innerHTML = html;
     }
 
+    // 當點擊備註輸入框時的防呆檢查
+    function checkRemarkClick(e) {
+      if (isEventExpired()) {
+        e.preventDefault();
+        e.target.blur();
+        alert('⚠️ 點餐時間已截止，無法修改餐點備註！');
+      }
+    }
+
+    // 點擊數量加減號時的防呆檢查與彈窗提示
     function updateQty(id, change, price) {
+      if (isEventExpired()) {
+        alert('⚠️ 點餐時間已截止，無法新增或修改餐點！');
+        return;
+      }
+
       if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: price, remark: '' };
       currentOrder[id].qty += change;
 
@@ -660,6 +669,7 @@
     }
 
     function updateRemark(id) {
+      if (isEventExpired()) return;
       if (currentOrder[id]) {
         currentOrder[id].remark = document.getElementById(`remark-${id}`).value.trim();
       }
@@ -681,7 +691,7 @@
 
     async function openConfirmModal() {
       if (isEventExpired()) {
-        alert('⚠️ 臺灣時間上午 10:30 點餐時間已截止，無法繼續下單！');
+        alert('⚠️ 點餐時間已截止，無法繼續下單！');
         return;
       }
 
@@ -999,14 +1009,13 @@
       });
     }
 
-    // 後台發起場次：讀取日期選擇器並格式化為 MM/DD
     async function addActiveEvent() {
-      const rawDate = document.getElementById('newEventDate').value; // YYYY-MM-DD
+      const rawDate = document.getElementById('newEventDate').value;
       const store = document.getElementById('newEventStore').value;
       if (!rawDate) { alert('請選擇日期！'); return; }
 
       const dateParts = rawDate.split('-');
-      const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])}`; // 格式化為 10/29
+      const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])}`;
 
       globalActiveEvents.push({ date: formattedDate, store, cutoffBatch: 0 });
       showLoading(true);
