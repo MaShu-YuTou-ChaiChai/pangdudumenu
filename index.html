@@ -606,8 +606,9 @@
       return 0;
     }
 
+    // 調整為由舊到新（日期早的在上方）
     function sortActiveEventsByDate() {
-      globalActiveEvents.sort((a, b) => parseEventDate(b.date) - parseEventDate(a.date));
+      globalActiveEvents.sort((a, b) => parseEventDate(a.date) - parseEventDate(b.date));
     }
 
     function getTargetCutoffTime() {
@@ -667,7 +668,6 @@
       return checkEventExpiredByKey(currentEventKey);
     }
 
-    // 檢查目前選定的場次日期是否為週五 (星期五)
     function isEventDayFriday() {
       if (currentEventKey === 'rules') return false;
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
@@ -1046,7 +1046,6 @@
         return;
       }
 
-      // 檢查週五限定品項 (黑胡椒豬肉涼麵 / 香菜皮蛋涼麵)
       if ((optType === 'friday_only_1' || optType === 'friday_only_2') && change > 0) {
         if (!isEventDayFriday()) {
           alert('⚠️ 今日不是週五，本品項未販售！');
