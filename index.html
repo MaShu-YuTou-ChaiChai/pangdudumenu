@@ -1353,6 +1353,7 @@
       try {
         const payload = { action: 'adminAction', token: adminToken, subAction };
         if (subAction === 'setActiveEvents') payload.events = events;
+        if (subAction === 'closeEvent') payload.eventKey = events;
         await postCloudJSON(payload);
         return true;
       } catch(e) {
@@ -1617,15 +1618,18 @@
 
     async function removeActiveEvent(idx) {
       const closedEvent = globalActiveEvents[idx];
+      if (!closedEvent) { alert('找不到此場次，請重新整理。'); return; }
       const closedKey = `${closedEvent.date}_${closedEvent.store}`;
-      const nextEvents = globalActiveEvents.filter((_, i) => i !== idx);
+
+      if (!confirm(`確定關閉【${closedEvent.date} - ${closedEvent.store}】嗎？\n\n該場次所有尚未取消的訂單會同步標記為「已取消」，保留紀錄供查核，且不能自動復原。`)) return;
 
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
+        // V6：交由後端一次完成場次關閉與訂單取消，不再僅從前端清單移除。
+        if (!(await postAdminAction('closeEvent', closedKey))) return;
         await loadCloudData();
         renderAdminData();
-        alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，且已同步自動隱藏該場次之歷史查詢紀錄！`);
+        alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，相關有效訂單已同步標記為取消，歷史紀錄仍保留供查核。`);
       } finally { showLoading(false); }
     }
 
