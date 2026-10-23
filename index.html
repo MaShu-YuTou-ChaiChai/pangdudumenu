@@ -346,7 +346,7 @@
           { name: "板煎排骨便當", price: 90 }, { name: "蒜泥白肉便當", price: 90 },
           { name: "香滷控肉便當", price: 90 }, { name: "泰式椒麻雞便當", price: 95 },
           { name: "鮮魚(整尾)便當", price: 100 }, { name: "香酥雞排便當", price: 100 },
-          { name: "酥炸大雞腿(滷)", price: 100 }
+          { name: "酥炸大雞腿", price: 100 }, { name: "香滷大雞腿", price: 100 }
         ]}
       ],
       "嬌麻雞 精緻自助餐": [
@@ -580,7 +580,6 @@
             submitBtn.innerText = '🔒 點餐時間已截止';
           }
         } else {
-          // 👉 支援超過 24 小時顯示天數 (X天 HH:MM:SS)
           const days = Math.floor(diff / (1000 * 60 * 60 * 24));
           const hrs = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
           const mins = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
@@ -786,7 +785,6 @@
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
         
-        // 自動清除勾選與備註
         const halfBox = document.getElementById(`halfRice-${id}`);
         const noBox = document.getElementById(`noRice-${id}`);
         const textRemark = document.getElementById(`remark-${id}`);
