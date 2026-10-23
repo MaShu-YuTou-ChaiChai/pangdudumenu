@@ -46,9 +46,22 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
     .form-group input, .form-group select { width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; }
 
-    /* 分類快速導覽列 */
-    .category-nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 1rem; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-    .category-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+    /* 分類快速導覽列（吸頂懸浮） */
+    .category-nav { 
+      display: flex; 
+      gap: 6px; 
+      overflow-x: auto; 
+      padding: 8px 0; 
+      margin-bottom: 0.8rem; 
+      white-space: nowrap; 
+      -webkit-overflow-scrolling: touch; 
+      position: sticky; 
+      top: 0; 
+      background: #ffffff; 
+      z-index: 90; 
+      border-bottom: 1px solid var(--border-color); 
+    }
+    .category-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 5px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: bold; cursor: pointer; flex-shrink: 0; }
     .category-btn:hover { background: #e0f2fe; color: var(--primary-color); border-color: #7dd3fc; }
 
     .menu-item { display: flex; flex-direction: column; padding: 0.7rem 0; border-bottom: 1px solid var(--border-color); }
@@ -191,7 +204,7 @@
     </div>
 
     <div id="pageOrder" style="display: none;">
-      <div class="card">
+      <div class="card" id="userInfoCard">
         <h2>1. 基本資料</h2>
         <div class="form-group">
           <label>姓名或綽號 *</label>
@@ -725,7 +738,10 @@
     function scrollToCategory(catId) {
       const el = document.getElementById(catId);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 考量到懸浮 Header 的高度進行偏移滾動
+        const yOffset = -50; 
+        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
 
@@ -746,7 +762,6 @@
         cat.items.forEach(item => {
           const id = item.name;
           
-          // 根據 optType 生成對應的勾選選項
           let optionsHtml = '';
           if (item.optType === 'tteokbokki_noodle') {
             optionsHtml = `
@@ -775,7 +790,6 @@
                 <label><input type="checkbox" id="meat-beef-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'beef')"> 牛肉 +10元</label>
               </div>`;
           } else {
-            // 預設標準飯類或一般品項的 半飯/不飯 選項
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="halfRice-${id}" onchange="toggleRiceOption('${id}', 'half')"> 半飯</label>
@@ -875,7 +889,6 @@
         return;
       }
 
-      // 計算動態價格（若勾選起司或牛肉需加 10 元）
       let finalPrice = basePrice;
       if (optType === 'shin_ramen') {
         const cheeseBox = document.getElementById(`shin-cheese-${id}`);
@@ -887,7 +900,6 @@
 
       if (!currentOrder[id]) currentOrder[id] = { qty: 0, price: finalPrice, basePrice: basePrice, optType: optType, remark: '' };
       
-      // 更新價格（如果品項價格有因選項改變）
       currentOrder[id].price = finalPrice;
       currentOrder[id].qty += change;
 
@@ -898,7 +910,6 @@
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
         
-        // 清除所有勾選與備註
         const checkboxes = document.querySelectorAll(`[id*="-${id}"]`);
         checkboxes.forEach(cb => { if(cb.type === 'checkbox') cb.checked = false; });
         const textRemark = document.getElementById(`remark-${id}`);
@@ -978,6 +989,7 @@
 
       if (!name || !dept) { 
         alert('⚠️ 請務必填寫「姓名或綽號」與「部門」！'); 
+        scrollToTop(); // 未填寫時跳出提示並自動置頂
         return; 
       }
 
