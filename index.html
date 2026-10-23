@@ -771,6 +771,15 @@
       if (currentOrder[id].qty <= 0) {
         delete currentOrder[id];
         document.getElementById(`qty-${id}`).innerText = 0;
+        
+        // 自動清空勾選框與備註
+        const halfBox = document.getElementById(`halfRice-${id}`);
+        const noBox = document.getElementById(`noRice-${id}`);
+        const textRemark = document.getElementById(`remark-${id}`);
+        if (halfBox) halfBox.checked = false;
+        if (noBox) noBox.checked = false;
+        if (textRemark) textRemark.value = '';
+
         if (optGroup) optGroup.classList.add('disabled-option');
         if (remGroup) remGroup.classList.add('disabled-option');
       } else {
