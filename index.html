@@ -622,8 +622,21 @@
     function taipeiToday() {
       return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
     }
+    // V9.1：星期只供顯示，場次識別與雲端日期維持 YYYY-MM-DD。
+    function formatEventDate(dateStr) {
+      if (!validEventDate(dateStr)) return String(dateStr || '');
+      const day = new Date(dateStr + 'T00:00:00Z').getUTCDay();
+      return `${dateStr} (週${'日一二三四五六'[day]})`;
+    }
+    function formatEventKey(eventKey) {
+      const text = String(eventKey || '');
+      const split = text.indexOf('_');
+      return split < 0 ? formatEventDate(text) :
+        `${formatEventDate(text.slice(0, split))} - ${text.slice(split + 1)}`;
+    }
+
     function parseEventDate(dateStr) {
-      return validEventDate(dateStr) ? new Date(dateStr + 'T00:00:00+08:00').getTime() : 0;
+      return validEventDate(dateStr) ? new Date(dateStr + 'T00:00:00+08:00').getTime() : Number.POSITIVE_INFINITY;
     }
     function sortActiveEventsByDate() {
       globalActiveEvents.sort((a, b) => parseEventDate(a.date) - parseEventDate(b.date));
@@ -755,7 +768,7 @@
       globalActiveEvents.forEach(ev => {
         const key = `${ev.date}_${ev.store}`;
         if (key === previousValue) exists = true;
-        select.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
+        select.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
       });
 
       if (exists) {
@@ -772,7 +785,7 @@
         filterSelect.innerHTML = '';
         globalActiveEvents.forEach(ev => {
           const key = `${ev.date}_${ev.store}`;
-          filterSelect.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
+          filterSelect.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
         });
         if (currentAdminSelected && [...filterSelect.options].some(o => o.value === currentAdminSelected)) {
           filterSelect.value = currentAdminSelected;
@@ -810,7 +823,7 @@
         document.getElementById('tabCancel').classList.remove('active');
 
         const [date, store] = val.split('_');
-        document.getElementById('currentStoreNameDisplay').innerText = `${date} ${store}`;
+        document.getElementById('currentStoreNameDisplay').innerText = `${formatEventDate(date)} ${store}`;
         renderMenu(store);
       }
       calculateTotal();
@@ -1257,7 +1270,7 @@
       const [date, store] = selectedKey.split('_');
       let html = `
         <div style="padding:10px; font-family:sans-serif;">
-          <h3 style="text-align:center; margin-bottom:5px;">📋 ${date} ${store} - 現場領餐對帳單</h3>
+          <h3 style="text-align:center; margin-bottom:5px;">📋 ${formatEventDate(date)} ${store} - 現場領餐對帳單</h3>
           <div style="text-align:right; font-size:10px; margin-bottom:5px;">列印時間：${new Date().toLocaleString()}</div>
           <table style="width:100%; border-collapse:collapse;" border="1">
             <thead>
@@ -1354,7 +1367,7 @@
 
         list.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:6px 8px; border-radius:4px; margin-bottom:6px; font-size:0.85rem; border:1px solid #e2e8f0;">
-            <span style="font-weight:bold;">${ev.date} - ${ev.store} ${batchStatusTag}</span>
+            <span style="font-weight:bold;">${formatEventDate(ev.date)} - ${ev.store} ${batchStatusTag}</span>
             <div style="display:flex; gap:4px; align-items:center;">
               <button class="btn-action" style="background:${toggleBtnBg}; padding:2px 8px; margin:0;" onclick="toggleEventTimeLimit(${idx})">${toggleBtnLabel}</button>
               <button class="btn-action btn-danger" style="padding:2px 8px; margin:0;" onclick="removeActiveEvent(${idx})">關閉場次</button>
@@ -1368,7 +1381,7 @@
       filterSelect.innerHTML = '';
       globalActiveEvents.forEach(ev => {
         const key = `${ev.date}_${ev.store}`;
-        filterSelect.innerHTML += `<option value="${key}">${ev.date} - ${ev.store}</option>`;
+        filterSelect.innerHTML += `<option value="${key}">${formatEventDate(ev.date)} - ${ev.store}</option>`;
       });
       if (currentSelected && [...filterSelect.options].some(o => o.value === currentSelected)) {
         filterSelect.value = currentSelected;
@@ -1413,7 +1426,7 @@
         renderAdminData();
         calculateTotal();
         const stateText = globalActiveEvents[idx].alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
-        alert(`✅ 已將【${globalActiveEvents[idx].date} ${globalActiveEvents[idx].store}】調整為 ${stateText}！`);
+        alert(`✅ 已將【${formatEventDate(globalActiveEvents[idx].date)} ${globalActiveEvents[idx].store}】調整為 ${stateText}！`);
       } finally {
         showLoading(false);
       }
@@ -1502,7 +1515,7 @@
           if (batchNum >= 3) {
             alert(`⛔ 已完成【第 3 單結算】！該場次點餐已完全截止鎖定，不會再產生第 4 單。`);
           } else {
-            alert(`✅ 已將【${ev.date} ${ev.store}】設定完成【第 ${batchNum} 單結算】！後續新點單將自動計入第 ${batchNum + 1} 單。`);
+            alert(`✅ 已將【${formatEventDate(ev.date)} ${ev.store}】設定完成【第 ${batchNum} 單結算】！後續新點單將自動計入第 ${batchNum + 1} 單。`);
           }
         } finally {
           showLoading(false);
@@ -1524,7 +1537,7 @@
       if (activeOrders.length === 0) { alert(`該場次尚無【第 ${batchTarget} 單】點餐紀錄！`); return; }
 
       let titleTag = batchTarget === 'all' ? '全單彙整' : `第 ${batchTarget} 單`;
-      let text = `📢 【${date} ${store} LINE點餐格式 - ${titleTag}】\n`;
+      let text = `📢 【${formatEventDate(date)} ${store} LINE點餐格式 - ${titleTag}】\n`;
       let itemSummary = {};
       let grandTotal = 0;
 
@@ -1582,7 +1595,7 @@
         if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
         await loadCloudData();
         renderAdminData();
-        alert(`已成功發起【${formattedDate} - ${store}】！選單已更新並按日期自動排序。`);
+        alert(`已成功發起【${formatEventDate(formattedDate)} - ${store}】！選單已更新並按日期自動排序。`);
       } catch(e) {
         alert('發起失敗，請重試');
       } finally { showLoading(false); }
@@ -1593,7 +1606,7 @@
       if (!closedEvent) { alert('找不到此場次，請重新整理。'); return; }
       const closedKey = `${closedEvent.date}_${closedEvent.store}`;
 
-      if (!confirm(`確定關閉【${closedEvent.date} - ${closedEvent.store}】嗎？\n\n該場次所有尚未取消的訂單會同步標記為「已取消」，保留紀錄供查核，且不能自動復原。`)) return;
+      if (!confirm(`確定關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】嗎？\n\n該場次所有尚未取消的訂單會同步標記為「已取消」，保留紀錄供查核，且不能自動復原。`)) return;
 
       showLoading(true);
       try {
@@ -1601,7 +1614,7 @@
         if (!(await postAdminAction('closeEvent', closedKey))) return;
         await loadCloudData();
         renderAdminData();
-        alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，相關有效訂單已同步標記為取消，歷史紀錄仍保留供查核。`);
+        alert(`已關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】場次，相關有效訂單已同步標記為取消，歷史紀錄仍保留供查核。`);
       } finally { showLoading(false); }
     }
 
@@ -1630,6 +1643,7 @@
         container.innerHTML = `<div class="card" id="userOrderCard" style="text-align:center; color:#6b7280;">查無您目前開放場次的有效點餐紀錄。</div>`;
       } else {
         let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
+        userOrders.sort((a, b) => parseEventDate(a.eventKey.split('_')[0]) - parseEventDate(b.eventKey.split('_')[0]));
         userOrders.forEach(o => {
           let itemStr = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
           const isExpired = checkEventExpiredByKey(o.eventKey);
@@ -1644,7 +1658,7 @@
           html += `
             <div style="border-bottom:1px solid #eee; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong>${o.eventKey} (第${o.batch || 1}單)</strong><br>
+                <strong>${formatEventKey(o.eventKey)} (第${o.batch || 1}單)</strong><br>
                 <small>${itemStr} (總計 $${o.total})</small>
               </div>
               <div>${actionBtnHtml}</div>
