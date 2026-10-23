@@ -1215,7 +1215,13 @@
       const items = [];
       let total = 0;
       for (let k in currentOrder) {
-        items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price, remark: currentOrder[k].remark });
+        // V9：加購選項獨立傳送，後端不從自由備註猜測價格。
+        const group = document.getElementById(`options-group-${k}`);
+        const options = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked'))
+          .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
+        const note = document.getElementById(`remark-${k}`)?.value.trim() || '';
+        items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price,
+          options, note, remark: currentOrder[k].remark });
         total += currentOrder[k].qty * currentOrder[k].price;
       }
 
