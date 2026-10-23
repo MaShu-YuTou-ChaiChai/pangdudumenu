@@ -395,24 +395,24 @@
       ],
       "湘園 燒臘": [
         { category: "港式燒臘便當系列", items: [
-          { name: "招牌飯", price: 95 },
-          { name: "烤雞腿飯", price: 95 },
-          { name: "炸雞腿飯", price: 95 },
-          { name: "滷雞腿飯", price: 95 },
-          { name: "臘味飯", price: 95 },
-          { name: "三寶飯", price: 95 },
-          { name: "叉鴨飯", price: 95 },
-          { name: "叉雞飯", price: 95 },
-          { name: "雞鴨飯", price: 95 },
-          { name: "化皮燒肉飯", price: 95 },
-          { name: "燒鴨飯", price: 95 },
-          { name: "油雞飯", price: 95 },
-          { name: "炸燒肉飯", price: 95 },
-          { name: "叉燒飯", price: 95 },
-          { name: "豬腳飯", price: 95 },
-          { name: "控肉飯", price: 95 },
-          { name: "香腸飯", price: 95 },
-          { name: "特餐", price: 95 },
+          { name: "招牌飯", price: 95, },
+          { name: "烤雞腿飯", price: 95, },
+          { name: "炸雞腿飯", price: 95, },
+          { name: "滷雞腿飯", price: 95, },
+          { name: "臘味飯", price: 95, },
+          { name: "三寶飯", price: 95, },
+          { name: "叉鴨飯", price: 95, },
+          { name: "叉雞飯", price: 95, },
+          { name: "雞鴨飯", price: 95, },
+          { name: "化皮燒肉飯", price: 95, },
+          { name: "燒鴨飯", price: 95, },
+          { name: "油雞飯", price: 95, },
+          { name: "炸燒肉飯", price: 95, },
+          { name: "叉燒飯", price: 95, },
+          { name: "豬腳飯", price: 95, },
+          { name: "控肉飯", price: 95, },
+          { name: "香腸飯", price: 95, },
+          { name: "特餐", price: 95, },
           { name: "菜飯", price: 80 }
         ]}
       ],
@@ -654,16 +654,20 @@
       currentEventKey = val;
       currentOrder = {};
 
-      const isCancelTabActive = document.getElementById('tabCancel').classList.contains('active');
-
       if (val === 'rules') {
-        document.getElementById('pageRules').style.display = isCancelTabActive ? 'none' : 'block';
+        document.getElementById('pageRules').style.display = 'block';
         document.getElementById('pageOrder').style.display = 'none';
+        document.getElementById('pageCancel').style.display = 'none';
         document.getElementById('footerBar').style.display = 'none';
       } else {
+        // 👉 自動切換到「我要點餐」分頁與對應按鈕狀態
         document.getElementById('pageRules').style.display = 'none';
-        document.getElementById('pageOrder').style.display = isCancelTabActive ? 'none' : 'block';
-        document.getElementById('footerBar').style.display = isCancelTabActive ? 'none' : 'flex';
+        document.getElementById('pageOrder').style.display = 'block';
+        document.getElementById('pageCancel').style.display = 'none';
+        document.getElementById('footerBar').style.display = 'flex';
+
+        document.getElementById('tabOrder').classList.add('active');
+        document.getElementById('tabCancel').classList.remove('active');
 
         const [date, store] = val.split('_');
         document.getElementById('currentStoreNameDisplay').innerText = `${date} ${store}`;
@@ -1257,8 +1261,10 @@
 
     async function searchUserOrder() {
       const name = document.getElementById('cancelName').value.trim();
-      const dept = document.getElementById('cancelDept').value.trim();
-      if(!name || !dept) { alert('請輸入姓名與部門！'); return; }
+      const dept = document.getElementById('userDept').value.trim(); // 修正為 userDept 或 cancelDept
+      // 依原程式碼保持 cancelName 與 cancelDept
+      const deptVal = document.getElementById('cancelDept').value.trim();
+      if(!name || !deptVal) { alert('請輸入姓名與部門！'); return; }
 
       showLoading(true);
       await loadCloudData();
@@ -1267,7 +1273,7 @@
       const activeEventKeys = globalActiveEvents.map(e => `${e.date}_${e.store}`);
       const userOrders = globalAllOrders.filter(o => 
         o.name === name && 
-        o.dept === dept && 
+        o.dept === deptVal && 
         !o.cancelled && 
         activeEventKeys.includes(o.eventKey)
       );
