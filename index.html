@@ -358,6 +358,8 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
+    // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
+    let adminToken = '';
 
     const storeDetails = {
       "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
@@ -1316,14 +1318,54 @@
     function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
 
     async function verifyAdminPassword() {
-      const pwd = document.getElementById('adminPasswordInput').value;
-      if (pwd === "170809") {
-        document.getElementById('adminPasswordInput').value = "";
+      const input = document.getElementById('adminPasswordInput');
+      const pwd = input.value;
+      if (!pwd) { alert('請輸入管理員密碼！'); return; }
+      showLoading(true);
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'adminLogin', password: pwd })
+        });
+        const result = await res.json();
+        if (result.status !== 'success' || !result.token) {
+          alert(result.message || '管理員驗證失敗');
+          return;
+        }
+        adminToken = result.token;
+        input.value = '';
         closeAdminAuthModal();
         document.getElementById('adminModal').classList.add('active');
         renderAdminData();
-      } else {
-        alert('密碼錯誤！');
+      } catch(e) {
+        alert('管理員登入失敗，請檢查網路後重試。');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function postAdminAction(subAction, events) {
+      if (!adminToken) { alert('請先登入管理員！'); openAdminModal(); return false; }
+      try {
+        const payload = { action: 'adminAction', token: adminToken, subAction };
+        if (subAction === 'setActiveEvents') payload.events = events;
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const result = await res.json();
+        if (result.status !== 'success') {
+          alert(result.message || '管理操作失敗，請重試');
+          if ((result.message || '').includes('登入已失效')) {
+            adminToken = '';
+            closeAdminModal();
+            openAdminModal();
+          }
+          await loadCloudData();
+          return false;
+        }
+        return true;
+      } catch(e) {
+        alert('管理操作無法連線，請確認網路後重試。');
+        await loadCloudData();
+        return false;
       }
     }
 
@@ -1393,10 +1435,7 @@
       globalActiveEvents[idx].alwaysOpen = !globalActiveEvents[idx].alwaysOpen;
       showLoading(true);
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
-        });
+        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
         renderAdminData();
         calculateTotal();
         const stateText = globalActiveEvents[idx].alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
@@ -1480,10 +1519,7 @@
         ev.cutoffBatch = batchNum;
         showLoading(true);
         try {
-          await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
-          });
+          if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
           renderAdminData();
           calculateTotal();
           if (batchNum >= 3) {
@@ -1568,10 +1604,7 @@
 
       showLoading(true);
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
-        });
+        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已成功發起【${formattedDate} - ${store}】！選單已更新並按日期自動排序。`);
@@ -1593,10 +1626,7 @@
 
       showLoading(true);
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'setActiveEvents', events: globalActiveEvents })
-        });
+        if (!(await postAdminAction('setActiveEvents', globalActiveEvents))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已關閉【${closedEvent.date} - ${closedEvent.store}】場次，且已同步自動隱藏該場次之歷史查詢紀錄！`);
@@ -1679,10 +1709,7 @@
       if(!confirm('確定要清空所有雲端點餐資料嗎？')) return;
       showLoading(true);
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'adminAction', password: "170809", subAction: 'clearAll' })
-        });
+        if (!(await postAdminAction('clearAll'))) return;
         await loadCloudData();
         renderAdminData();
         alert('已清空！');
