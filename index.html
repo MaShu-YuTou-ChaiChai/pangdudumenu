@@ -360,20 +360,20 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
 
     const storeDetails = {
-      "日日鴻 咖哩炒麵": { phone: "0925-339-282", note: "新北市樹林區復興路280號 (週一公休)" },
-      "臻可味 精緻快餐": { phone: "請參照店家電話", note: "精緻快餐便當" },
-      "嬌麻雞 精緻自助餐": { phone: "請參照店家電話", note: "精緻自助餐盒" },
-      "好卷不見": { phone: "請參照店家電話", note: "海苔飯卷 / 韓式拌飯" },
-      "銹 涼麵": { phone: "請參照店家電話", note: "特色涼麵與招牌牛肉" },
-      "金門雞腿丸": { phone: "請參照店家電話", note: "經典便當飯盒" },
-      "湘園 燒臘": { phone: "請參照店家電話", note: "港式燒臘便當" },
-      "花蓮扁食": { phone: "請參照店家電話", note: "抄手 / 扁食 / 麵食" },
-      "鑫吉野烤肉飯（民安西店）": { phone: "請參照店家電話", note: "民安西店直營" },
-      "食全 養生飯便當": { phone: "請參照店家電話", note: "養生健康餐盒" },
-      "豐禾飯製所": { phone: "請參照店家電話", note: "主打紅藜飯餐盒" },
-      "秦小家排骨": { phone: "請參照店家電話", note: "現炸排骨與精緻主食" },
-      "八方雲集": { phone: "請參照店家電話", note: "鍋貼 / 水餃 / 湯品" },
-      "竹林雞肉（中華店）": { phone: "請參照店家電話", note: "中華店銷魂雞肉飯" }
+      "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
+      "好卷不見": { phone: "0958-688-461" },
+      "湘園 燒臘": { phone: "02-2681-1890" },
+      "金門雞腿丸": { phone: "02-2675-0199" },
+      "食全 養生飯便當": { phone: "02-2902-6585" },
+      "臻可味 精緻快餐": { phone: "02-2686-6288" },
+      "花蓮扁食": { phone: "02-2682-1068" },
+      "銹 涼麵": { phone: "LINE 官方聯繫" },
+      "鑫吉野烤肉飯（民安西店）": { phone: "02-8201-8887 / 0919-390-233" },
+      "豐禾飯製所": { phone: "02-2684-4528" },
+      "秦小家排骨": { phone: "02-2683-0071" },
+      "日日鴻 咖哩炒麵": { phone: "0925-339-282" },
+      "八方雲集": { phone: "請參照店家電話" },
+      "竹林雞肉（中華店）": { phone: "請參照店家電話" }
     };
 
     const allStoresData = {
@@ -849,10 +849,10 @@
       const navContainer = document.getElementById('categoryNavContainer');
       const infoContainer = document.getElementById('storeInfoDisplay');
       
-      const sInfo = storeDetails[storeName] || { phone: "請參照店家電話", note: "" };
+      const sInfo = storeDetails[storeName] || { phone: "請參照店家電話" };
       infoContainer.innerHTML = `
         <div class="store-info-box">
-          📞 <span>店家電話：</span>${sInfo.phone} ${sInfo.note ? ' (' + sInfo.note + ')' : ''}
+          📞 <span>店家電話：</span>${sInfo.phone}
         </div>
       `;
 
