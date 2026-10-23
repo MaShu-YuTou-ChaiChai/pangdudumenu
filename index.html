@@ -1338,8 +1338,8 @@
       if (!adminToken) { alert('請先登入管理員！'); openAdminModal(); return false; }
       try {
         const payload = { action: 'adminAction', token: adminToken, subAction };
-        if (subAction === 'setActiveEvents') payload.events = events;
-        if (subAction === 'closeEvent') payload.eventKey = events;
+        // V10：只傳單一操作，不再上傳整份場次清單。
+        if (events) Object.assign(payload, events);
         await postCloudJSON(payload);
         return true;
       } catch(e) {
@@ -1350,6 +1350,7 @@
           openAdminModal();
         }
         await loadCloudData();
+        renderAdminData();
         return false;
       }
     }
@@ -1417,16 +1418,19 @@
     }
 
     async function toggleEventTimeLimit(idx) {
-      const nextEvents = globalActiveEvents.map(ev => ({ ...ev }));
-      nextEvents[idx].alwaysOpen = !nextEvents[idx].alwaysOpen;
+      const ev = globalActiveEvents[idx];
+      if (!ev) { alert('找不到此場次，請重新整理。'); return; }
+      const alwaysOpen = !ev.alwaysOpen;
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
-        globalActiveEvents = nextEvents;
+        if (!(await postAdminAction('setEventTimeLimit', {
+          eventKey: `${ev.date}_${ev.store}`, expectedVersion: ev.version || 'legacy', alwaysOpen
+        }))) return;
+        await loadCloudData();
         renderAdminData();
         calculateTotal();
-        const stateText = globalActiveEvents[idx].alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
-        alert(`✅ 已將【${formatEventDate(globalActiveEvents[idx].date)} ${globalActiveEvents[idx].store}】調整為 ${stateText}！`);
+        const stateText = alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
+        alert(`✅ 已將【${formatEventDate(ev.date)} ${ev.store}】調整為 ${stateText}！`);
       } finally {
         showLoading(false);
       }
@@ -1503,13 +1507,12 @@
 
       const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === selectedKey);
       if (ev) {
-        const nextEvents = globalActiveEvents.map(e => ({ ...e }));
-        const nextEv = nextEvents.find(e => `${e.date}_${e.store}` === selectedKey);
-        nextEv.cutoffBatch = batchNum;
         showLoading(true);
         try {
-          if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
-          globalActiveEvents = nextEvents;
+          if (!(await postAdminAction('setEventBatch', {
+            eventKey: selectedKey, expectedVersion: ev.version || 'legacy', cutoffBatch: batchNum
+          }))) return;
+          await loadCloudData();
           renderAdminData();
           calculateTotal();
           if (batchNum >= 3) {
@@ -1588,11 +1591,11 @@
         alert('相同日期與店家已經開放！'); return;
       }
 
-      const nextEvents = [...globalActiveEvents, { date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false }];
+      // 新場次由後端附加至最新清單。
 
       showLoading(true);
       try {
-        if (!(await postAdminAction('setActiveEvents', nextEvents))) return;
+        if (!(await postAdminAction('addEvent', { date: rawDate, store }))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已成功發起【${formatEventDate(formattedDate)} - ${store}】！選單已更新並按日期自動排序。`);
@@ -1611,7 +1614,7 @@
       showLoading(true);
       try {
         // V9.2：關場時清除此場次全部訂單；單筆取消仍保留紀錄。
-        if (!(await postAdminAction('closeEvent', closedKey))) return;
+        if (!(await postAdminAction('closeEvent', { eventKey: closedKey, expectedVersion: closedEvent.version || 'legacy' }))) return;
         await loadCloudData();
         renderAdminData();
         alert(`已關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】場次，此場次全部訂單與已取消紀錄已刪除。`);
