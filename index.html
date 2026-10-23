@@ -612,77 +612,32 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
 
-    function parseEventDate(dateStr) {
-      if (!dateStr) return 0;
-      const cleanStr = dateStr.split(' ')[0];
-      let parts = [];
-      if (cleanStr.includes('-')) parts = cleanStr.split('-');
-      else if (cleanStr.includes('/')) parts = cleanStr.split('/');
-      
-      if (parts.length === 3) return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])).getTime();
-      if (parts.length === 2) {
-        const now = new Date();
-        return new Date(now.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1])).getTime();
-      }
-      return 0;
+    // V7：場次一律保存 YYYY-MM-DD；不推測舊資料的年份。
+    function validEventDate(dateStr) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr || '')) return false;
+      const d = new Date(dateStr + 'T00:00:00+08:00');
+      return Number.isFinite(d.getTime()) &&
+        new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10) === dateStr;
     }
-
-    // 調整為由舊到新（日期早的在上方）
+    function taipeiToday() {
+      return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    }
+    function parseEventDate(dateStr) {
+      return validEventDate(dateStr) ? new Date(dateStr + 'T00:00:00+08:00').getTime() : 0;
+    }
     function sortActiveEventsByDate() {
       globalActiveEvents.sort((a, b) => parseEventDate(a.date) - parseEventDate(b.date));
     }
-
     function getTargetCutoffTime() {
-      if (currentEventKey === 'rules') return null;
-      const dateStr = currentEventKey.split('_')[0];
-      
-      const now = new Date();
-      let targetYear = now.getFullYear();
-      let month = 0;
-      let day = 0;
-
-      if (dateStr.includes('-')) {
-        const parts = dateStr.split('-');
-        targetYear = parseInt(parts[0]);
-        month = parseInt(parts[1]) - 1;
-        day = parseInt(parts[2]);
-      } else if (dateStr.includes('/')) {
-        const cleanDateStr = dateStr.split(' ')[0];
-        const parts = cleanDateStr.split('/');
-        month = parseInt(parts[0]) - 1;
-        day = parseInt(parts[1]);
-      }
-
-      const cutoffDate = new Date(targetYear, month, day, 10, 30, 0, 0);
-      return cutoffDate;
+      const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+      return ev && validEventDate(ev.date) ? new Date(ev.date + 'T10:30:00+08:00') : null;
     }
-
     function checkEventExpiredByKey(eventKey) {
-      const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === eventKey);
-      if (!curEv) return false;
-
-      if (curEv.cutoffBatch >= 3) return true;
-      if (curEv.alwaysOpen) return false;
-
-      const dateStr = eventKey.split('_')[0];
-      const now = new Date();
-      let targetYear = now.getFullYear();
-      let month = 0, day = 0;
-
-      if (dateStr.includes('-')) {
-        const parts = dateStr.split('-');
-        targetYear = parseInt(parts[0]);
-        month = parseInt(parts[1]) - 1;
-        day = parseInt(parts[2]);
-      } else if (dateStr.includes('/')) {
-        const cleanDateStr = dateStr.split(' ')[0];
-        const parts = cleanDateStr.split('/');
-        month = parseInt(parts[0]) - 1;
-        day = parseInt(parts[1]);
-      }
-
-      const cutoffDate = new Date(targetYear, month, day, 10, 30, 0, 0);
-      return new Date() >= cutoffDate;
+      const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === eventKey);
+      if (!ev || !validEventDate(ev.date)) return true;
+      if (ev.cutoffBatch >= 3) return true;
+      if (ev.alwaysOpen) return false;
+      return Date.now() >= new Date(ev.date + 'T10:30:00+08:00').getTime();
     }
 
     function isEventExpired() {
@@ -693,7 +648,7 @@
       if (currentEventKey === 'rules') return false;
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
       if (!curEv) return false;
-      return curEv.date.includes('週五');
+      return validEventDate(curEv.date) && new Date(curEv.date + 'T00:00:00Z').getUTCDay() === 5;
     }
 
     function startCountdownTimer() {
@@ -704,6 +659,12 @@
 
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
         
+        if (curEv && !validEventDate(curEv.date)) {
+          timerEl.innerText = '⛔ 舊場次缺少年份，請管理員關閉後以完整日期重開';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = '🔒 場次日期待更新'; }
+          return;
+        }
+
         if (curEv && curEv.cutoffBatch >= 3) {
           timerEl.innerText = '⛔ 今日點餐已完結 (已完成3單)';
           if (submitBtn) {
@@ -825,7 +786,7 @@
       for (let store in allStoresData) {
         select.innerHTML += `<option value="${store}">${store}</option>`;
       }
-      const today = new Date().toISOString().split('T')[0];
+      const today = taipeiToday();
       document.getElementById('newEventDate').value = today;
     }
 
@@ -1059,6 +1020,12 @@
     function updateQty(id, change, basePrice, optType) {
       if (isEventExpired()) {
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+        if (curEv && !validEventDate(curEv.date)) {
+          timerEl.innerText = '⛔ 舊場次缺少年份，請管理員關閉後以完整日期重開';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = '🔒 場次日期待更新'; }
+          return;
+        }
+
         if (curEv && curEv.cutoffBatch >= 3) {
           alert('⚠️ 此場次已完成【第 3 單結算】，點餐已全單完結，無法再加點！');
         } else {
@@ -1596,12 +1563,11 @@
       const store = document.getElementById('newEventStore').value;
       if (!rawDate) { alert('請選擇日期！'); return; }
 
-      const parts = rawDate.split('-');
-      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-      const weekString = weekdays[d.getDay()];
-
-      const formattedDate = `${parseInt(parts[1])}/${parseInt(parts[2])} (${weekString})`;
+      if (!validEventDate(rawDate)) { alert('日期無效，請選擇完整年月日！'); return; }
+      const formattedDate = rawDate;
+      if (globalActiveEvents.some(ev => ev.date === rawDate && ev.store === store)) {
+        alert('相同日期與店家已經開放！'); return;
+      }
 
       const nextEvents = [...globalActiveEvents, { date: formattedDate, store, cutoffBatch: 0, alwaysOpen: false }];
 
