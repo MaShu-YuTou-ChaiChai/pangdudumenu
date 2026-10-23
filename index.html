@@ -143,6 +143,9 @@
 
     .top-btn { position: fixed; bottom: 80px; right: 15px; background: var(--primary-color); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; z-index: 99; }
 
+    .store-info-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 0.6rem; border-radius: 6px; margin-bottom: 0.8rem; font-size: 0.85rem; color: #0369a1; }
+    .store-info-box span { font-weight: bold; color: #0284c7; }
+
     @media print {
       body * { visibility: hidden; }
       #printSection, #printSection * { visibility: visible; }
@@ -220,6 +223,7 @@
 
       <div class="card">
         <h2>2. 選擇餐點 (<span id="currentStoreNameDisplay">未選擇</span>)</h2>
+        <div id="storeInfoDisplay"></div>
         <div id="categoryNavContainer" class="category-nav"></div>
         <div id="menuList"></div>
       </div>
@@ -355,6 +359,23 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
 
+    const storeDetails = {
+      "日日鴻 咖哩炒麵": { phone: "0925-339-282", note: "新北市樹林區復興路280號 (週一公休)" },
+      "臻可味 精緻快餐": { phone: "請參照店家電話", note: "精緻快餐便當" },
+      "嬌麻雞 精緻自助餐": { phone: "請參照店家電話", note: "精緻自助餐盒" },
+      "好卷不見": { phone: "請參照店家電話", note: "海苔飯卷 / 韓式拌飯" },
+      "銹 涼麵": { phone: "請參照店家電話", note: "特色涼麵與招牌牛肉" },
+      "金門雞腿丸": { phone: "請參照店家電話", note: "經典便當飯盒" },
+      "湘園 燒臘": { phone: "請參照店家電話", note: "港式燒臘便當" },
+      "花蓮扁食": { phone: "請參照店家電話", note: "抄手 / 扁食 / 麵食" },
+      "鑫吉野烤肉飯（民安西店）": { phone: "請參照店家電話", note: "民安西店直營" },
+      "食全 養生飯便當": { phone: "請參照店家電話", note: "養生健康餐盒" },
+      "豐禾飯製所": { phone: "請參照店家電話", note: "主打紅藜飯餐盒" },
+      "秦小家排骨": { phone: "請參照店家電話", note: "現炸排骨與精緻主食" },
+      "八方雲集": { phone: "請參照店家電話", note: "鍋貼 / 水餃 / 湯品" },
+      "竹林雞肉（中華店）": { phone: "請參照店家電話", note: "中華店銷魂雞肉飯" }
+    };
+
     const allStoresData = {
       "臻可味 精緻快餐": [
         { category: "主餐便當", items: [
@@ -443,7 +464,7 @@
           { name: "咖哩-鮮蝦炒麵", price: 110, optType: "fried_noodle" },
           { name: "咖哩-什錦炒麵", price: 110, optType: "fried_noodle" }
         ]},
-        { category: "🌶️ 沙茶系列", items: [
+        { category: "🫕 沙茶系列", items: [
           { name: "沙茶-嘴邊肉炒麵", price: 100, optType: "fried_noodle" },
           { name: "沙茶-豬肝炒麵", price: 100, optType: "fried_noodle" },
           { name: "沙茶-牛肉炒麵", price: 110, optType: "fried_noodle" },
@@ -826,7 +847,15 @@
       const menu = allStoresData[storeName] || [];
       const container = document.getElementById('menuList');
       const navContainer = document.getElementById('categoryNavContainer');
+      const infoContainer = document.getElementById('storeInfoDisplay');
       
+      const sInfo = storeDetails[storeName] || { phone: "請參照店家電話", note: "" };
+      infoContainer.innerHTML = `
+        <div class="store-info-box">
+          📞 <span>店家電話：</span>${sInfo.phone} ${sInfo.note ? ' (' + sInfo.note + ')' : ''}
+        </div>
+      `;
+
       let navHtml = '';
       let html = '';
 
