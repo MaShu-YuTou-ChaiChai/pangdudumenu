@@ -1606,15 +1606,15 @@
       if (!closedEvent) { alert('找不到此場次，請重新整理。'); return; }
       const closedKey = `${closedEvent.date}_${closedEvent.store}`;
 
-      if (!confirm(`確定關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】嗎？\n\n該場次所有尚未取消的訂單會同步標記為「已取消」，保留紀錄供查核，且不能自動復原。`)) return;
+      if (!confirm(`確定關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】嗎？\n\n關閉後將永久刪除此場次的全部訂單（包含已取消紀錄），無法復原。其他場次不受影響。`)) return;
 
       showLoading(true);
       try {
-        // V6：交由後端一次完成場次關閉與訂單取消，不再僅從前端清單移除。
+        // V9.2：關場時清除此場次全部訂單；單筆取消仍保留紀錄。
         if (!(await postAdminAction('closeEvent', closedKey))) return;
         await loadCloudData();
         renderAdminData();
-        alert(`已關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】場次，相關有效訂單已同步標記為取消，歷史紀錄仍保留供查核。`);
+        alert(`已關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】場次，此場次全部訂單與已取消紀錄已刪除。`);
       } finally { showLoading(false); }
     }
 
