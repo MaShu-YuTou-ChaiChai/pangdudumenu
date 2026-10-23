@@ -454,10 +454,9 @@
       return cutoffDate;
     }
 
-    // 判斷當前選擇場次是否過期 (支援單一場次全天開放)
     function isEventExpired() {
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
-      if (curEv && curEv.alwaysOpen) return false; // 若該場次設定為全天開放則不過期
+      if (curEv && curEv.alwaysOpen) return false;
 
       const targetTime = getTargetCutoffTime();
       if (!targetTime) return false;
@@ -570,14 +569,17 @@
       currentEventKey = val;
       currentOrder = {};
 
+      // 若目前停留在「查詢」分頁，切換菜單時不強制切回點餐頁
+      const isCancelTabActive = document.getElementById('tabCancel').classList.contains('active');
+
       if (val === 'rules') {
-        document.getElementById('pageRules').style.display = 'block';
+        document.getElementById('pageRules').style.display = isCancelTabActive ? 'none' : 'block';
         document.getElementById('pageOrder').style.display = 'none';
         document.getElementById('footerBar').style.display = 'none';
       } else {
         document.getElementById('pageRules').style.display = 'none';
-        document.getElementById('pageOrder').style.display = 'block';
-        document.getElementById('footerBar').style.display = 'flex';
+        document.getElementById('pageOrder').style.display = isCancelTabActive ? 'none' : 'block';
+        document.getElementById('footerBar').style.display = isCancelTabActive ? 'none' : 'flex';
 
         const [date, store] = val.split('_');
         document.getElementById('currentStoreNameDisplay').innerText = `${date} ${store}`;
@@ -587,21 +589,26 @@
       scrollToTop();
     }
 
+    // 重點修正：頁面分頁切換邏輯
     function switchTab(tab) {
       if (tab === 'order') {
-        document.getElementById('pageOrder').style.display = currentEventKey === 'rules' ? 'none' : 'block';
+        // 我要點餐分頁
         document.getElementById('pageRules').style.display = currentEventKey === 'rules' ? 'block' : 'none';
+        document.getElementById('pageOrder').style.display = currentEventKey === 'rules' ? 'none' : 'block';
         document.getElementById('pageCancel').style.display = 'none';
         document.getElementById('footerBar').style.display = currentEventKey === 'rules' ? 'none' : 'flex';
+        
         document.getElementById('tabOrder').classList.add('active');
         document.getElementById('tabCancel').classList.remove('active');
       } else {
+        // 查詢 / 取消訂單分頁 (不管選單選什麼，一律隱藏首頁與點餐頁)
         document.getElementById('pageRules').style.display = 'none';
         document.getElementById('pageOrder').style.display = 'none';
         document.getElementById('pageCancel').style.display = 'block';
         document.getElementById('footerBar').style.display = 'none';
-        document.getElementById('tabOrder').classList.remove('active');
+        
         document.getElementById('tabCancel').classList.add('active');
+        document.getElementById('tabOrder').classList.remove('active');
       }
       scrollToTop();
     }
@@ -844,7 +851,6 @@
       }
     }
 
-    // 渲染管理員頁面：包含【全天開放 / 限時 10:30】按鈕與【關閉場次】按鈕
     function renderAdminData() {
       const list = document.getElementById('activeEventsList');
       list.innerHTML = '';
@@ -903,7 +909,6 @@
       calculateQuickSummary('all');
     }
 
-    // 單一場次時間限制開關切換 (全天開放 / 限時 10:30)
     async function toggleEventTimeLimit(idx) {
       globalActiveEvents[idx].alwaysOpen = !globalActiveEvents[idx].alwaysOpen;
       showLoading(true);
