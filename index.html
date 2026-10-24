@@ -360,12 +360,25 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
+    // V14 #14：同一頁鎖住送單；未確認結果的重試沿用原編號。
+    let confirmCheckInFlight = false;
+    let orderSubmitInFlight = false;
+    let orderSubmitConfirmed = false;
+    let pendingOrderV14 = null;
+    const PENDING_ORDER_KEY_V14 = 'pangdudumenu_pending_order_v14';
+    // V14 #13：僅在後台開啟時背景同步。
+    let adminSyncTimerV14 = null;
+    let adminSyncInFlightV14 = false;
+    let adminSyncGenerationV14 = 0;
+    let cloudDataEpochV14 = 0;
+    let adminSummaryBatchV14 = 'all';
 
     // V5：所有寫入與登入請求都要確認後端真的回傳 success。
-    async function postCloudJSON(payload) {
+    async function postCloudJSON(payload, requestSignal) {
       const res = await fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: requestSignal
       });
       if (!res.ok) throw new Error('雲端連線異常（HTTP ' + res.status + '）');
       let result;
@@ -621,7 +634,10 @@
     }
 
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
+    function showLoading(show) {
+      if (show) cloudDataEpochV14++;
+      document.getElementById('loadingOverlay').classList.toggle('active', show);
+    }
 
     // V7：場次一律保存 YYYY-MM-DD；不推測舊資料的年份。
     function validEventDate(dateStr) {
@@ -680,6 +696,10 @@
         const timerEl = document.getElementById('countdownTimer');
         const submitBtn = document.getElementById('btnSubmitOrder');
         if (!timerEl) return;
+        if (orderSubmitInFlight || orderSubmitConfirmed) {
+          calculateTotal();
+          return;
+        }
 
         const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
         
@@ -1185,6 +1205,12 @@
     function calculateTotal() {
       let total = calculateGrandTotalValue();
       document.getElementById('grandTotal').innerText = total;
+      if (orderSubmitInFlight || orderSubmitConfirmed) {
+        const button = document.getElementById('btnSubmitOrder');
+        button.disabled = true;
+        button.innerText = orderSubmitConfirmed ? '✅ 訂單已送出' : '點餐送出中…';
+        return;
+      }
       
       const submitBtn = document.getElementById('btnSubmitOrder');
       const curEv = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
@@ -1202,68 +1228,74 @@
     }
 
     async function openConfirmModal() {
-      if (isEventExpired()) {
-        alert('⚠️ 點餐已截止，無法繼續下單！');
-        return;
+      if (confirmCheckInFlight || orderSubmitInFlight || orderSubmitConfirmed) return;
+      confirmCheckInFlight = true;
+      try {
+        if (isEventExpired()) {
+          alert('⚠️ 點餐已截止，無法繼續下單！');
+          return;
+        }
+
+        const name = document.getElementById('userName').value.trim();
+        const dept = document.getElementById('userDept').value.trim();
+
+        if (!name || !dept) { 
+          alert('⚠️ 請務必填寫「姓名或綽號」與「部門」！'); 
+          scrollToTop(); 
+          return; 
+        }
+
+        let total = calculateGrandTotalValue();
+        if (total <= 0) {
+          alert('⚠️ 請至少選擇一項餐點！');
+          return;
+        }
+
+        showLoading(true);
+        const synced = await loadCloudData();
+        showLoading(false);
+
+        // V13.1：同步失敗時不以舊資料開啟確認視窗。
+        if (!synced) {
+          alert('⚠️ 無法取得最新場次狀態，請稍後再試！');
+          return;
+        }
+
+        const isStillActive = globalActiveEvents.some(ev => `${ev.date}_${ev.store}` === currentEventKey);
+        if (!isStillActive) {
+          alert('⚠️ 此點餐場次已被管理員關閉或不存在，無法繼續點餐！');
+          location.reload();
+          return;
+        }
+
+        // V13.1：同步後再次檢查結單與時間，避免舊頁面仍跳出確認視窗。
+        const latestEvent = globalActiveEvents.find(ev => `${ev.date}_${ev.store}` === currentEventKey);
+        if (latestEvent.cutoffBatch >= 3) {
+          calculateTotal();
+          alert('⚠️ 此場次已完成第 3 單結算，無法繼續下單！');
+          return;
+        }
+        if (isEventExpired()) {
+          calculateTotal();
+          alert('⚠️ 點餐已截止，無法繼續下單！');
+          return;
+        }
+
+        document.getElementById('confirmName').innerText = name;
+        document.getElementById('confirmDept').innerText = dept;
+
+        let itemsHtml = '';
+        for (let k in currentOrder) {
+          const itemTotal = currentOrder[k].qty * currentOrder[k].price;
+          itemsHtml += `<div>• ${escapeHTML(k)} x${currentOrder[k].qty} ($${itemTotal}) ${currentOrder[k].remark ? '['+escapeHTML(currentOrder[k].remark)+']':''}</div>`;
+        }
+
+        document.getElementById('confirmItemsList').innerHTML = itemsHtml;
+        document.getElementById('confirmTotal').innerText = total;
+        document.getElementById('confirmModal').classList.add('active');
+      } finally {
+        confirmCheckInFlight = false;
       }
-
-      const name = document.getElementById('userName').value.trim();
-      const dept = document.getElementById('userDept').value.trim();
-
-      if (!name || !dept) { 
-        alert('⚠️ 請務必填寫「姓名或綽號」與「部門」！'); 
-        scrollToTop(); 
-        return; 
-      }
-
-      let total = calculateGrandTotalValue();
-      if (total <= 0) {
-        alert('⚠️ 請至少選擇一項餐點！');
-        return;
-      }
-
-      showLoading(true);
-      const synced = await loadCloudData();
-      showLoading(false);
-
-      // V13.1：同步失敗時不以舊資料開啟確認視窗。
-      if (!synced) {
-        alert('⚠️ 無法取得最新場次狀態，請稍後再試！');
-        return;
-      }
-
-      const isStillActive = globalActiveEvents.some(ev => `${ev.date}_${ev.store}` === currentEventKey);
-      if (!isStillActive) {
-        alert('⚠️ 此點餐場次已被管理員關閉或不存在，無法繼續點餐！');
-        location.reload();
-        return;
-      }
-
-      // V13.1：同步後再次檢查結單與時間，避免舊頁面仍跳出確認視窗。
-      const latestEvent = globalActiveEvents.find(ev => `${ev.date}_${ev.store}` === currentEventKey);
-      if (latestEvent.cutoffBatch >= 3) {
-        calculateTotal();
-        alert('⚠️ 此場次已完成第 3 單結算，無法繼續下單！');
-        return;
-      }
-      if (isEventExpired()) {
-        calculateTotal();
-        alert('⚠️ 點餐已截止，無法繼續下單！');
-        return;
-      }
-
-      document.getElementById('confirmName').innerText = name;
-      document.getElementById('confirmDept').innerText = dept;
-
-      let itemsHtml = '';
-      for (let k in currentOrder) {
-        const itemTotal = currentOrder[k].qty * currentOrder[k].price;
-        itemsHtml += `<div>• ${escapeHTML(k)} x${currentOrder[k].qty} ($${itemTotal}) ${currentOrder[k].remark ? '['+escapeHTML(currentOrder[k].remark)+']':''}</div>`;
-      }
-
-      document.getElementById('confirmItemsList').innerHTML = itemsHtml;
-      document.getElementById('confirmTotal').innerText = total;
-      document.getElementById('confirmModal').classList.add('active');
     }
 
     function closeConfirmModal() {
@@ -1271,43 +1303,75 @@
     }
 
     async function submitOrder() {
-      closeConfirmModal();
-      const name = document.getElementById('userName').value.trim();
-      const dept = document.getElementById('userDept').value.trim();
-
-      const items = [];
-      let total = 0;
-      for (let k in currentOrder) {
-        // V9：加購選項獨立傳送，後端不從自由備註猜測價格。
-        const group = document.getElementById(`options-group-${k}`);
-        const options = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked'))
-          .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
-        const note = document.getElementById(`remark-${k}`)?.value.trim() || '';
-        items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price,
-          options, note, remark: currentOrder[k].remark });
-        total += currentOrder[k].qty * currentOrder[k].price;
-      }
-
-      const currentEvent = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
-      const batchNumber = (currentEvent && currentEvent.cutoffBatch) ? currentEvent.cutoffBatch + 1 : 1;
-
-      const orderData = {
-        id: 'ord_' + crypto.randomUUID(), // V8：UUID，不再以毫秒時間作為唯一編號。
-        eventKey: currentEventKey,
-        batch: batchNumber,
-        name, dept, items, total,
-        timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-      };
-
-      showLoading(true);
+      if (orderSubmitInFlight || orderSubmitConfirmed) return;
+      orderSubmitInFlight = true;
+      let submitTimeoutV14 = null;
       try {
-        await postCloudJSON({ action: 'submitOrder', order: orderData });
-        alert('點餐成功！資料已同步寫入雲端。');
-        location.reload();
+        closeConfirmModal();
+        calculateTotal();
+        const name = document.getElementById('userName').value.trim();
+        const dept = document.getElementById('userDept').value.trim();
+
+        const items = [];
+        let total = 0;
+        for (let k in currentOrder) {
+          // V9：加購選項獨立傳送，後端不從自由備註猜測價格。
+          const group = document.getElementById(`options-group-${k}`);
+          const options = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
+          const note = document.getElementById(`remark-${k}`)?.value.trim() || '';
+          items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price,
+            options, note, remark: currentOrder[k].remark });
+          total += currentOrder[k].qty * currentOrder[k].price;
+        }
+
+        const currentEvent = globalActiveEvents.find(e => `${e.date}_${e.store}` === currentEventKey);
+        const batchNumber = (currentEvent && currentEvent.cutoffBatch) ? currentEvent.cutoffBatch + 1 : 1;
+
+        const orderData = {
+          id: 'ord_' + crypto.randomUUID(), // V8：UUID，不再以毫秒時間作為唯一編號。
+          eventKey: currentEventKey,
+          batch: batchNumber,
+          name, dept, items, total,
+          timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+        };
+
+        // 同內容重試只使用一個 ID；批次由後端判定，不因管理員結算另造新單。
+        const fingerprint = JSON.stringify({eventKey: orderData.eventKey, name, dept, total,
+          items: items.map(item => ({name: item.name, qty: item.qty, price: item.price,
+            options: item.options.slice().sort(), note: item.note.trim()}))
+            .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)});
+        if (!pendingOrderV14) {
+          try { pendingOrderV14 = JSON.parse(sessionStorage.getItem(PENDING_ORDER_KEY_V14) || 'null'); }
+          catch (err) { pendingOrderV14 = null; }
+        }
+        if (!pendingOrderV14 || pendingOrderV14.fingerprint !== fingerprint ||
+            !pendingOrderV14.order || typeof pendingOrderV14.order.id !== 'string') {
+          pendingOrderV14 = {fingerprint, order: orderData};
+        }
+        try { sessionStorage.setItem(PENDING_ORDER_KEY_V14, JSON.stringify(pendingOrderV14)); }
+        catch (err) { /* 儲存空間不可用時仍由目前頁面記住待確認訂單。 */ }
+        showLoading(true);
+        const submitControllerV14 = new AbortController();
+        submitTimeoutV14 = setTimeout(() => submitControllerV14.abort(), 30000);
+          await postCloudJSON({ action: 'submitOrder', order: pendingOrderV14.order }, submitControllerV14.signal);
+          orderSubmitConfirmed = true;
+          pendingOrderV14 = null;
+          try { sessionStorage.removeItem(PENDING_ORDER_KEY_V14); } catch (err) {}
+          calculateTotal();
+          alert('點餐成功！資料已同步寫入雲端。');
+          location.reload();
       } catch(e) {
-        alert('⚠️ 點餐未確認成功：' + e.message + '\n請先查詢訂單是否存在，避免重複送單。');
+        if (e.message.includes('此訂單已取消')) {
+          pendingOrderV14 = null;
+          try { sessionStorage.removeItem(PENDING_ORDER_KEY_V14); } catch (err) {}
+        }
+        alert('⚠️ 點餐未確認成功：' + e.message + '\n請先查詢訂單是否存在；未確認收件的同內容重試將沿用原訂單編號。');
       } finally {
+        if (submitTimeoutV14 !== null) clearTimeout(submitTimeoutV14);
+        orderSubmitInFlight = false;
         showLoading(false);
+        calculateTotal();
       }
     }
 
@@ -1362,7 +1426,75 @@
 
     function openAdminModal() { document.getElementById('adminAuthModal').classList.add('active'); }
     function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.remove('active'); }
-    function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
+    function closeAdminModal() {
+      stopAdminAutoSyncV14();
+      document.getElementById('adminModal').classList.remove('active');
+    }
+
+    function stopAdminAutoSyncV14() {
+      adminSyncGenerationV14++;
+      if (adminSyncTimerV14 !== null) clearInterval(adminSyncTimerV14);
+      adminSyncTimerV14 = null;
+    }
+
+    function startAdminAutoSyncV14() {
+      stopAdminAutoSyncV14();
+      adminSyncTimerV14 = setInterval(refreshAdminQuietlyV14, 30000);
+    }
+
+    async function refreshAdminQuietlyV14() {
+      const modal = document.getElementById('adminModal');
+      if (!adminToken || !modal.classList.contains('active')) {
+        stopAdminAutoSyncV14();
+        return;
+      }
+      if (document.hidden || adminSyncInFlightV14 ||
+          document.getElementById('loadingOverlay').classList.contains('active') ||
+          confirmCheckInFlight || orderSubmitInFlight) return;
+      const token = adminToken, generation = adminSyncGenerationV14, epoch = cloudDataEpochV14;
+      adminSyncInFlightV14 = true;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      try {
+        const res = await fetch(`${API_URL}?action=getSystemData`, {signal: controller.signal});
+        if (!res.ok) throw new Error('場次同步失敗');
+        const system = await res.json();
+        if (!system || system.status !== 'success' || !Array.isArray(system.activeEvents))
+          throw new Error('場次同步格式錯誤');
+        const result = await postCloudJSON({action: 'getAdminOrders', token}, controller.signal);
+        if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
+        // 前景操作、關閉或重登之後，捨棄較早發出的背景回應。
+        if (token !== adminToken || generation !== adminSyncGenerationV14 ||
+            epoch !== cloudDataEpochV14 || !modal.classList.contains('active') || document.hidden) return;
+        const content = modal.querySelector('.modal-content');
+        const scrollTop = content ? content.scrollTop : 0;
+        const summaryBatch = adminSummaryBatchV14;
+        const selectedEvent = document.getElementById('adminEventFilter').value;
+        globalActiveEvents = system.activeEvents;
+        globalAllOrders = result.orders;
+        renderEventDropdown();
+        renderAdminData();
+        if (document.getElementById('adminEventFilter').value === selectedEvent)
+          calculateQuickSummary(summaryBatch);
+        if (content) content.scrollTop = scrollTop;
+        calculateTotal();
+      } catch (err) {
+        if (token === adminToken && generation === adminSyncGenerationV14 &&
+            epoch === cloudDataEpochV14 && err.message.includes('登入已失效')) {
+          adminToken = '';
+          globalAllOrders = [];
+          stopAdminAutoSyncV14();
+          closeAdminModal();
+          alert('管理員登入已失效，請重新登入');
+          openAdminModal();
+        } else {
+          console.warn('後台背景同步未完成，下次將重試：' + err.message);
+        }
+      } finally {
+        clearTimeout(timeout);
+        adminSyncInFlightV14 = false;
+      }
+    }
 
     async function verifyAdminPassword() {
       const input = document.getElementById('adminPasswordInput');
@@ -1378,6 +1510,7 @@
         closeAdminAuthModal();
         document.getElementById('adminModal').classList.add('active');
         renderAdminData();
+        startAdminAutoSyncV14();
       } catch(e) {
         alert('管理員登入失敗：' + e.message);
       } finally {
@@ -1499,6 +1632,7 @@
     }
 
     function calculateQuickSummary(targetBatch) {
+      adminSummaryBatchV14 = targetBatch;
       const selectedKey = document.getElementById('adminEventFilter').value;
       if (!selectedKey) return;
 
