@@ -99,6 +99,7 @@
     .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 8px; }
 
     .btn-action { background: #0284c7; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; margin-right: 0.3rem; margin-top: 0.4rem; }
+    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-danger { background: var(--danger-color); }
     .btn-success { background: var(--success-color); }
     .btn-warning { background: #f59e0b; color: white; }
@@ -166,7 +167,7 @@
         <img src="logo.png" class="header-logo" alt="Logo" onerror="this.style.display='none'">
       </div>
       <select id="eventSelect" class="event-select" onchange="onEventSelectChange()">
-        <option value="rules">👉 點這裡選擇投票結果菜單</option>
+        <option value="rules">📅 選擇用餐日期與店家</option>
       </select>
     </div>
     <button class="admin-btn" onclick="openAdminModal()">管理員</button>
@@ -189,8 +190,9 @@
         
         <div style="font-size:0.88rem; line-height:1.7; color:#334155;">
           <p style="margin-bottom:0.5rem;">歡迎公旭/群旭同仁使用點餐系統，請在點餐前遵守以下事項：</p>
+          <p style="margin-bottom:0.6rem; font-weight:bold; color:var(--primary-color);">① 選擇日期與店家 → ② 填姓名與部門 → ③ 選餐並確認送出</p>
           <ul style="margin-left:1.2rem; list-style-type: disc;">
-            <li><span class="rule-title">選擇店家：</span>菜單請點擊左上角下拉選取當日最終投票結果【店家】進行點餐。</li>
+            <li><span class="rule-title">選擇店家：</span>請點擊左上角選單，確認用餐日期與店家後再選餐。</li>
             <li><span class="rule-title">截止時間：</span>點餐截止時間為上午10:30，逾時將無法下單，須修改或加點請告知。</li>
             <li><span class="rule-title">實名填寫：</span>請務必填寫「姓名或綽號」與「完整部門」，方便取餐發放與對帳。</li>
             <li><span class="rule-title">付款方式：</span>領餐時並交付現金，付款後將已對帳單現場進行勾選確認付款。</li>
@@ -261,6 +263,8 @@
         <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
       </div>
       <div style="font-size:0.9rem; line-height:1.6; margin-bottom:1rem;">
+        <p><strong>用餐日期：</strong><span id="confirmEventDate"></span></p>
+        <p><strong>店家：</strong><span id="confirmEventStore"></span></p>
         <p><strong>姓名/綽號：</strong><span id="confirmName"></span></p>
         <p><strong>部門：</strong><span id="confirmDept"></span></p>
         <p style="margin-top:0.5rem; font-weight:bold; color:var(--primary-color);">點餐品項明細：</p>
@@ -294,6 +298,7 @@
         <h3>胖嘟嘟柴柴後台控制中心</h3>
         <button class="close-btn" onclick="closeAdminModal()">&times;</button>
       </div>
+      <p id="adminSyncStatus" role="status" aria-live="polite" style="font-size:0.8rem; line-height:1.6; margin-bottom:0.8rem; color:#475569;">尚未同步。後台開啟且分頁顯示時，每 30 秒自動更新。</p>
 
       <div style="margin-bottom: 1rem; background:#f0f9ff; border:1px solid #7dd3fc; padding:0.8rem; border-radius:6px;">
         <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#0369a1;">📢 發起投票結果店家場次：</div>
@@ -314,9 +319,9 @@
 
         <div style="font-weight:bold; font-size:0.85rem; margin:0.6rem 0 0.3rem 0; color:#0f172a;">⚡ 階段性結算設定：</div>
         <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem;">
-          <button class="btn-action btn-warning" onclick="setBatchCutoff(1)">第 1 單結算</button>
-          <button class="btn-action btn-warning" onclick="setBatchCutoff(2)">第 2 單結算</button>
-          <button class="btn-action btn-warning" onclick="setBatchCutoff(3)">第 3 單結算 (完全截止)</button>
+          <button id="batchCutoff1" class="btn-action btn-warning" onclick="setBatchCutoff(1)">第 1 單結算</button>
+          <button id="batchCutoff2" class="btn-action btn-warning" onclick="setBatchCutoff(2)">第 2 單結算</button>
+          <button id="batchCutoff3" class="btn-action btn-warning" onclick="setBatchCutoff(3)">第 3 單結算 (完全截止)</button>
         </div>
 
         <div style="font-weight:bold; font-size:0.85rem; margin:0.6rem 0 0.3rem 0; color:#0f172a;">📋 複製 LINE 點餐格式：</div>
@@ -372,6 +377,7 @@
     let adminSyncGenerationV14 = 0;
     let cloudDataEpochV14 = 0;
     let adminSummaryBatchV14 = 'all';
+    let lastAdminSyncAtV15 = ''; // 僅顯示目前頁面最近一次成功取得訂單的時間。
 
     // V5：所有寫入與登入請求都要確認後端真的回傳 success。
     async function postCloudJSON(payload, requestSignal) {
@@ -782,8 +788,15 @@
             try {
               await loadAdminOrdersV13();
             } catch (err) {
-              globalAllOrders = [];
-              if (err.message.includes('登入已失效')) adminToken = '';
+              if (err.message.includes('登入已失效')) {
+                adminToken = '';
+                globalAllOrders = [];
+                closeAdminModal();
+                updateAdminSyncStatusV15('expired');
+                openAdminModal();
+              } else {
+                updateAdminSyncStatusV15('error');
+              }
               console.warn('管理員訂單同步失敗：' + err.message);
               return false;
             }
@@ -792,8 +805,10 @@
           }
           return true;
         }
+        if (adminToken) updateAdminSyncStatusV15('error');
         return false;
       } catch(e) {
+        if (adminToken) updateAdminSyncStatusV15('error');
         return false;
       } finally {
         showLoading(false);
@@ -804,7 +819,9 @@
     async function loadAdminOrdersV13() {
       if (!adminToken) throw new Error('請先登入管理員');
       const result = await postCloudJSON({ action: 'getAdminOrders', token: adminToken });
-      globalAllOrders = result.orders || [];
+      if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
+      globalAllOrders = result.orders;
+      updateAdminSyncStatusV15('success');
       return true;
     }
 
@@ -813,7 +830,7 @@
 
       const select = document.getElementById('eventSelect');
       const previousValue = currentEventKey;
-      select.innerHTML = '<option value="rules">👉 點這裡選擇投票結果菜單</option>';
+      select.innerHTML = '<option value="rules">📅 選擇用餐日期與店家</option>';
       
       let exists = false;
       globalActiveEvents.forEach(ev => {
@@ -825,9 +842,9 @@
       if (exists) {
         select.value = previousValue;
       } else {
-        currentEventKey = "rules";
         select.value = "rules";
-        onEventSelectChange();
+        // 場次已被移除時必須返回首頁，不讓確認取消切換而保留不存在的場次。
+        onEventSelectChange(true);
       }
 
       const filterSelect = document.getElementById('adminEventFilter');
@@ -854,8 +871,15 @@
       document.getElementById('newEventDate').value = today;
     }
 
-    function onEventSelectChange() {
-      const val = document.getElementById('eventSelect').value;
+    function onEventSelectChange(force = false) {
+      const select = document.getElementById('eventSelect');
+      const val = select.value;
+      // V15：取消切換時，完整保留原場次的數量、選項及備註。
+      if (!force && val !== currentEventKey && calculateGrandTotalValue() > 0 &&
+          !confirm('切換用餐日期或店家會清除目前尚未送出的餐點與備註，確定要切換嗎？')) {
+        select.value = currentEventKey;
+        return;
+      }
       currentEventKey = val;
       currentOrder = {};
 
@@ -1281,6 +1305,8 @@
           return;
         }
 
+        document.getElementById('confirmEventDate').innerText = formatEventDate(latestEvent.date);
+        document.getElementById('confirmEventStore').innerText = latestEvent.store;
         document.getElementById('confirmName').innerText = name;
         document.getElementById('confirmDept').innerText = dept;
 
@@ -1429,6 +1455,29 @@
     function closeAdminModal() {
       stopAdminAutoSyncV14();
       document.getElementById('adminModal').classList.remove('active');
+      updateAdminSyncStatusV15('paused');
+    }
+
+    function updateAdminSyncStatusV15(state) {
+      const label = document.getElementById('adminSyncStatus');
+      if (!label) return;
+      if (state === 'success') {
+        lastAdminSyncAtV15 = new Date().toLocaleTimeString('zh-TW', {timeZone: 'Asia/Taipei', hour12: false});
+      }
+      const last = lastAdminSyncAtV15 ? `上次成功更新：${lastAdminSyncAtV15}` : '尚未成功更新';
+      if (state === 'error') {
+        label.innerText = `⚠️ 暫時無法同步，${last}。畫面可能不是最新資料，將於下次自動重試。`;
+        label.style.color = '#b45309';
+      } else if (state === 'expired') {
+        label.innerText = '⚠️ 管理員登入已失效，請重新登入後取得最新訂單。';
+        label.style.color = '#b45309';
+      } else if (state === 'paused') {
+        label.innerText = `${last}。後台已關閉，自動更新暫停。`;
+        label.style.color = '#475569';
+      } else {
+        label.innerText = `✅ ${last}。後台開啟且分頁顯示時，每 30 秒自動更新。`;
+        label.style.color = '#15803d';
+      }
     }
 
     function stopAdminAutoSyncV14() {
@@ -1478,6 +1527,7 @@
           calculateQuickSummary(summaryBatch);
         if (content) content.scrollTop = scrollTop;
         calculateTotal();
+        updateAdminSyncStatusV15('success');
       } catch (err) {
         if (token === adminToken && generation === adminSyncGenerationV14 &&
             epoch === cloudDataEpochV14 && err.message.includes('登入已失效')) {
@@ -1485,9 +1535,12 @@
           globalAllOrders = [];
           stopAdminAutoSyncV14();
           closeAdminModal();
+          updateAdminSyncStatusV15('expired');
           alert('管理員登入已失效，請重新登入');
           openAdminModal();
         } else {
+          if (token === adminToken && generation === adminSyncGenerationV14 && epoch === cloudDataEpochV14 &&
+              modal.classList.contains('active')) updateAdminSyncStatusV15('error');
           console.warn('後台背景同步未完成，下次將重試：' + err.message);
         }
       } finally {
@@ -1505,6 +1558,7 @@
         const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
+        lastAdminSyncAtV15 = '';
         await loadAdminOrdersV13();
         input.value = '';
         closeAdminAuthModal();
@@ -1573,6 +1627,14 @@
       }
 
       const selectedKey = filterSelect.value;
+      const selectedEvent = globalActiveEvents.find(ev => `${ev.date}_${ev.store}` === selectedKey);
+      for (let batch = 1; batch <= 3; batch++) {
+        const button = document.getElementById(`batchCutoff${batch}`);
+        if (button) {
+          button.disabled = !selectedEvent || batch <= Number(selectedEvent.cutoffBatch || 0);
+          button.title = button.disabled ? '此批次已結算，不能退回較早批次' : '';
+        }
+      }
       const body = document.querySelector('#detailTable tbody');
       body.innerHTML = '';
       
@@ -1692,6 +1754,10 @@
 
       const ev = globalActiveEvents.find(e => `${e.date}_${e.store}` === selectedKey);
       if (ev) {
+        if (batchNum <= Number(ev.cutoffBatch || 0)) {
+          alert('此批次已結算，不能退回較早批次。');
+          return;
+        }
         showLoading(true);
         try {
           if (!(await postAdminAction('setEventBatch', {
@@ -1836,7 +1902,7 @@
         let html = `<div class="card" id="userOrderCard"><h2>您的點餐紀錄</h2>`;
         userOrders.sort((a, b) => parseEventDate(a.eventKey.split('_')[0]) - parseEventDate(b.eventKey.split('_')[0]));
         userOrders.forEach(o => {
-          let itemStr = o.items.map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)}`).join(', ');
+          let itemStr = o.items.map(i => `${escapeHTML(i.name)} x${escapeHTML(i.qty)}${i.remark ? '（' + escapeHTML(i.remark) + '）' : ''}`).join('<br>');
           const isExpired = checkEventExpiredByKey(o.eventKey);
 
           let actionBtnHtml = '';
