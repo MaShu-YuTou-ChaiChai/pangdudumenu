@@ -607,7 +607,8 @@
     let globalActiveEvents = [];
     let currentEventKey = "rules";
     let currentOrder = {};
-    let globalAllOrders = [];
+    let globalAllOrders = []; // V13：僅管理員驗證後載入全部訂單。
+    let searchedUserOrders = []; // V13：個人查詢使用獨立的最小化結果。
 
     // V12: 將來自訂單、備註或場次的文字當成純文字顯示，避免 HTML 注入。
     function escapeHTML(value) {
@@ -753,10 +754,22 @@
         const res = await fetch(`${API_URL}?action=getSystemData`);
         const data = await res.json();
         if (data && data.status === 'success') {
-          globalAllOrders = data.orders || [];
           globalActiveEvents = data.activeEvents || [];
           sortActiveEventsByDate();
           renderEventDropdown();
+          // V13 #15：公開 API 已不回傳訂單，只有已登入管理員才能讀取全部訂單。
+          if (adminToken) {
+            try {
+              await loadAdminOrdersV13();
+            } catch (err) {
+              globalAllOrders = [];
+              if (err.message.includes('登入已失效')) adminToken = '';
+              console.warn('管理員訂單同步失敗：' + err.message);
+              return false;
+            }
+          } else {
+            globalAllOrders = [];
+          }
           return true;
         }
         return false;
@@ -765,6 +778,14 @@
       } finally {
         showLoading(false);
       }
+    }
+
+    // V13 #15：完整訂單僅在管理員持有效憑證時由後端提供。
+    async function loadAdminOrdersV13() {
+      if (!adminToken) throw new Error('請先登入管理員');
+      const result = await postCloudJSON({ action: 'getAdminOrders', token: adminToken });
+      globalAllOrders = result.orders || [];
+      return true;
     }
 
     function renderEventDropdown() {
@@ -1333,6 +1354,7 @@
         const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
+        await loadAdminOrdersV13();
         input.value = '';
         closeAdminAuthModal();
         document.getElementById('adminModal').classList.add('active');
@@ -1637,18 +1659,21 @@
       if(!name || !deptVal) { alert('請輸入姓名與部門！'); return; }
 
       showLoading(true);
-      await loadCloudData();
-      showLoading(false);
+      let userOrders;
+      try {
+        await loadCloudData();
+        // V13 #15：由後端篩選，不再下載全體同事訂單到一般使用者網頁。
+        const result = await postCloudJSON({ action: 'searchUserOrders', name, dept: deptVal });
+        searchedUserOrders = result.orders || [];
+        userOrders = searchedUserOrders;
+      } catch (err) {
+        alert('查詢訂單失敗：' + err.message);
+        return;
+      } finally {
+        showLoading(false);
+      }
 
       switchTab('cancel');
-
-      const activeEventKeys = globalActiveEvents.map(e => `${e.date}_${e.store}`);
-      const userOrders = globalAllOrders.filter(o => 
-        o.name === name && 
-        o.dept === deptVal && 
-        !o.cancelled && 
-        activeEventKeys.includes(o.eventKey)
-      );
 
       const container = document.getElementById('userOrderResult');
       
@@ -1685,13 +1710,14 @@
 
     async function cancelOrder(orderId) {
       if(!confirm('確定要取消這筆訂單嗎？')) return;
-      const order = globalAllOrders.find(o => o.id === orderId);
+      const order = searchedUserOrders.find(o => o.id === orderId);
       if(!order) return;
       const cancelledOrder = { ...order, cancelled: true };
 
       showLoading(true);
       try {
-        await postCloudJSON({ action: 'updateOrder', orderId: orderId, order: cancelledOrder });
+        await postCloudJSON({ action: 'updateOrder', orderId: orderId, order: cancelledOrder,
+          name: order.name, dept: order.dept });
         order.cancelled = true;
         alert('訂單已取消！');
       } catch(e) {
