@@ -1223,13 +1223,32 @@
       }
 
       showLoading(true);
-      await loadCloudData();
+      const synced = await loadCloudData();
       showLoading(false);
+
+      // V13.1：同步失敗時不以舊資料開啟確認視窗。
+      if (!synced) {
+        alert('⚠️ 無法取得最新場次狀態，請稍後再試！');
+        return;
+      }
 
       const isStillActive = globalActiveEvents.some(ev => `${ev.date}_${ev.store}` === currentEventKey);
       if (!isStillActive) {
         alert('⚠️ 此點餐場次已被管理員關閉或不存在，無法繼續點餐！');
         location.reload();
+        return;
+      }
+
+      // V13.1：同步後再次檢查結單與時間，避免舊頁面仍跳出確認視窗。
+      const latestEvent = globalActiveEvents.find(ev => `${ev.date}_${ev.store}` === currentEventKey);
+      if (latestEvent.cutoffBatch >= 3) {
+        calculateTotal();
+        alert('⚠️ 此場次已完成第 3 單結算，無法繼續下單！');
+        return;
+      }
+      if (isEventExpired()) {
+        calculateTotal();
+        alert('⚠️ 點餐已截止，無法繼續下單！');
         return;
       }
 
