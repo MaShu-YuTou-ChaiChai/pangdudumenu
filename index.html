@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+<!-- V16：取消後刷新、查詢同步檢查、前景請求逾時。 -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -379,20 +380,47 @@
     let adminSummaryBatchV14 = 'all';
     let lastAdminSyncAtV15 = ''; // 僅顯示目前頁面最近一次成功取得訂單的時間。
 
-    // V5：所有寫入與登入請求都要確認後端真的回傳 success。
-    async function postCloudJSON(payload, requestSignal) {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        signal: requestSignal
+    // V16：逾時涵蓋連線及 JSON 讀取；僅停止等待，不代表寫入已撤回。
+    async function fetchJSONV16(url, options = {}, timeoutMs = 30000) {
+      const controller = new AbortController();
+      const externalSignal = options.signal;
+      let timer, onAbort;
+      const cancelled = new Promise((resolve, reject) => {
+        onAbort = () => {
+          controller.abort();
+          reject(new Error('連線已中止，請確認目前資料狀態後再試'));
+        };
+        if (externalSignal) {
+          externalSignal.addEventListener('abort', onAbort, { once: true });
+          if (externalSignal.aborted) onAbort();
+        }
+        timer = setTimeout(() => {
+          controller.abort();
+          reject(new Error('雲端回應逾時，請確認網路後再試；寫入操作請先查詢是否已完成'));
+        }, timeoutMs);
       });
-      if (!res.ok) throw new Error('雲端連線異常（HTTP ' + res.status + '）');
-      let result;
       try {
-        result = await res.json();
-      } catch (e) {
-        throw new Error('雲端回應格式錯誤，請先查詢訂單狀態');
+        return await Promise.race([
+          (async () => {
+            const res = await fetch(url, { ...options, signal: controller.signal });
+            if (!res.ok) throw new Error('雲端連線異常（HTTP ' + res.status + '）');
+            try { return await res.json(); }
+            catch (err) {
+              if (controller.signal.aborted) throw err;
+              throw new Error('雲端回應格式錯誤，請確認目前資料狀態');
+            }
+          })(), cancelled
+        ]);
+      } finally {
+        clearTimeout(timer);
+        if (externalSignal) externalSignal.removeEventListener('abort', onAbort);
       }
+    }
+
+    async function postCloudJSON(payload, requestSignal) {
+      const result = await fetchJSONV16(API_URL, {
+        method: 'POST', body: JSON.stringify(payload), signal: requestSignal
+      });
       if (!result || result.status !== 'success') {
         throw new Error((result && result.message) || '雲端未確認操作成功');
       }
@@ -777,10 +805,9 @@
     async function loadCloudData() {
       showLoading(true);
       try {
-        const res = await fetch(`${API_URL}?action=getSystemData`);
-        const data = await res.json();
-        if (data && data.status === 'success') {
-          globalActiveEvents = data.activeEvents || [];
+        const data = await fetchJSONV16(`${API_URL}?action=getSystemData`, {}, 20000);
+        if (data && data.status === 'success' && Array.isArray(data.activeEvents)) {
+          globalActiveEvents = data.activeEvents;
           sortActiveEventsByDate();
           renderEventDropdown();
           // V13 #15：公開 API 已不回傳訂單，只有已登入管理員才能讀取全部訂單。
@@ -1880,12 +1907,19 @@
       showLoading(true);
       let userOrders;
       try {
-        await loadCloudData();
+        if (!(await loadCloudData())) {
+          throw new Error('無法取得最新場次狀態，請確認網路後重新搜尋');
+        }
+        // 同步函式會關閉遮罩，查詢期間重新顯示以防重複操作。
+        showLoading(true);
         // V13 #15：由後端篩選，不再下載全體同事訂單到一般使用者網頁。
         const result = await postCloudJSON({ action: 'searchUserOrders', name, dept: deptVal });
-        searchedUserOrders = result.orders || [];
+        if (!Array.isArray(result.orders)) throw new Error('訂單查詢回應格式錯誤');
+        searchedUserOrders = result.orders;
         userOrders = searchedUserOrders;
       } catch (err) {
+        searchedUserOrders = [];
+        document.getElementById('userOrderResult').innerHTML = '<div class="card" role="status">⚠️ 查詢未完成，請重新搜尋以取得最新訂單狀態。</div>';
         alert('查詢訂單失敗：' + err.message);
         return;
       } finally {
@@ -1940,8 +1974,7 @@
         order.cancelled = true;
         alert('訂單已取消！');
       } catch(e) {
-        alert('⚠️ 取消訂單未確認成功：' + e.message + '\n請重新查詢訂單狀態。');
-        return;
+        alert('⚠️ 取消訂單未確認成功：' + e.message + '\n系統將重新查詢訂單狀態，請以查詢結果為準。');
       } finally {
         showLoading(false);
       }
