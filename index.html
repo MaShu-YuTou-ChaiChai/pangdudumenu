@@ -195,7 +195,7 @@
           <ul style="margin-left:1.2rem; list-style-type: disc;">
             <li><span class="rule-title">選擇店家：</span>請點擊左上角選單，確認用餐日期與店家後再選餐。</li>
             <li><span class="rule-title">截止時間：</span>點餐截止時間為上午10:30，逾時將無法下單，須修改或加點請告知。</li>
-            <li><span class="rule-title">實名填寫：</span>請務必填寫「姓名或綽號」與「完整部門」，方便取餐發放與對帳。</li>
+            <li><span class="rule-title">實名填寫：</span>請務必填寫「姓名或綽號」與「完整部門」，方便取餐發放與查詢。</li>
             <li><span class="rule-title">付款方式：</span>領餐時並交付現金，付款後將已對帳單現場進行勾選確認付款。</li>
             <li><span class="rule-title">特殊需求：</span>點選2份以上且需求不同時,請在[備註]填寫(例:1個半飯,1個正常)。</li>
           </ul>
@@ -447,32 +447,83 @@
       "秦小家排骨": { phone: "02-2683-0071" },
       "日日鴻 咖哩炒麵": { phone: "0925-339-282" },
       "八方雲集": { phone: "請參照店家電話" },
-      "竹林雞肉（中華店）": { phone: "請參照店家電話" }
+      "竹林雞肉（中華店）": { phone: "請參照店家電話" },
+      "天天下廚": { phone: "02-2675-0025" }
     };
 
     const allStoresData = {
+      "天天下廚": [
+        { category: "炒飯", items: [
+          { name: "豬肉蛋炒飯", price: 85, optType: "tt_fried_rice" },
+          { name: "雞肉蛋炒飯", price: 85, optType: "tt_fried_rice" },
+          { name: "牛肉蛋炒飯", price: 95, optType: "tt_fried_rice" },
+          { name: "羊肉蛋炒飯", price: 95, optType: "tt_fried_rice" },
+          { name: "蝦仁蛋炒飯", price: 95, optType: "tt_fried_rice" },
+          { name: "蔬菜蛋炒飯", price: 70, optType: "tt_fried_rice" }
+        ]},
+        { category: "炒麵", items: [
+          { name: "豬肉炒麵", price: 85 },
+          { name: "雞肉炒麵", price: 85 },
+          { name: "牛肉炒麵", price: 95 },
+          { name: "羊肉炒麵", price: 95 },
+          { name: "蝦仁炒麵", price: 95 },
+          { name: "蔬菜炒麵", price: 70 }
+        ]},
+        { category: "湯麵", items: [
+          { name: "肉絲湯麵", price: 75 },
+          { name: "鍋燒烏龍麵", price: 85 },
+          { name: "鍋燒雞絲麵", price: 85 }
+        ]},
+        { category: "湯品", items: [
+          { name: "蛤蜊湯", price: 60 },
+          { name: "蚵仔湯", price: 60 },
+          { name: "豬肝湯", price: 60 },
+          { name: "貢丸湯", price: 50 },
+          { name: "紫菜蛋花湯", price: 40 },
+          { name: "青菜豆腐湯", price: 40 },
+          { name: "青菜蛋花湯", price: 40 }
+        ]},
+        { category: "熱炒類", items: [
+          { name: "酥炸豆腐", price: 60 },
+          { name: "炒青菜", price: 80 },
+          { name: "九層塔菜脯煎蛋", price: 100 },
+          { name: "爆炒豬肝", price: 120 },
+          { name: "麻婆紅燒豆腐", price: 120 },
+          { name: "糖醋雞柳", price: 130 },
+          { name: "沙茶炒牛肉", price: 140 },
+          { name: "沙茶炒羊肉", price: 140 },
+          { name: "蔥爆牛肉", price: 140 },
+          { name: "蔥爆羊肉", price: 140 },
+          { name: "紅燒糖醋魚片", price: 160 },
+          { name: "蝦仁烘蛋", price: 150 },
+          { name: "蔭鼓燒蚵仔", price: 150 },
+          { name: "蚵仔酥", price: 150 },
+          { name: "塔香蛤蜊", price: 150 },
+          { name: "白飯", price: 15 }
+        ]}
+      ],
       "臻可味 精緻快餐": [
         { category: "主餐便當", items: [
-          { name: "油雞便當", price: 100 }, { name: "菜飯便當(5樣菜)", price: 70 },
-          { name: "鯖魚便當", price: 90 }, { name: "糖醋排骨便當", price: 90 },
-          { name: "日式無骨雞排便當", price: 85 }, { name: "蒲燒鯛便當", price: 90 },
-          { name: "板煎雞腿排便當", price: 90 }, { name: "鮮魚(切片)便當", price: 90 },
-          { name: "板煎排骨便當", price: 100 }, { name: "蒜泥白肉便當", price: 90 },
-          { name: "香滷控肉便當", price: 90 }, { name: "泰式椒麻雞便當", price: 95 },
-          { name: "鮮魚(整尾)便當", price: 100 }, { name: "香酥雞排便當", price: 100 },
-          { name: "酥炸大雞腿", price: 110 }, { name: "香滷大雞腿", price: 110 }
+          { name: "油雞便當", price: 100, optType: "xiangyuan_rice" }, { name: "菜飯便當(5樣菜)", price: 70, optType: "xiangyuan_rice" },
+          { name: "鯖魚便當", price: 90, optType: "xiangyuan_rice" }, { name: "糖醋排骨便當", price: 90, optType: "xiangyuan_rice" },
+          { name: "日式無骨雞排便當", price: 85, optType: "xiangyuan_rice" }, { name: "蒲燒鯛便當", price: 90, optType: "xiangyuan_rice" },
+          { name: "板煎雞腿排便當", price: 90, optType: "xiangyuan_rice" }, { name: "鮮魚(切片)便當", price: 90, optType: "xiangyuan_rice" },
+          { name: "板煎排骨便當", price: 100, optType: "xiangyuan_rice" }, { name: "蒜泥白肉便當", price: 90, optType: "xiangyuan_rice" },
+          { name: "香滷控肉便當", price: 90, optType: "xiangyuan_rice" }, { name: "泰式椒麻雞便當", price: 95, optType: "xiangyuan_rice" },
+          { name: "鮮魚(整尾)便當", price: 100, optType: "xiangyuan_rice" }, { name: "香酥雞排便當", price: 100, optType: "xiangyuan_rice" },
+          { name: "酥炸大雞腿", price: 110, optType: "xiangyuan_rice" }, { name: "香滷大雞腿", price: 110, optType: "xiangyuan_rice" }
         ]}
       ],
       "嬌麻雞 精緻自助餐": [
         { category: "精緻餐盒", items: [
-          { name: "酸甜香辣嬌麻雞", price: 130 }, { name: "脆皮炸雞腿", price: 110 },
-          { name: "香酥無骨雞排", price: 85 }, { name: "三杯雞丁", price: 80 },
-          { name: "炒肉片", price: 80 }, { name: "菜飯", price: 80 },
-          { name: "煎厚切肉排", price: 100 }, { name: "糖醋肉塊", price: 90 },
-          { name: "滷控肉", price: 90 }, { name: "黑胡椒肉柳", price: 80 },
-          { name: "紅糟肉", price: 90 }, { name: "清蒸雞胸", price: 90 },
-          { name: "紹興紅露醉雞腿", price: 110 }, { name: "清蒸鮮魚", price: 100 },
-          { name: "香煎鮭魚", price: 140 }
+          { name: "酸甜香辣嬌麻雞", price: 130, optType: "xiangyuan_rice" }, { name: "脆皮炸雞腿", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥無骨雞排", price: 85, optType: "xiangyuan_rice" }, { name: "三杯雞丁", price: 80, optType: "xiangyuan_rice" },
+          { name: "炒肉片", price: 80, optType: "xiangyuan_rice" }, { name: "菜飯", price: 80, optType: "xiangyuan_rice" },
+          { name: "煎厚切肉排", price: 100, optType: "xiangyuan_rice" }, { name: "糖醋肉塊", price: 90, optType: "xiangyuan_rice" },
+          { name: "滷控肉", price: 90, optType: "xiangyuan_rice" }, { name: "黑胡椒肉柳", price: 80, optType: "xiangyuan_rice" },
+          { name: "紅糟肉", price: 90, optType: "xiangyuan_rice" }, { name: "清蒸雞胸", price: 90, optType: "xiangyuan_rice" },
+          { name: "紹興紅露醉雞腿", price: 110, optType: "xiangyuan_rice" }, { name: "清蒸鮮魚", price: 100, optType: "xiangyuan_rice" },
+          { name: "香煎鮭魚", price: 140, optType: "xiangyuan_rice" }
         ]}
       ],
       "好卷不見": [
@@ -585,74 +636,319 @@
       ],
       "金門雞腿丸": [
         { category: "經典飯盒", items: [
-          { name: "秘醬大雞排飯", price: 110 }, { name: "蔥爆牛肉飯", price: 110 },
-          { name: "蒜泥白肉飯", price: 110 }, { name: "酥炸排骨飯", price: 100 },
-          { name: "脆皮大雞腿飯", price: 100 }, { name: "香滷大雞腿飯", price: 100 },
-          { name: "薄鹽鯖魚飯", price: 95 }, { name: "經濟六菜飯", price: 80 }
+          { name: "秘醬大雞排飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "蔥爆牛肉飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "蒜泥白肉飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "蔥燒吳郭魚飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "酥炸排骨飯", price: 100, optType: "xiangyuan_rice" },
+          { name: "脆皮大雞腿飯", price: 100, optType: "xiangyuan_rice" },
+          { name: "香滷大雞腿飯", price: 100, optType: "xiangyuan_rice" },
+          { name: "蜜汁大雞腿飯", price: 100, optType: "xiangyuan_rice" },
+          { name: "酥炸大雞排飯", price: 100, optType: "xiangyuan_rice" },
+          { name: "薄鹽鯖魚飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "府城蝦捲飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "𩵚魠魚柳條飯", price: 90, optType: "xiangyuan_rice" },
+          { name: "糖醋排骨飯", price: 90, optType: "xiangyuan_rice" },
+          { name: "鹹酥雞飯", price: 90, optType: "xiangyuan_rice" },
+          { name: "香滷排骨飯", price: 90, optType: "xiangyuan_rice" },
+          { name: "經濟六菜飯", price: 80, optType: "xiangyuan_rice" },
+          { name: "黃金魚排飯", price: 80, optType: "xiangyuan_rice" },
+          { name: "香酥無骨雞排飯", price: 80, optType: "xiangyuan_rice" },
+          { name: "經典滷棒棒腿飯", price: 80, optType: "xiangyuan_rice" }
         ]}
       ],
       "湘園 燒臘": [
         { category: "港式燒臘便當系列", items: [
-          { name: "招牌飯", price: 95 }, { name: "烤雞腿飯", price: 95 }, { name: "炸雞腿飯", price: 95 }, { name: "滷雞腿飯", price: 95 },
-          { name: "臘味飯", price: 95 }, { name: "三寶飯", price: 95 }, { name: "叉鴨飯", price: 95 }, { name: "叉雞飯", price: 95 },
-          { name: "雞鴨飯", price: 95 }, { name: "化皮燒肉飯", price: 95 }, { name: "燒鴨飯", price: 95 }, { name: "油雞飯", price: 95 },
-          { name: "炸燒肉飯", price: 95 }, { name: "叉燒飯", price: 95 }, { name: "豬腳飯", price: 95 }, { name: "控肉飯", price: 95 },
-          { name: "香腸飯", price: 95 }, { name: "特餐", price: 95 }, { name: "菜飯", price: 80 }
+          { name: "招牌飯", price: 95, optType: "xiangyuan_rice" }, { name: "烤雞腿飯", price: 95, optType: "xiangyuan_rice" }, { name: "炸雞腿飯", price: 95, optType: "xiangyuan_rice" }, { name: "滷雞腿飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "臘味飯", price: 95, optType: "xiangyuan_rice" }, { name: "三寶飯", price: 95, optType: "xiangyuan_rice" }, { name: "叉鴨飯", price: 95, optType: "xiangyuan_rice" }, { name: "叉雞飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "雞鴨飯", price: 95, optType: "xiangyuan_rice" }, { name: "化皮燒肉飯", price: 95, optType: "xiangyuan_rice" }, { name: "燒鴨飯", price: 95, optType: "xiangyuan_rice" }, { name: "油雞飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "炸燒肉飯", price: 95, optType: "xiangyuan_rice" }, { name: "叉燒飯", price: 95, optType: "xiangyuan_rice" }, { name: "豬腳飯", price: 95, optType: "xiangyuan_rice" }, { name: "控肉飯", price: 95, optType: "xiangyuan_rice" },
+          { name: "香腸飯", price: 95, optType: "xiangyuan_rice" }, { name: "特餐", price: 95, optType: "xiangyuan_rice" }, { name: "菜飯", price: 80, optType: "xiangyuan_rice" }
         ]}
       ],
       "花蓮扁食": [
-        { category: "抄手/扁食/麵類", items: [
-          { name: "鮮蝦紅油抄手", price: 100 }, { name: "鮮肉紅油抄手", price: 90 },
-          { name: "鮮蝦扁食湯", price: 90 }, { name: "鮮肉扁食湯", price: 80 },
-          { name: "鮮蝦扁食麵", price: 90 }, { name: "蘋果咖哩飯", price: 85 },
-          { name: "鮮蝦高麗菜鍋貼(10粒)", price: 85 }, { name: "鮮肉韭菜鍋貼(10粒)", price: 75 }
+        { category: "紅油抄手", items: [
+          { name: "鮮蝦紅油抄手", price: 100, optType: "hl_wonton" },
+          { name: "鮮肉紅油抄手", price: 90, optType: "hl_wonton" },
+          { name: "菜肉紅油抄手", price: 90, optType: "hl_wonton" }
+        ]},
+        { category: "扁食麵", items: [
+          { name: "鮮蝦扁食麵", price: 90 },
+          { name: "鮮肉扁食麵", price: 80 },
+          { name: "菜肉扁食麵", price: 80 }
+        ]},
+        { category: "湯品", items: [
+          { name: "鮮蝦扁食湯", price: 90 },
+          { name: "鮮肉扁食湯", price: 80 },
+          { name: "菜肉扁食湯", price: 80 },
+          { name: "海苔青菜蛋花湯", price: 40, optType: "hl_soup" },
+          { name: "酸辣湯", price: 40, optType: "hl_soup" },
+          { name: "蟹黃羹", price: 40, optType: "hl_soup" },
+          { name: "貢丸湯", price: 40, optType: "hl_soup" }
+        ]},
+        { category: "麵類", items: [
+          { name: "蘭陽乾麵", price: 40, optType: "hl_large" },
+          { name: "紅油辣麵", price: 45, optType: "hl_large" }
+        ]},
+        { category: "飯類", items: [
+          { name: "蘋果咖哩飯", price: 85 },
+          { name: "香辣拌飯", price: 45, optType: "hl_large" },
+          { name: "肉燥飯", price: 35, optType: "hl_large" }
+        ]},
+        { category: "湯餃／扁食", items: [
+          { name: "酸辣湯餃", price: 85, optType: "hl_dumpling" },
+          { name: "蟹黃湯餃", price: 85, optType: "hl_dumpling" },
+          { name: "酸辣扁食羹", price: 85, optType: "hl_dumpling" },
+          { name: "蟹黃扁食羹", price: 85, optType: "hl_dumpling" }
+        ]},
+        { category: "鍋貼與水餃", items: [
+          { name: "鮮蝦高麗菜鍋貼(10粒)", price: 85 },
+          { name: "鮮肉韭菜鍋貼(10粒)", price: 75 }
         ]}
       ],
       "鑫吉野烤肉飯（民安西店）": [
-        { category: "烤肉飯盒", items: [
-          { name: "烤肉飯", price: 110 }, { name: "烤排骨飯", price: 110 },
-          { name: "烤雞柳飯", price: 110 }, { name: "烤五花肉飯", price: 120 },
-          { name: "烤雙拼飯", price: 120 }, { name: "烤雞腿飯", price: 120 },
-          { name: "黑胡椒雞排飯", price: 110 }, { name: "香酥雞腿飯", price: 120 }
+        { category: "", items: [
+          { name: "菜飯", price: 80, optType: "xiangyuan_rice" }
+        ]},
+        { category: "烤類", items: [
+          { name: "烤肉飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "烤排骨飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "烤雞柳飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "烤五花肉飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "烤雙寶飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "烤雞排飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "烤雞腿飯", price: 120, optType: "xiangyuan_rice" }
+        ]},
+        { category: "黑胡椒類", items: [
+          { name: "黑胡椒魚排飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "黑胡椒排骨飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "黑胡椒雞柳飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "黑胡椒雞排飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "黑胡椒雞腿飯", price: 120, optType: "xiangyuan_rice" }
+        ]},
+        { category: "香酥類", items: [
+          { name: "香酥蝦捲飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥魚排飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥排骨飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥雞柳飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥雞翅飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "香酥雞排飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "香酥雞腿飯", price: 120, optType: "xiangyuan_rice" }
+        ]},
+        { category: "滷類", items: [
+          { name: "滷排骨飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "滷獅子頭飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "滷雞腿飯", price: 120, optType: "xiangyuan_rice" }
+        ]},
+        { category: "單點", items: [
+          { name: "雞腿、雞排", price: 90 },
+          { name: "其他主餐", price: 80 },
+          { name: "白飯", price: 15 },
+          { name: "加菜", price: 15 },
+          { name: "滷蛋", price: 15 }
         ]}
       ],
       "食全 養生飯便當": [
         { category: "養生便當", items: [
-          { name: "養生飯", price: 100 }, { name: "起司豬排飯", price: 80 },
-          { name: "酥炸雞翅飯", price: 85 }, { name: "滷雞腿飯", price: 120 },
-          { name: "炸雞腿飯", price: 120 }, { name: "紅燒牛腩飯", price: 110 },
-          { name: "椒麻雞飯", price: 130 }, { name: "椒鹽雞丁飯", price: 90 }
+          { name: "起司豬排飯", price: 80, optType: "shiquan_rice" },
+          { name: "酥炸雞翅飯", price: 85, optType: "shiquan_rice" },
+          { name: "滷雞腿飯", price: 120, optType: "shiquan_rice" },
+          { name: "炸雞腿飯", price: 120, optType: "shiquan_rice" },
+          { name: "鮭魚飯", price: 110, optType: "shiquan_rice" },
+          { name: "紅燒牛腩飯", price: 110, optType: "shiquan_rice" },
+          { name: "鱈魚飯", price: 100, optType: "shiquan_rice" },
+          { name: "香酥雞排飯", price: 110, optType: "shiquan_rice" },
+          { name: "養生飯", price: 100, optType: "shiquan_rice" },
+          { name: "椒麻雞飯", price: 130, optType: "shiquan_rice" },
+          { name: "咔啦雞飯", price: 80, optType: "shiquan_rice" },
+          { name: "椒鹽雞丁飯", price: 90, optType: "shiquan_rice" },
+          { name: "叉燒飯", price: 100, optType: "shiquan_rice" },
+          { name: "花枝捲飯", price: 85, optType: "shiquan_rice" },
+          { name: "蝦仁捲飯", price: 85, optType: "shiquan_rice" },
+          { name: "排骨飯", price: 100, optType: "shiquan_rice" },
+          { name: "香腸飯", price: 80, optType: "shiquan_rice" },
+          { name: "招牌飯", price: 90, optType: "shiquan_rice" },
+          { name: "鯖魚飯", price: 100, optType: "shiquan_rice" },
+          { name: "精緻特餐", price: 70, optType: "shiquan_rice" },
+          { name: "素食便當", price: 80, optType: "shiquan_rice" },
+          { name: "菜飯便當", price: 80, optType: "shiquan_rice" }
         ]}
       ],
       "豐禾飯製所": [
-        { category: "主打紅藜飯餐盒", items: [
-          { name: "香酥雞腿便當", price: 120 }, { name: "招牌滷排骨便當", price: 110 },
-          { name: "香雞排便當", price: 110 }, { name: "古早味炸排骨便當", price: 110 },
-          { name: "清蒸魚排便當", price: 110 }, { name: "香煎魚排便當", price: 110 },
-          { name: "三杯醬香雞便當", price: 100 }, { name: "糖醋咕咾肉便當", price: 100 },
-          { name: "控肉便當", price: 95 }, { name: "時蔬便當(非素食)", price: 75 }
+        { category: "便當類", items: [
+          { name: "香酥雞腿便當", price: 120, optType: "xiangyuan_rice" },
+          { name: "招牌滷排骨便當", price: 110, optType: "xiangyuan_rice" },
+          { name: "香雞排便當", price: 110, optType: "xiangyuan_rice" },
+          { name: "古早味炸排骨便當", price: 110, optType: "xiangyuan_rice" },
+          { name: "清蒸魚排便當", price: 110, optType: "xiangyuan_rice" },
+          { name: "香煎魚排便當", price: 110, optType: "xiangyuan_rice" },
+          { name: "三杯醬香雞便當", price: 100, optType: "xiangyuan_rice" },
+          { name: "糖醋咕咾肉便當", price: 100, optType: "xiangyuan_rice" },
+          { name: "控肉便當", price: 95, optType: "xiangyuan_rice" },
+          { name: "時蔬便當(非素食)", price: 75, optType: "xiangyuan_rice" }
+        ]},
+        { category: "單點主菜", items: [
+          { name: "香酥雞腿", price: 75 },
+          { name: "招牌滷排骨", price: 70 },
+          { name: "香雞排", price: 70 },
+          { name: "古早味炸排骨", price: 70 },
+          { name: "清蒸魚排", price: 70 },
+          { name: "香煎魚排", price: 70 },
+          { name: "三杯醬香雞", price: 65 },
+          { name: "糖醋咕咾肉", price: 65 },
+          { name: "控肉", price: 65 }
+        ]},
+        { category: "飲品", items: [
+          { name: "麥茶", price: 30 },
+          { name: "冬瓜茶", price: 30 },
+          { name: "台灣冷泡茶", price: 45 }
+        ]},
+        { category: "加點", items: [
+          { name: "滷蛋", price: 10 },
+          { name: "紅藜飯", price: 15 }
         ]}
       ],
       "秦小家排骨": [
-        { category: "精緻主食區", items: [
-          { name: "現炸雞腿飯", price: 120 }, { name: "滷香雞腿飯", price: 120 },
-          { name: "紅燒鮭魚飯", price: 120 }, { name: "清蒸鱈魚飯", price: 135 },
-          { name: "現炸雞排飯", price: 115 }, { name: "特製炸排骨飯", price: 115 },
-          { name: "滷排骨飯", price: 110 }, { name: "蔥爆牛肉飯", price: 115 },
-          { name: "泰式打拋雞飯", price: 105 }, { name: "蔬菜飯(5菜)", price: 80 }
+        { category: "主食區", items: [
+          { name: "現炸雞腿飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "滷香雞腿飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "紅燒鮭魚飯", price: 120, optType: "xiangyuan_rice" },
+          { name: "清蒸鱈魚飯(比目魚)", price: 135, optType: "xiangyuan_rice" },
+          { name: "現炸雞排飯", price: 115, optType: "xiangyuan_rice" },
+          { name: "特製炸排骨飯", price: 115, optType: "xiangyuan_rice" },
+          { name: "滷排骨飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "控肉飯", price: 115, optType: "xiangyuan_rice" },
+          { name: "蔥爆牛肉飯", price: 115, optType: "xiangyuan_rice" },
+          { name: "三杯雞飯", price: 110, optType: "xiangyuan_rice" },
+          { name: "宮保雞丁飯", price: 105, optType: "xiangyuan_rice" },
+          { name: "泰式打拋雞", price: 105, optType: "xiangyuan_rice" },
+          { name: "滷肉飯便當", price: 95, optType: "xiangyuan_rice" },
+          { name: "蔬菜飯(5菜)", price: 80, optType: "xiangyuan_rice" }
+        ]},
+        { category: "單點區", items: [
+          { name: "炸雞腿", price: 75 },
+          { name: "特製排骨", price: 70 },
+          { name: "炸雞排", price: 70 },
+          { name: "滷肉飯", price: 35, optType: "qin_braised_rice" },
+          { name: "滷蛋", price: 15 },
+          { name: "白飯", price: 15 }
         ]}
       ],
       "八方雲集": [
-        { category: "鍋貼/水餃/湯品", items: [
-          { name: "招牌鍋貼(10顆)", price: 65 }, { name: "韭菜鍋貼(10顆)", price: 65 },
-          { name: "韓式辣味水餃(10顆)", price: 70 }, { name: "酸辣湯", price: 35 }, { name: "玉米濃湯", price: 35 }
+        { category: "鍋貼", items: [
+          { name: "招牌鍋貼", price: 7 },
+          { name: "韭菜鍋貼", price: 7 },
+          { name: "韓式辣味鍋貼", price: 7 },
+          { name: "咖哩鍋貼", price: 7 },
+          { name: "玉米鍋貼", price: 7 },
+          { name: "新疏食鍋貼(鍋邊素)", price: 7.5 }
+        ]},
+        { category: "水餃", items: [
+          { name: "招牌水餃", price: 7 },
+          { name: "韭菜水餃", price: 7 },
+          { name: "韓式辣味水餃", price: 7 },
+          { name: "咖哩水餃", price: 7 },
+          { name: "玉米水餃", price: 7 },
+          { name: "新疏食水餃(鍋邊素)", price: 7.5 },
+          { name: "鮮蝦水餃", price: 10.5 }
+        ]},
+        { category: "湯餃", items: [
+          { name: "酸辣湯餃(8顆)", price: 90, optType: "bf_soup_dumpling" },
+          { name: "玉米湯餃(8顆)", price: 90, optType: "bf_soup_dumpling" }
+        ]},
+        { category: "抄手", items: [
+          { name: "珍珠抄手(小顆8顆)", price: 60, optType: "bf_wonton" },
+          { name: "菜肉大抄手(大顆6顆)", price: 75, optType: "bf_wonton" }
+        ]},
+        { category: "乾麵", items: [
+          { name: "古早味乾麵", price: 45 },
+          { name: "麻醬乾麵", price: 55 },
+          { name: "招牌乾麵(微辣)", price: 55 },
+          { name: "紹辣乾麵", price: 60 }
+        ]},
+        { category: "湯麵", items: [
+          { name: "古早味湯麵", price: 45 },
+          { name: "酸辣湯麵", price: 70 },
+          { name: "珍珠餛飩麵", price: 70 },
+          { name: "菜肉大餛飩麵", price: 80 },
+          { name: "榨菜肉絲麵", price: 80 },
+          { name: "紹辣珍珠餛飩麵", price: 80 },
+          { name: "紹辣菜肉大餛飩麵", price: 90 },
+          { name: "梁師傅排骨麵", price: 105 }
+        ]},
+        { category: "湯品", items: [
+          { name: "酸辣湯", price: 35 },
+          { name: "玉米濃湯", price: 35 },
+          { name: "蘿蔔湯", price: 35 },
+          { name: "原塊花枝魚丸湯", price: 40 },
+          { name: "珍珠餛飩湯", price: 50 },
+          { name: "菜肉大餛飩湯", price: 60 }
+        ]},
+        { category: "飲品", items: [
+          { name: "香濃豆漿", price: 20, optType: "bf_soymilk" },
+          { name: "黑豆漿", price: 20 },
+          { name: "真傳特調紅茶", price: 20 }
+        ]},
+        { category: "小菜", items: [
+          { name: "滷蛋", price: 15 },
+          { name: "黃金泡菜", price: 30 },
+          { name: "涼拌豆腐", price: 30, optType: "bf_tofu" },
+          { name: "和風秋葵", price: 35 },
+          { name: "黃金豆腐", price: 35 },
+          { name: "燙青菜", price: 35 },
+          { name: "燉蘿蔔", price: 35 },
+          { name: "家常小菜", price: 40 },
+          { name: "小菜雙拼", price: 40 },
+          { name: "柚香蘿蔔", price: 40 },
+          { name: "皮蛋豆腐(整粒)", price: 45 },
+          { name: "古早味排骨", price: 68 }
+        ]},
+        { category: "金牌牛肉系列", items: [
+          { name: "帶骨牛小排麵", price: 350, optType: "bf_short_rib" },
+          { name: "紅燒牛肉湯", price: 158 },
+          { name: "紅燒牛肉麵", price: 168 },
+          { name: "紅燒牛肉冬粉", price: 168 },
+          { name: "清燉牛肉湯", price: 158 },
+          { name: "清燉牛肉麵", price: 168 },
+          { name: "清燉牛肉冬粉", price: 168 },
+          { name: "麻辣牛肉湯", price: 168 },
+          { name: "麻辣牛肉麵", price: 178 },
+          { name: "麻辣牛肉冬粉", price: 178 },
+          { name: "牛湯餃(8顆招牌)-紅燒", price: 120 },
+          { name: "牛湯餃(8顆招牌)-麻辣", price: 125 },
+          { name: "牛湯珍珠餛飩(8顆)-紅燒", price: 125 },
+          { name: "牛湯珍珠餛飩(8顆)-麻辣", price: 130 },
+          { name: "牛湯菜肉大餛飩(8顆)-紅燒", price: 125 },
+          { name: "牛湯菜肉大餛飩(8顆)-麻辣", price: 130 }
         ]}
       ],
       "竹林雞肉（中華店）": [
+        { category: "麵類", items: [
+          { name: "竹林拌拌麵", price: 45 }, { name: "紹興雞麵", price: 120 }
+        ]},
         { category: "飯類", items: [
-          { name: "竹林嫩胸飯", price: 110 }, { name: "雞肉雙拼飯", price: 125 },
-          { name: "竹林雞腿飯", price: 130 }, { name: "銷魂雞飯", price: 85 },
-          { name: "全菜不飯", price: 85 }, { name: "菜飯", price: 85 }
+          { name: "竹林嫩胸飯(含一顆蛋)", price: 110, optType: "zhulin_rice" },
+          { name: "雞肉雙拼飯(含一顆蛋)", price: 125, optType: "zhulin_rice" },
+          { name: "竹林雞腿飯(含一顆蛋)", price: 130, optType: "zhulin_rice" },
+          { name: "銷魂雞飯(含一顆蛋)", price: 85, optType: "zhulin_rice" },
+          { name: "百銷(加量銷魂雞飯)(含一顆蛋)", price: 125, optType: "zhulin_rice" },
+          { name: "蔬菜便當", price: 80, optType: "xiangyuan_rice" },
+          { name: "雞油飯", price: 15 }
+        ]},
+        { category: "湯品", items: [
+          { name: "紹興雞湯", price: 100 }, { name: "竹筍雞湯", price: 50 }, { name: "下水湯", price: 45 }
+        ]},
+        { category: "雞肉切盤", items: [
+          { name: "雞胸切盤", price: 85 },
+          { name: "雞腿切盤(小份)", price: 100 }, { name: "雞腿切盤(大份)", price: 190 },
+          { name: "雙拼切盤(小份)", price: 95 }, { name: "雙拼切盤(大份)", price: 180 },
+          { name: "半雞(附辣椒醬包)", price: 480 }, { name: "全雞(附辣椒醬1瓶)", price: 930 }
+        ]},
+        { category: "其它", items: [
+          { name: "老滷雞爪凍", price: 50 }, { name: "燙青菜", price: 45 },
+          { name: "燙下水", price: 45 }, { name: "荷包蛋", price: 15 },
+          { name: "雞屁股", price: 5 }, { name: "冬瓜檸檬", price: 25 },
+          { name: "三叔辣醬", price: 150 }
         ]}
       ]
     };
@@ -991,9 +1287,10 @@
 
       menu.forEach((cat, cIdx) => {
         const catId = `cat-${cIdx}`;
-        navHtml += `<button class="category-btn" onclick="scrollToCategory('${catId}')">${escapeHTML(cat.category)}</button>`;
-
-        html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${escapeHTML(cat.category)}</h3>`;
+        if (cat.category) {
+          navHtml += `<button class="category-btn" onclick="scrollToCategory('${catId}')">${escapeHTML(cat.category)}</button>`;
+          html += `<h3 id="${catId}" style="font-size:0.9rem; color:var(--primary-color); margin:1.2rem 0 0.5rem; border-bottom:2px solid var(--border-color); padding-bottom:0.3rem;">${escapeHTML(cat.category)}</h3>`;
+        }
         
         if (cat.category.includes("拌飯 / 丼飯")) {
           html += `<div style="font-size:0.78rem; color:#ef4444; font-weight:bold; margin-bottom:0.6rem; background:#fef2f2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">⚠️ 點餐請務必勾選【拌飯】或【丼飯】（若未勾選一律預設為丼飯）</div>`;
@@ -1003,9 +1300,81 @@
           const id = item.name;
           
           let optionsHtml = '';
-          let placeholderText = '其他備註 (例如: 不要辣)';
+          let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註 (例如: 不要辣)'));
 
-          if (item.optType === 'cold_noodle_orig') {
+          if (['bf_wonton','bf_short_rib','bf_soup_dumpling','bf_tofu','bf_soymilk'].includes(item.optType)) {
+            const configs = {
+              bf_wonton: {title:'口味（必選一項）', choices:['紅油','和風']},
+              bf_short_rib: {title:'湯頭（必選一項）', choices:['紅燒','清燉']},
+              bf_soup_dumpling: {title:'水餃口味（必選一項）', choices:['招牌','韭菜','韓式辣味','咖哩','玉米','蔬食 +4元','鮮蝦 +28元']},
+              bf_tofu: {title:'醬料（必選一項）', choices:['蠔油','麻醬','紅油']},
+              bf_soymilk: {title:'甜度（必選一項）', choices:['有糖','無糖']}
+            };
+            const cfg = configs[item.optType];
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <div style="font-weight:bold;color:#b91c1c;">${cfg.title}</div>
+              ${cfg.choices.map(choice => `<label><input type="radio" name="bf-choice-${id}" value="${choice}" onchange="updateRemark('${id}', '${item.optType}')"> ${choice}</label>`).join('')}
+            </div>`;
+          } else if (item.optType === 'hl_wonton') {
+            placeholderText = '辣度必選；加麵可選填';
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <div style="font-weight:bold; color:#b91c1c;">辣度（必選一項）</div>
+                <label><input type="radio" name="hl-spice-${id}" value="大辣" onchange="updateRemark('${id}', 'hl_wonton')"> 大辣</label>
+                <label><input type="radio" name="hl-spice-${id}" value="中辣" onchange="updateRemark('${id}', 'hl_wonton')"> 中辣</label>
+                <label><input type="radio" name="hl-spice-${id}" value="小辣" onchange="updateRemark('${id}', 'hl_wonton')"> 小辣</label>
+                <label><input type="radio" name="hl-spice-${id}" value="不辣" onchange="updateRemark('${id}', 'hl_wonton')"> 不辣</label>
+                <label><input type="checkbox" id="hl-noodle-${id}" onchange="updateRemark('${id}', 'hl_wonton')"> 加麵 +10元</label>
+              </div>`;
+          } else if (item.optType === 'hl_dumpling') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="hl-rice-${id}" onchange="toggleHualienAdd('${id}', 'rice')"> 加飯 +10元</label>
+                <label><input type="checkbox" id="hl-noodle-${id}" onchange="toggleHualienAdd('${id}', 'noodle')"> 加麵 +10元</label>
+              </div>`;
+          } else if (item.optType === 'hl_soup') {
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <label><input type="checkbox" id="hl-noodle-${id}" onchange="updateRemark('${id}', 'hl_soup')"> 加麵 +10元</label>
+            </div>`;
+          } else if (item.optType === 'hl_large') {
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <label><input type="checkbox" id="hl-large-${id}" onchange="updateRemark('${id}', 'hl_large')"> 加大 +10元</label>
+            </div>`;
+          } else if (item.optType === 'qin_braised_rice') {
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <label><input type="checkbox" id="qin-egg-${id}" onchange="updateRemark('${id}', 'qin_braised_rice')"> 加滷蛋 +15元</label>
+            </div>`;
+          } else if (item.optType === 'shiquan_rice') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="sq-half-${id}" onchange="toggleShiquanRiceOption('${id}', 'half')"> 半飯</label>
+                <label><input type="checkbox" id="sq-none-${id}" onchange="toggleShiquanRiceOption('${id}', 'none')"> 不飯</label>
+                <label><input type="checkbox" id="sq-purple-${id}" onchange="toggleShiquanRiceOption('${id}', 'purple')"> 換紫米飯 +10元</label>
+              </div>`;
+          } else if (item.optType === 'tt_fried_rice') {
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <label><input type="checkbox" id="tt-egg-${id}" onchange="updateRemark('${id}', 'tt_fried_rice')"> 加蛋 +15元</label>
+              <label><input type="checkbox" id="tt-large-${id}" onchange="updateRemark('${id}', 'tt_fried_rice')"> 加大 +10元</label>
+              <div style="margin-top:6px;font-weight:bold;">辣度（選填，單選）</div>
+              <label><input type="checkbox" name="tt-spice-${id}" value="小辣" onchange="toggleTtSpice('${id}', this)"> 小辣</label>
+              <label><input type="checkbox" name="tt-spice-${id}" value="中辣" onchange="toggleTtSpice('${id}', this)"> 中辣</label>
+              <label><input type="checkbox" name="tt-spice-${id}" value="大辣" onchange="toggleTtSpice('${id}', this)"> 大辣</label>
+            </div>`;
+          } else if (item.optType === 'zhulin_rice') {
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
+              <label><input type="checkbox" id="zl-half-${id}" onchange="toggleZhulinRiceOption('${id}', 'half')"> 半飯</label>
+              <label><input type="checkbox" id="zl-none-${id}" onchange="toggleZhulinRiceOption('${id}', 'none')"> 不飯</label>
+              <label><input type="checkbox" id="zl-cooked-${id}" onchange="updateRemark('${id}', 'zhulin_rice')"> 熟蛋</label>
+              <label><input type="checkbox" id="zl-nooil-${id}" onchange="updateRemark('${id}', 'zhulin_rice')"> 不雞油</label>
+              <label><input type="checkbox" id="zl-egg-${id}" onchange="updateRemark('${id}', 'zhulin_rice')"> 額外加一顆蛋 +15元</label>
+            </div>`;
+          } else if (item.optType === 'xiangyuan_rice') {
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="xy-half-${id}" onchange="toggleXiangyuanRiceOption('${id}', 'half')"> 半飯</label>
+                <label><input type="checkbox" id="xy-none-${id}" onchange="toggleXiangyuanRiceOption('${id}', 'none')"> 不飯</label>
+              </div>`;
+          } else if (item.optType === 'cold_noodle_orig') {
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="cn-up-${id}" onchange="toggleColdNoodleOption('${id}', 'orig')"> 加大 +5元</label>
@@ -1025,8 +1394,20 @@
               </div>`;
           } else if (item.optType === 'friday_only_1') {
             placeholderText = '僅週五販售';
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="fri-nodougan-${id}" onchange="updateRemark('${id}', 'friday_only_1')"> 不豆干</label>
+                <label><input type="checkbox" id="fri-nocucumber-${id}" onchange="updateRemark('${id}', 'friday_only_1')"> 不小黃瓜</label>
+              </div>`;
           } else if (item.optType === 'friday_only_2') {
             placeholderText = '僅週五販售';
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="fri-nocoriander-${id}" onchange="updateRemark('${id}', 'friday_only_2')"> 不香菜</label>
+                <label><input type="checkbox" id="fri-nopidan-${id}" onchange="updateRemark('${id}', 'friday_only_2')"> 不皮蛋</label>
+                <label><input type="checkbox" id="fri-nopeanut-${id}" onchange="updateRemark('${id}', 'friday_only_2')"> 不花生</label>
+                <label><input type="checkbox" id="fri-nocucumber-${id}" onchange="updateRemark('${id}', 'friday_only_2')"> 不小黃瓜</label>
+              </div>`;
           } else if (item.optType === 'fried_noodle') {
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
@@ -1091,6 +1472,82 @@
 
       navContainer.innerHTML = navHtml;
       container.innerHTML = html;
+    }
+
+    function toggleHualienAdd(id, choice) {
+      if (isEventExpired()) return;
+      const other = document.getElementById(`hl-${choice === 'rice' ? 'noodle' : 'rice'}-${id}`);
+      const selected = document.getElementById(`hl-${choice}-${id}`);
+      if (selected?.checked && other) other.checked = false;
+      updateRemark(id, 'hl_dumpling');
+    }
+
+    function validateBafangRequiredOptions() {
+      for (const [id, item] of Object.entries(currentOrder)) {
+        if (item.qty > 0 && ['bf_wonton','bf_short_rib','bf_soup_dumpling','bf_tofu','bf_soymilk'].includes(item.optType)) {
+          const selected = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
+          if (!selected) {
+            alert(`⚠️「${id}」請先選擇必選口味！`);
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function validateHualienSpice() {
+      for (const [id, item] of Object.entries(currentOrder)) {
+        if (item.qty > 0 && item.optType === 'hl_wonton') {
+          const radios = document.getElementsByName(`hl-spice-${id}`);
+          if (![...radios].some(r => r.checked)) {
+            alert(`⚠️「${id}」請先選擇辣度（大辣／中辣／小辣／不辣）！`);
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    // 湘園燒臘：半飯與不飯互斥，並同步寫入訂單備註。
+    function toggleXiangyuanRiceOption(id, choice) {
+      if (isEventExpired()) return;
+      const selected = document.getElementById(`xy-${choice}-${id}`);
+      const other = document.getElementById(`xy-${choice === 'half' ? 'none' : 'half'}-${id}`);
+      if (selected?.checked && other) other.checked = false;
+      updateRemark(id, 'xiangyuan_rice');
+    }
+
+    // 天天下廚：小／中／大辣互斥，可全部取消；未勾選即不辣。
+    function toggleTtSpice(id, selected) {
+      if (isEventExpired()) return;
+      if (selected.checked) {
+        document.getElementsByName(`tt-spice-${id}`).forEach(box => {
+          if (box !== selected) box.checked = false;
+        });
+      }
+      updateRemark(id, 'tt_fried_rice');
+    }
+
+    // 竹林雞肉飯：半飯／不飯互斥；其他選項可獨立勾選。
+    function toggleZhulinRiceOption(id, choice) {
+      if (isEventExpired()) return;
+      const selected = document.getElementById(`zl-${choice}-${id}`);
+      const other = document.getElementById(`zl-${choice === 'half' ? 'none' : 'half'}-${id}`);
+      if (selected?.checked && other) other.checked = false;
+      updateRemark(id, 'zhulin_rice');
+    }
+
+    // 食全養生飯：三種飯量選項互斥；紫米飯加價 10 元。
+    function toggleShiquanRiceOption(id, choice) {
+      if (isEventExpired()) return;
+      const selected = document.getElementById(`sq-${choice}-${id}`);
+      if (selected?.checked) {
+        ['half', 'none', 'purple'].filter(x => x !== choice).forEach(x => {
+          const other = document.getElementById(`sq-${x}-${id}`);
+          if (other) other.checked = false;
+        });
+      }
+      updateRemark(id, 'shiquan_rice');
     }
 
     function toggleColdNoodleOption(id, type) {
@@ -1168,7 +1625,18 @@
       }
 
       let finalPrice = basePrice;
-      if (optType === 'fried_noodle') {
+      if (optType === 'bf_soup_dumpling') {
+        const chosen = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
+        if (chosen?.value.startsWith('蔬食')) finalPrice += 4;
+        if (chosen?.value.startsWith('鮮蝦')) finalPrice += 28;
+      } else if (optType === 'tt_fried_rice') {
+        if (document.getElementById(`tt-egg-${id}`)?.checked) finalPrice += 15;
+        if (document.getElementById(`tt-large-${id}`)?.checked) finalPrice += 10;
+      } else if (optType === 'qin_braised_rice') {
+        if (document.getElementById(`qin-egg-${id}`)?.checked) finalPrice += 15;
+      } else if (optType === 'shiquan_rice') {
+        if (document.getElementById(`sq-purple-${id}`)?.checked) finalPrice += 10;
+      } else if (optType === 'fried_noodle') {
         const egg = document.getElementById(`fn-egg-${id}`);
         const noodle = document.getElementById(`fn-noodle-${id}`);
         if (egg && egg.checked) finalPrice += 15;
@@ -1179,6 +1647,8 @@
       } else if (optType === 'shin_ramen') {
         const cheeseBox = document.getElementById(`shin-cheese-${id}`);
         if (cheeseBox && cheeseBox.checked) finalPrice += 10;
+      } else if (optType === 'zhulin_rice') {
+        if (document.getElementById(`zl-egg-${id}`)?.checked) finalPrice += 15;
       } else if (optType === 'chungwu' || optType === 'light_box') {
         const beefBox = document.getElementById(`meat-beef-${id}`);
         if (beefBox && beefBox.checked) finalPrice += 10;
@@ -1198,6 +1668,8 @@
         
         const checkboxes = document.querySelectorAll(`[id*="-${id}"]`);
         checkboxes.forEach(cb => { if(cb.type === 'checkbox') cb.checked = false; });
+        if (optType === 'hl_wonton') document.getElementsByName(`hl-spice-${id}`).forEach(r => { r.checked = false; });
+        if (optType.startsWith('bf_')) document.getElementsByName(`bf-choice-${id}`).forEach(r => { r.checked = false; });
         const textRemark = document.getElementById(`remark-${id}`);
         if (textRemark) textRemark.value = '';
 
@@ -1216,7 +1688,51 @@
       if (currentOrder[id]) {
         let remarks = [];
         
-        if (optType === 'cold_noodle_orig') {
+        if (['bf_wonton','bf_short_rib','bf_soup_dumpling','bf_tofu','bf_soymilk'].includes(optType)) {
+          const chosen = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
+          if (chosen) remarks.push(chosen.value);
+          const upcharge = optType === 'bf_soup_dumpling' && chosen ?
+            (chosen.value.startsWith('蔬食') ? 4 : chosen.value.startsWith('鮮蝦') ? 28 : 0) : 0;
+          currentOrder[id].price = currentOrder[id].basePrice + upcharge;
+        } else if (optType === 'hl_wonton' || optType === 'hl_dumpling' || optType === 'hl_soup' || optType === 'hl_large') {
+          if (optType === 'hl_wonton') {
+            const spice = [...document.getElementsByName(`hl-spice-${id}`)].find(r => r.checked);
+            if (spice) remarks.push(spice.value);
+          }
+          let addPrice = 0;
+          if (document.getElementById(`hl-noodle-${id}`)?.checked) { remarks.push('加麵 +10元'); addPrice = 10; }
+          if (document.getElementById(`hl-rice-${id}`)?.checked) { remarks.push('加飯 +10元'); addPrice = 10; }
+          if (document.getElementById(`hl-large-${id}`)?.checked) { remarks.push('加大 +10元'); addPrice = 10; }
+          currentOrder[id].price = currentOrder[id].basePrice + addPrice;
+        } else if (optType === 'tt_fried_rice') {
+          let extra = 0;
+          if (document.getElementById(`tt-egg-${id}`)?.checked) { remarks.push('加蛋 +15元'); extra += 15; }
+          if (document.getElementById(`tt-large-${id}`)?.checked) { remarks.push('加大 +10元'); extra += 10; }
+          const spice = [...document.getElementsByName(`tt-spice-${id}`)].find(r => r.checked);
+          if (spice) remarks.push(spice.value); // 未勾選即不辣，不另寫備註
+          currentOrder[id].price = currentOrder[id].basePrice + extra;
+        } else if (optType === 'qin_braised_rice') {
+          const egg = !!document.getElementById(`qin-egg-${id}`)?.checked;
+          if (egg) remarks.push('加滷蛋 +15元');
+          currentOrder[id].price = currentOrder[id].basePrice + (egg ? 15 : 0);
+        } else if (optType === 'shiquan_rice') {
+          if (document.getElementById(`sq-half-${id}`)?.checked) remarks.push('半飯');
+          if (document.getElementById(`sq-none-${id}`)?.checked) remarks.push('不飯');
+          const purple = !!document.getElementById(`sq-purple-${id}`)?.checked;
+          if (purple) remarks.push('換紫米飯 +10元');
+          currentOrder[id].price = currentOrder[id].basePrice + (purple ? 10 : 0);
+        } else if (optType === 'zhulin_rice') {
+          if (document.getElementById(`zl-half-${id}`)?.checked) remarks.push('半飯');
+          if (document.getElementById(`zl-none-${id}`)?.checked) remarks.push('不飯');
+          if (document.getElementById(`zl-cooked-${id}`)?.checked) remarks.push('熟蛋');
+          if (document.getElementById(`zl-nooil-${id}`)?.checked) remarks.push('不雞油');
+          const extraEgg = !!document.getElementById(`zl-egg-${id}`)?.checked;
+          if (extraEgg) remarks.push('額外加一顆蛋 +15元');
+          currentOrder[id].price = currentOrder[id].basePrice + (extraEgg ? 15 : 0);
+        } else if (optType === 'xiangyuan_rice') {
+          if (document.getElementById(`xy-half-${id}`)?.checked) remarks.push('半飯');
+          if (document.getElementById(`xy-none-${id}`)?.checked) remarks.push('不飯');
+        } else if (optType === 'cold_noodle_orig') {
           let addPrice = 0;
           if (document.getElementById(`cn-up-${id}`)?.checked) { remarks.push('加大'); addPrice += 5; }
           if (document.getElementById(`cn-egg-${id}`)?.checked) { remarks.push('加蛋'); addPrice += 5; }
@@ -1231,7 +1747,16 @@
           if (document.getElementById(`cn-nocucumber-${id}`)?.checked) remarks.push('不小黃瓜');
         } else if (optType === 'friday_only_1' || optType === 'friday_only_2') {
           remarks.push('僅週五販售');
-        } else if (optType === 'fried_noodle') {
+          if (optType === 'friday_only_1' && document.getElementById(`fri-nodougan-${id}`)?.checked) remarks.push('不豆干');
+          if (optType === 'friday_only_2' && document.getElementById(`fri-nocoriander-${id}`)?.checked) remarks.push('不香菜');
+          if (optType === 'friday_only_2' && document.getElementById(`fri-nopidan-${id}`)?.checked) remarks.push('不皮蛋');
+          if (optType === 'friday_only_2' && document.getElementById(`fri-nopeanut-${id}`)?.checked) remarks.push('不花生');
+          if (document.getElementById(`fri-nocucumber-${id}`)?.checked) remarks.push('不小黃瓜');
+        } else if (optType === 'hl_wonton' || optType === 'hl_soup' || optType === 'hl_dumpling') {
+        if (document.getElementById(`hl-noodle-${id}`)?.checked || document.getElementById(`hl-rice-${id}`)?.checked) finalPrice += 10;
+      } else if (optType === 'hl_large') {
+        if (document.getElementById(`hl-large-${id}`)?.checked) finalPrice += 10;
+      } else if (optType === 'fried_noodle') {
           let addPrice = 0;
           if (document.getElementById(`fn-egg-${id}`)?.checked) { remarks.push('加蛋'); addPrice += 15; }
           if (document.getElementById(`fn-noodle-${id}`)?.checked) { remarks.push('加麵'); addPrice += 10; }
@@ -1307,6 +1832,9 @@
           return; 
         }
 
+        if (!validateHualienSpice()) return;
+        if (!validateBafangRequiredOptions()) return;
+
         let total = calculateGrandTotalValue();
         if (total <= 0) {
           alert('⚠️ 請至少選擇一項餐點！');
@@ -1368,6 +1896,8 @@
 
     async function submitOrder() {
       if (orderSubmitInFlight || orderSubmitConfirmed) return;
+      if (!validateHualienSpice()) return;
+      if (!validateBafangRequiredOptions()) return;
       orderSubmitInFlight = true;
       let submitTimeoutV14 = null;
       try {
@@ -1383,6 +1913,14 @@
           const group = document.getElementById(`options-group-${k}`);
           const options = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked'))
             .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
+          if (currentOrder[k].optType?.startsWith('bf_')) {
+            const chosen = [...document.getElementsByName(`bf-choice-${k}`)].find(r => r.checked);
+            if (chosen) options.push('bf-choice-' + chosen.value);
+          }
+          if (currentOrder[k].optType === 'hl_wonton') {
+            const spice = [...document.getElementsByName(`hl-spice-${k}`)].find(r => r.checked);
+            if (spice) options.push('hl-spice-' + spice.value);
+          }
           const note = document.getElementById(`remark-${k}`)?.value.trim() || '';
           items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price,
             options, note, remark: currentOrder[k].remark });
