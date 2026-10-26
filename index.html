@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<!-- V18 candidate：保留 V17，僅改善載入遮罩重疊計數。 -->
+<!-- V18：前景同步防過期回應、載入遮罩重疊計數；後端不變。 -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -816,8 +816,11 @@
       return total;
     }
 
+    // V18：僅允許最後一次啟動的前景同步更新畫面或同步狀態。
+    let latestCloudLoadRequestV18 = 0;
     async function loadCloudData() {
       showLoading(true);
+      const requestId = ++latestCloudLoadRequestV18;
       const token = adminToken;
       try {
         const data = await fetchJSONV16(`${API_URL}?action=getSystemData`, {}, 20000);
@@ -829,7 +832,7 @@
           if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
           orders = result.orders;
         }
-        if (token !== adminToken) return false;
+        if (token !== adminToken || requestId !== latestCloudLoadRequestV18) return false;
         // V17：場次與訂單都成功讀取後才一起提交，避免顯示混合的新舊資料。
         globalActiveEvents = data.activeEvents;
         globalAllOrders = orders;
@@ -846,7 +849,7 @@
         }
         return true;
       } catch (err) {
-        if (token && token === adminToken) {
+        if (token && token === adminToken && requestId === latestCloudLoadRequestV18) {
           setAdminStaleV17(true);
           if (err.message.includes('登入已失效')) {
             adminToken = '';
