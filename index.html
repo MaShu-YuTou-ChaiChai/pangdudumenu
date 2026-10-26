@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<!-- V17：管理操作後同步檢查、過期資料鎖定、手動同步恢復。 -->
+<!-- V18 candidate：保留 V17，僅改善載入遮罩重疊計數。 -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -674,9 +674,17 @@
     }
 
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    // V18 candidate: reference-count overlapping foreground operations.
+    // Only a true->false transition of the visible overlay advances the background-sync epoch.
+    let foregroundLoadingCountV18 = 0;
     function showLoading(show) {
-      if (show) cloudDataEpochV14++;
-      document.getElementById('loadingOverlay').classList.toggle('active', show);
+      if (show) {
+        if (foregroundLoadingCountV18 === 0) cloudDataEpochV14++;
+        foregroundLoadingCountV18++;
+      } else {
+        foregroundLoadingCountV18 = Math.max(0, foregroundLoadingCountV18 - 1);
+      }
+      document.getElementById('loadingOverlay').classList.toggle('active', foregroundLoadingCountV18 > 0);
     }
 
     // V7：場次一律保存 YYYY-MM-DD；不推測舊資料的年份。
@@ -1942,8 +1950,7 @@
         if (!(await loadCloudData())) {
           throw new Error('無法取得最新場次狀態，請確認網路後重新搜尋');
         }
-        // 同步函式會關閉遮罩，查詢期間重新顯示以防重複操作。
-        showLoading(true);
+        // 外層查詢已持有載入遮罩；同步函式只會釋放自己的計數。
         // V13 #15：由後端篩選，不再下載全體同事訂單到一般使用者網頁。
         const result = await postCloudJSON({ action: 'searchUserOrders', name, dept: deptVal });
         if (!Array.isArray(result.orders)) throw new Error('訂單查詢回應格式錯誤');
