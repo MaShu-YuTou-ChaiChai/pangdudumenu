@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<!-- V16：取消後刷新、查詢同步檢查、前景請求逾時。 -->
+<!-- V17：管理操作後同步檢查、過期資料鎖定、手動同步恢復。 -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -300,6 +300,9 @@
         <button class="close-btn" onclick="closeAdminModal()">&times;</button>
       </div>
       <p id="adminSyncStatus" role="status" aria-live="polite" style="font-size:0.8rem; line-height:1.6; margin-bottom:0.8rem; color:#475569;">尚未同步。後台開啟且分頁顯示時，每 30 秒自動更新。</p>
+      <button id="adminResyncV17" class="btn-action" onclick="retryAdminSyncV17()" style="margin-bottom:0.8rem;">重新同步後台</button>
+      <fieldset id="adminControlsV17" style="border:0; padding:0; margin:0; min-width:0;">
+
 
       <div style="margin-bottom: 1rem; background:#f0f9ff; border:1px solid #7dd3fc; padding:0.8rem; border-radius:6px;">
         <div style="font-weight:bold; font-size:0.9rem; margin-bottom:0.4rem; color:#0369a1;">📢 發起投票結果店家場次：</div>
@@ -357,6 +360,7 @@
         </thead>
         <tbody></tbody>
       </table>
+      </fieldset>
     </div>
   </div>
 
@@ -366,6 +370,8 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
+    let adminDataStaleV17 = true;
+    let adminResyncInFlightV17 = false;
     // V14 #14：同一頁鎖住送單；未確認結果的重試沿用原編號。
     let confirmCheckInFlight = false;
     let orderSubmitInFlight = false;
@@ -804,52 +810,46 @@
 
     async function loadCloudData() {
       showLoading(true);
+      const token = adminToken;
       try {
         const data = await fetchJSONV16(`${API_URL}?action=getSystemData`, {}, 20000);
-        if (data && data.status === 'success' && Array.isArray(data.activeEvents)) {
-          globalActiveEvents = data.activeEvents;
-          sortActiveEventsByDate();
-          renderEventDropdown();
-          // V13 #15：公開 API 已不回傳訂單，只有已登入管理員才能讀取全部訂單。
-          if (adminToken) {
-            try {
-              await loadAdminOrdersV13();
-            } catch (err) {
-              if (err.message.includes('登入已失效')) {
-                adminToken = '';
-                globalAllOrders = [];
-                closeAdminModal();
-                updateAdminSyncStatusV15('expired');
-                openAdminModal();
-              } else {
-                updateAdminSyncStatusV15('error');
-              }
-              console.warn('管理員訂單同步失敗：' + err.message);
-              return false;
-            }
-          } else {
-            globalAllOrders = [];
-          }
-          return true;
+        if (!data || data.status !== 'success' || !Array.isArray(data.activeEvents))
+          throw new Error('場次同步格式錯誤');
+        let orders = [];
+        if (token) {
+          const result = await postCloudJSON({ action: 'getAdminOrders', token });
+          if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
+          orders = result.orders;
         }
-        if (adminToken) updateAdminSyncStatusV15('error');
+        if (token !== adminToken) return false;
+        // V17：場次與訂單都成功讀取後才一起提交，避免顯示混合的新舊資料。
+        globalActiveEvents = data.activeEvents;
+        globalAllOrders = orders;
+        sortActiveEventsByDate();
+        renderEventDropdown();
+        if (token) {
+          const batch = adminSummaryBatchV14;
+          const event = document.getElementById('adminEventFilter').value;
+          renderAdminData();
+          if (document.getElementById('adminEventFilter').value === event)
+            calculateQuickSummary(batch);
+          setAdminStaleV17(false);
+          updateAdminSyncStatusV15('success');
+        }
+        return true;
+      } catch (err) {
+        if (token && token === adminToken) {
+          setAdminStaleV17(true);
+          if (err.message.includes('登入已失效')) {
+            adminToken = '';
+            globalAllOrders = [];
+            closeAdminModal();
+            updateAdminSyncStatusV15('expired');
+            openAdminModal();
+          } else updateAdminSyncStatusV15('error');
+        }
         return false;
-      } catch(e) {
-        if (adminToken) updateAdminSyncStatusV15('error');
-        return false;
-      } finally {
-        showLoading(false);
-      }
-    }
-
-    // V13 #15：完整訂單僅在管理員持有效憑證時由後端提供。
-    async function loadAdminOrdersV13() {
-      if (!adminToken) throw new Error('請先登入管理員');
-      const result = await postCloudJSON({ action: 'getAdminOrders', token: adminToken });
-      if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
-      globalAllOrders = result.orders;
-      updateAdminSyncStatusV15('success');
-      return true;
+      } finally { showLoading(false); }
     }
 
     function renderEventDropdown() {
@@ -1429,6 +1429,7 @@
     }
 
     function printChecklist() {
+      if (adminDataStaleV17) { alert('後台資料尚未同步，請先按重新同步後台。'); return; }
       const selectedKey = document.getElementById('adminEventFilter').value;
       const activeOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
       
@@ -1485,6 +1486,35 @@
       updateAdminSyncStatusV15('paused');
     }
 
+    function setAdminStaleV17(stale) {
+      adminDataStaleV17 = stale;
+      const controls = document.getElementById('adminControlsV17');
+      if (controls) controls.disabled = stale;
+    }
+
+    async function retryAdminSyncV17() {
+      if (adminResyncInFlightV17) return;
+      if (!adminToken) { openAdminModal(); return; }
+      adminResyncInFlightV17 = true;
+      const button = document.getElementById('adminResyncV17');
+      if (button) button.disabled = true;
+      try {
+        if (!(await loadCloudData()) && adminToken)
+          alert('後台仍無法同步，操作保持暫停。請確認網路後再按重新同步。');
+      } finally {
+        adminResyncInFlightV17 = false;
+        if (button) button.disabled = false;
+      }
+    }
+
+    async function refreshAfterAdminActionV17() {
+      if (await loadCloudData()) return true;
+      setAdminStaleV17(true);
+      if (adminToken) updateAdminSyncStatusV15('error');
+      alert('操作已成功，但無法取得最新畫面。請勿重複送出操作，請按「重新同步後台」；同步完成前後台操作暫停。');
+      return false;
+    }
+
     function updateAdminSyncStatusV15(state) {
       const label = document.getElementById('adminSyncStatus');
       if (!label) return;
@@ -1493,7 +1523,8 @@
       }
       const last = lastAdminSyncAtV15 ? `上次成功更新：${lastAdminSyncAtV15}` : '尚未成功更新';
       if (state === 'error') {
-        label.innerText = `⚠️ 暫時無法同步，${last}。畫面可能不是最新資料，將於下次自動重試。`;
+        setAdminStaleV17(true);
+        label.innerText = `⚠️ 暫時無法同步，${last}。畫面可能不是最新資料，後台操作已暫停；可按「重新同步後台」或等待下次自動重試。`;
         label.style.color = '#b45309';
       } else if (state === 'expired') {
         label.innerText = '⚠️ 管理員登入已失效，請重新登入後取得最新訂單。';
@@ -1554,6 +1585,7 @@
           calculateQuickSummary(summaryBatch);
         if (content) content.scrollTop = scrollTop;
         calculateTotal();
+        setAdminStaleV17(false);
         updateAdminSyncStatusV15('success');
       } catch (err) {
         if (token === adminToken && generation === adminSyncGenerationV14 &&
@@ -1586,7 +1618,8 @@
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
         lastAdminSyncAtV15 = '';
-        await loadAdminOrdersV13();
+        setAdminStaleV17(true);
+        if (!(await loadCloudData())) throw new Error('無法取得最新後台資料，請重試登入');
         input.value = '';
         closeAdminAuthModal();
         document.getElementById('adminModal').classList.add('active');
@@ -1601,21 +1634,23 @@
 
     async function postAdminAction(subAction, events) {
       if (!adminToken) { alert('請先登入管理員！'); openAdminModal(); return false; }
+      if (adminDataStaleV17) { alert('後台資料尚未同步，請先按重新同步後台。'); return false; }
       try {
         const payload = { action: 'adminAction', token: adminToken, subAction };
         // V10：只傳單一操作，不再上傳整份場次清單。
         if (events) Object.assign(payload, events);
         await postCloudJSON(payload);
+        setAdminStaleV17(true);
         return true;
       } catch(e) {
-        alert('管理操作未確認成功：' + e.message);
+        setAdminStaleV17(true);
+        alert('管理操作未確認成功：' + e.message + '\n請先同步確認結果，勿重複送出。');
         if (e.message.includes('登入已失效')) {
           adminToken = '';
           closeAdminModal();
           openAdminModal();
         }
         await loadCloudData();
-        renderAdminData();
         return false;
       }
     }
@@ -1699,8 +1734,7 @@
         if (!(await postAdminAction('setEventTimeLimit', {
           eventKey: `${ev.date}_${ev.store}`, expectedVersion: ev.version || 'legacy', alwaysOpen
         }))) return;
-        await loadCloudData();
-        renderAdminData();
+        if (!(await refreshAfterAdminActionV17())) return;
         calculateTotal();
         const stateText = alwaysOpen ? '【全天開放點餐】' : '【限時 10:30 截止】';
         alert(`✅ 已將【${formatEventDate(ev.date)} ${ev.store}】調整為 ${stateText}！`);
@@ -1790,8 +1824,7 @@
           if (!(await postAdminAction('setEventBatch', {
             eventKey: selectedKey, expectedVersion: ev.version || 'legacy', cutoffBatch: batchNum
           }))) return;
-          await loadCloudData();
-          renderAdminData();
+          if (!(await refreshAfterAdminActionV17())) return;
           calculateTotal();
           if (batchNum >= 3) {
             alert(`⛔ 已完成【第 3 單結算】！該場次點餐已完全截止鎖定，不會再產生第 4 單。`);
@@ -1805,6 +1838,7 @@
     }
 
     function copyBatchLineText(batchTarget) {
+      if (adminDataStaleV17) { alert('後台資料尚未同步，請先按重新同步後台。'); return; }
       const selectedKey = document.getElementById('adminEventFilter').value;
       if (!selectedKey) { alert('請先選擇場次！'); return; }
 
@@ -1874,8 +1908,7 @@
       showLoading(true);
       try {
         if (!(await postAdminAction('addEvent', { date: rawDate, store }))) return;
-        await loadCloudData();
-        renderAdminData();
+        if (!(await refreshAfterAdminActionV17())) return;
         alert(`已成功發起【${formatEventDate(formattedDate)} - ${store}】！選單已更新並按日期自動排序。`);
       } catch(e) {
         alert('發起失敗，請重試');
@@ -1893,8 +1926,7 @@
       try {
         // V9.2：關場時清除此場次全部訂單；單筆取消仍保留紀錄。
         if (!(await postAdminAction('closeEvent', { eventKey: closedKey, expectedVersion: closedEvent.version || 'legacy' }))) return;
-        await loadCloudData();
-        renderAdminData();
+        if (!(await refreshAfterAdminActionV17())) return;
         alert(`已關閉【${formatEventDate(closedEvent.date)} - ${closedEvent.store}】場次，此場次全部訂單與已取消紀錄已刪除。`);
       } finally { showLoading(false); }
     }
@@ -1986,8 +2018,7 @@
       showLoading(true);
       try {
         if (!(await postAdminAction('clearAll'))) return;
-        await loadCloudData();
-        renderAdminData();
+        if (!(await refreshAfterAdminActionV17())) return;
         alert('已清空！');
       } finally {
         showLoading(false);
