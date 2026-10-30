@@ -3041,51 +3041,41 @@ body:has(#pageCancel[style*="display: block"]) .top-btn {
       return orderList;
     }
 
-    // Store-facing packing list: retain order membership for 8鍋 à-la-carte items.
+    // Group identical meal/add-on combinations together, ordered beside the plain meal.
     function buildEightPackingText(orders, title) {
       const number = value => { const n = Number(value); return Number.isFinite(n) ? n : 0; };
       const menu = allStoresData['8鍋'] || [];
       const extras = new Set(menu.filter(c => c.category === '單點系列').flatMap(c => c.items.map(i => i.name)));
-      const pots = new Set(menu.flatMap(c => c.items.filter(i => i.optType === 'eight_pot').map(i => i.name)));
-      const normal = new Map(), special = [];
-      let total = 0, count = 0;
+      const names = getStoreMenuOrder('8鍋');
+      const rank = name => { const n = names.indexOf(name); return n < 0 ? 9999 : n; };
       const label = i => String(i.name) + (i.remark ? `（${i.remark}）` : '');
-      orders.forEach(o => {
-        const items = (Array.isArray(o.items) ? o.items : []).filter(i => number(i.qty) > 0);
-        total += number(o.total);
-        count += items.reduce((n,i) => n + number(i.qty), 0);
-        if (items.some(i => extras.has(i.name))) {
-          special.push({order:o, items});
-        } else {
-          items.forEach(i => {
-            const key = JSON.stringify([i.name, i.remark || '']);
-            if (!normal.has(key)) normal.set(key, {item:i, qty:0});
-            normal.get(key).qty += number(i.qty);
-          });
-        }
-      });
-      const menuNames = getStoreMenuOrder('8鍋');
-      const rank = name => { const n = menuNames.indexOf(name); return n < 0 ? 9999 : n; };
-      const lines = [title, '', '【一般餐點彙總】'];
-      const rows = Array.from(normal.values()).sort((a,b) => rank(a.item.name)-rank(b.item.name));
-      if (!rows.length) lines.push('無');
-      rows.forEach(r => lines.push(`• ${label(r.item)} ×${r.qty}`));
-      if (special.length) {
-        lines.push('', '【含單點／加料訂單，逐筆配餐】', '以下餐點與單點均未計入上方，請勿重複製作。');
-        special.forEach(({order:o,items},idx) => {
-          const mains = items.filter(i => !extras.has(i.name));
-          const adds = items.filter(i => extras.has(i.name));
-          const mainCount = mains.reduce((n,i) => n+number(i.qty),0);
-          const onePot = mains.length === 1 && pots.has(mains[0].name) && mainCount === 1;
-          lines.push('', `${idx+1}. ${o.name || '未填姓名'}${o.dept ? '｜'+o.dept : ''}｜第${o.batch || 1}單｜本筆 $${number(o.total)}`);
-          mains.forEach(i => lines.push(`  ${label(i)} ×${number(i.qty)}`));
-          adds.forEach(i => lines.push(`  ＋ 另加 ${label(i)} ×${number(i.qty)}`));
-          if (onePot) lines.push('  配餐：以上為同一筆訂單，請一併交付；是否加進鍋內依備註確認。');
-          else if (mains.length) lines.push('  配餐待確認：同筆含多份或其他餐點，加料歸屬未指定，請勿自行分配。');
-          else lines.push('  純單點訂單，請獨立包裝。');
-        });
+      const groups = new Map();
+      let total = 0, count = 0;
+      function addGroup(key, text, qty, mainName, added, note='') {
+        if (!groups.has(key)) groups.set(key,{text,qty:0,rank:rank(mainName),added,note});
+        groups.get(key).qty += qty;
       }
-      lines.push('', `總品項份數：${count} 份（含單點）`, `應收總金額：$${total.toLocaleString('zh-TW')} 元（${orders.length} 筆有效訂單）`);
+      orders.forEach(o => {
+        const items = (Array.isArray(o.items) ? o.items : []).filter(i => number(i.qty)>0);
+        total += number(o.total);count += items.reduce((n,i)=>n+number(i.qty),0);
+        const mains=items.filter(i=>!extras.has(i.name));
+        const adds=items.filter(i=>extras.has(i.name));
+        if (!adds.length || !mains.length) {
+          items.forEach(i=>addGroup(JSON.stringify(['plain',i.name,i.remark||'']),label(i),number(i.qty),i.name,0));
+          return;
+        }
+        const sortedMains=[...mains].sort((a,b)=>rank(a.name)-rank(b.name)||label(a).localeCompare(label(b)));
+        const sortedAdds=[...adds].sort((a,b)=>rank(a.name)-rank(b.name)||label(a).localeCompare(label(b)));
+        const one=mains.length===1 && number(mains[0].qty)===1;
+        const mainText=sortedMains.map(i=>label(i)+(one?'':` ×${number(i.qty)}`)).join('、');
+        const addText=sortedAdds.map(i=>label(i)+(number(i.qty)===1?'':` ×${number(i.qty)}`)).join('、');
+        const key=JSON.stringify(['combo',sortedMains.map(i=>[i.name,i.remark||'',number(i.qty)]),sortedAdds.map(i=>[i.name,i.remark||'',number(i.qty)])]);
+        addGroup(key,`${mainText}【另加：${addText}】`,1,sortedMains[0].name,1,one?'':'（同筆組合，加料歸屬未指定）');
+      });
+      const rows=[...groups.values()].sort((a,b)=>a.rank-b.rank||a.added-b.added||a.text.localeCompare(b.text));
+      const lines=[title,''];
+      rows.forEach(r=>lines.push(`• ${r.text}：${r.qty}${r.note?' 組':' 份'}${r.note}`));
+      lines.push('',`總品項份數：${count} 份（含單點）`,`總金額：$${total.toLocaleString('zh-TW')}`);
       return lines.join('\n');
     }
 
