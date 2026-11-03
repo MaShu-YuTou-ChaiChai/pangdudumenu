@@ -807,7 +807,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       <div class="card">
         <h2>2. 選擇餐點 (<span id="currentStoreNameDisplay">未選擇</span>)</h2>
         <div id="storeInfoDisplay"></div>
-        <div id="eightCategoryTip" class="eight-category-tip" role="note" hidden><span class="category-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7m-3-3 3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="category-guide-copy"><strong>8鍋品項較多</strong><span>可使用下方分類快速尋找餐點。</span></span><span class="category-guide-down" aria-hidden="true">↓</span></div><div id="categoryNavContainer" class="category-nav"></div>
+        <div id="eightCategoryTip" class="eight-category-tip" role="note" hidden><span class="category-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7m-3-3 3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="category-guide-copy"><strong id="categoryTipTitle">8鍋品項較多</strong><span>可使用下方分類快速尋找餐點。</span></span><span class="category-guide-down" aria-hidden="true">↓</span></div><div id="categoryNavContainer" class="category-nav"></div>
         <div id="menuList"></div>
       </div>
     </div>
@@ -1037,25 +1037,25 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       "8鍋": [{"category":"特色鍋系列","items":[{"name":"大腸臭臭鍋","price":170,"optType":"eight_pot"},{"name":"腸旺鴨血鍋","price":175,"optType":"eight_pot"}]},{"category":"素食鍋系列","items":[{"name":"素食鮮菇鍋","price":165,"optType":"eight_pot"},{"name":"沙茶素食鍋","price":170,"optType":"eight_pot"},{"name":"養生素食鍋","price":175,"optType":"eight_pot"},{"name":"南瓜素食鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜原味","items":[{"name":"原味豬肉鍋","price":165,"optType":"eight_pot"},{"name":"原味雞肉鍋","price":165,"optType":"eight_pot"},{"name":"原味牛肉鍋","price":170,"optType":"eight_pot"},{"name":"原味羊肉鍋","price":170,"optType":"eight_pot"},{"name":"原味海鮮鍋","price":170,"optType":"eight_pot"},{"name":"原味鮮魚鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜沙茶","items":[{"name":"沙茶豬肉鍋","price":170,"optType":"eight_pot"},{"name":"沙茶雞肉鍋","price":170,"optType":"eight_pot"},{"name":"沙茶牛肉鍋","price":175,"optType":"eight_pot"},{"name":"沙茶羊肉鍋","price":175,"optType":"eight_pot"},{"name":"沙茶魚頭鍋","price":195,"optType":"eight_pot"},{"name":"沙茶鮮魚鍋","price":185,"optType":"eight_pot"}]},{"category":"鍋物｜山藥薏仁","items":[{"name":"山藥薏仁豬肉鍋","price":175,"optType":"eight_pot"},{"name":"山藥薏仁雞肉鍋","price":175,"optType":"eight_pot"},{"name":"山藥薏仁牛肉鍋","price":180,"optType":"eight_pot"},{"name":"山藥薏仁羊肉鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜南瓜","items":[{"name":"南瓜豬肉鍋","price":180,"optType":"eight_pot"},{"name":"南瓜雞肉鍋","price":180,"optType":"eight_pot"},{"name":"南瓜牛肉鍋","price":185,"optType":"eight_pot"},{"name":"南瓜羊肉鍋","price":185,"optType":"eight_pot"},{"name":"南瓜海鮮鍋","price":185,"optType":"eight_pot"},{"name":"南瓜鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜麻油","items":[{"name":"麻油豬肉鍋","price":180,"optType":"eight_pot"},{"name":"麻油雞肉鍋","price":180,"optType":"eight_pot"},{"name":"麻油牛肉鍋","price":185,"optType":"eight_pot"},{"name":"麻油羊肉鍋","price":185,"optType":"eight_pot"},{"name":"麻油鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜清膳","items":[{"name":"清膳豬肉鍋","price":175,"optType":"eight_pot"},{"name":"清膳雞肉鍋","price":175,"optType":"eight_pot"},{"name":"清膳牛肉鍋","price":180,"optType":"eight_pot"},{"name":"清膳羊肉鍋","price":180,"optType":"eight_pot"},{"name":"清膳鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜牛奶","items":[{"name":"牛奶豬肉鍋","price":180,"optType":"eight_pot"},{"name":"牛奶牛肉鍋","price":185,"optType":"eight_pot"},{"name":"牛奶羊肉鍋","price":185,"optType":"eight_pot"},{"name":"牛奶海鮮鍋","price":185,"optType":"eight_pot"},{"name":"牛奶鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜牛奶起士","items":[{"name":"牛奶起士豬肉鍋","price":190,"optType":"eight_pot"},{"name":"牛奶起士牛肉鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士羊肉鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士海鮮鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜麻辣牛奶","items":[{"name":"麻辣牛奶豬肉鍋","price":190,"optType":"eight_pot"},{"name":"麻辣牛奶雞肉鍋","price":190,"optType":"eight_pot"},{"name":"麻辣牛奶牛肉鍋","price":195,"optType":"eight_pot"},{"name":"麻辣牛奶羊肉鍋","price":195,"optType":"eight_pot"},{"name":"麻辣牛奶鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜南瓜牛奶","items":[{"name":"南瓜牛奶豬肉鍋","price":190,"optType":"eight_pot"},{"name":"南瓜牛奶雞肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶牛肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶羊肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶海鮮鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜叻沙","items":[{"name":"叻沙豬肉鍋","price":185,"optType":"eight_pot"},{"name":"叻沙雞肉鍋","price":185,"optType":"eight_pot"},{"name":"叻沙牛肉鍋","price":190,"optType":"eight_pot"},{"name":"叻沙羊肉鍋","price":190,"optType":"eight_pot"},{"name":"叻沙鮮魚鍋","price":200,"optType":"eight_pot"}]},{"category":"鍋物｜香蒜","items":[{"name":"香蒜豬肉鍋","price":175,"optType":"eight_pot"},{"name":"香蒜雞肉鍋","price":175,"optType":"eight_pot"},{"name":"香蒜牛肉鍋","price":180,"optType":"eight_pot"},{"name":"香蒜羊肉鍋","price":180,"optType":"eight_pot"},{"name":"香蒜鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜蕃茄","items":[{"name":"蕃茄豬肉鍋","price":175,"optType":"eight_pot"},{"name":"蕃茄雞肉鍋","price":175,"optType":"eight_pot"},{"name":"蕃茄牛肉鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄羊肉鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄海鮮鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜泡菜","items":[{"name":"泡菜年糕鍋","price":175,"optType":"eight_pot"},{"name":"泡菜豬肉鍋","price":175,"optType":"eight_pot"},{"name":"泡菜雞肉鍋","price":175,"optType":"eight_pot"},{"name":"泡菜牛肉鍋","price":180,"optType":"eight_pot"},{"name":"泡菜羊肉鍋","price":180,"optType":"eight_pot"},{"name":"泡菜鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜椰香咖哩","items":[{"name":"椰香咖哩豬肉鍋","price":180,"optType":"eight_pot"},{"name":"椰香咖哩雞肉鍋","price":180,"optType":"eight_pot"},{"name":"椰香咖哩牛肉鍋","price":185,"optType":"eight_pot"},{"name":"椰香咖哩羊肉鍋","price":185,"optType":"eight_pot"},{"name":"椰香咖哩鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜香濃青醬","items":[{"name":"香濃青醬豬肉鍋","price":195,"optType":"eight_pot"},{"name":"香濃青醬雞肉鍋","price":195,"optType":"eight_pot"},{"name":"香濃青醬牛肉鍋","price":200,"optType":"eight_pot"},{"name":"香濃青醬羊肉鍋","price":200,"optType":"eight_pot"},{"name":"香濃青醬鮮魚鍋","price":210,"optType":"eight_pot"}]},{"category":"鍋物｜泰式酸辣","items":[{"name":"泰式酸辣豬肉鍋","price":180,"optType":"eight_pot"},{"name":"泰式酸辣雞肉鍋","price":180,"optType":"eight_pot"},{"name":"泰式酸辣牛肉鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣羊肉鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣海鮮鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜麻辣","items":[{"name":"麻辣豬肉鍋","price":175,"optType":"eight_pot"},{"name":"麻辣雞肉鍋","price":175,"optType":"eight_pot"},{"name":"麻辣臭臭鍋","price":175,"optType":"eight_pot"},{"name":"麻辣鴨血鍋","price":175,"optType":"eight_pot"},{"name":"麻辣牛肉鍋","price":180,"optType":"eight_pot"},{"name":"麻辣羊肉鍋","price":180,"optType":"eight_pot"},{"name":"麻辣海鮮鍋","price":180,"optType":"eight_pot"},{"name":"麻辣鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜蝦醬金湯","items":[{"name":"蝦醬金湯豬肉鍋","price":190,"optType":"eight_pot"},{"name":"蝦醬金湯雞肉鍋","price":190,"optType":"eight_pot"},{"name":"蝦醬金湯牛肉鍋","price":195,"optType":"eight_pot"},{"name":"蝦醬金湯羊肉鍋","price":195,"optType":"eight_pot"},{"name":"蝦醬金湯鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"單點系列","items":[{"name":"起士片","price":20},{"name":"貢丸","price":25},{"name":"魚丸","price":25},{"name":"鑫鑫腸","price":25},{"name":"百頁豆腐","price":25},{"name":"甜不辣","price":25},{"name":"手工臭豆腐","price":25},{"name":"韓式泡菜","price":30},{"name":"寧波年糕","price":30},{"name":"蛋餃","price":30},{"name":"魚餃","price":30},{"name":"麻辣滷鴨血","price":30},{"name":"蛤蜊","price":30},{"name":"香菇","price":30},{"name":"秀珍菇","price":30},{"name":"金針菇","price":30},{"name":"玉米筍","price":30},{"name":"豆皮","price":30},{"name":"高麗菜","price":35},{"name":"青菜","price":35},{"name":"魚頭","price":70},{"name":"雞肉片","price":60},{"name":"豬肉片","price":60},{"name":"熟白蝦","price":70},{"name":"鯛魚片","price":70},{"name":"大腸","price":70},{"name":"牛肉片","price":70},{"name":"羊肉片","price":70},{"name":"白飯","price":15},{"name":"冬粉","price":15},{"name":"王子麵","price":15}]}],
       "天天下廚": [
         { category: "炒飯", items: [
-          { name: "豬肉蛋炒飯", price: 85, optType: "tt_fried_rice" },
-          { name: "雞肉蛋炒飯", price: 85, optType: "tt_fried_rice" },
-          { name: "牛肉蛋炒飯", price: 95, optType: "tt_fried_rice" },
-          { name: "羊肉蛋炒飯", price: 95, optType: "tt_fried_rice" },
-          { name: "蝦仁蛋炒飯", price: 95, optType: "tt_fried_rice" },
-          { name: "蔬菜蛋炒飯", price: 70, optType: "tt_fried_rice" }
+          { name: "豬肉蛋炒飯", price: 90, optType: "tt_fried_rice" },
+          { name: "雞肉蛋炒飯", price: 90, optType: "tt_fried_rice" },
+          { name: "牛肉蛋炒飯", price: 100, optType: "tt_fried_rice" },
+          { name: "羊肉蛋炒飯", price: 100, optType: "tt_fried_rice" },
+          { name: "蝦仁蛋炒飯", price: 100, optType: "tt_fried_rice" },
+          { name: "蔬菜蛋炒飯", price: 75, optType: "tt_fried_rice" }
         ]},
         { category: "炒麵", items: [
-          { name: "豬肉炒麵", price: 85, optType: "tt_fried_noodle" },
-          { name: "雞肉炒麵", price: 85, optType: "tt_fried_noodle" },
-          { name: "牛肉炒麵", price: 95, optType: "tt_fried_noodle" },
-          { name: "羊肉炒麵", price: 95, optType: "tt_fried_noodle" },
-          { name: "蝦仁炒麵", price: 95, optType: "tt_fried_noodle" },
-          { name: "蔬菜炒麵", price: 70, optType: "tt_fried_noodle" }
+          { name: "豬肉炒麵", price: 90, optType: "tt_fried_noodle" },
+          { name: "雞肉炒麵", price: 90, optType: "tt_fried_noodle" },
+          { name: "牛肉炒麵", price: 100, optType: "tt_fried_noodle" },
+          { name: "羊肉炒麵", price: 100, optType: "tt_fried_noodle" },
+          { name: "蝦仁炒麵", price: 100, optType: "tt_fried_noodle" },
+          { name: "蔬菜炒麵", price: 75, optType: "tt_fried_noodle" }
         ]},
         { category: "湯麵", items: [
-          { name: "肉絲湯麵", price: 75 },
-          { name: "鍋燒烏龍麵", price: 85 },
-          { name: "鍋燒雞絲麵", price: 85 }
+          { name: "肉絲湯麵", price: 80 },
+          { name: "鍋燒烏龍麵", price: 90 },
+          { name: "鍋燒雞絲麵", price: 90 }
         ]},
         { category: "湯品", items: [
           { name: "蛤蜊湯", price: 60 },
@@ -1069,19 +1069,19 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         { category: "熱炒類", items: [
           { name: "酥炸豆腐", price: 60 },
           { name: "炒青菜", price: 80 },
-          { name: "九層塔菜脯煎蛋", price: 100 },
+          { name: "九層塔菜脯煎蛋", price: 100, optType: "tt_egg_choice" },
           { name: "爆炒豬肝", price: 120 },
-          { name: "麻婆紅燒豆腐", price: 120 },
-          { name: "糖醋雞柳", price: 130 },
-          { name: "沙茶炒牛肉", price: 140 },
-          { name: "沙茶炒羊肉", price: 140 },
-          { name: "蔥爆牛肉", price: 140 },
-          { name: "蔥爆羊肉", price: 140 },
-          { name: "紅燒糖醋魚片", price: 160 },
-          { name: "蝦仁烘蛋", price: 150 },
-          { name: "蔭鼓燒蚵仔", price: 150 },
-          { name: "蚵仔酥", price: 150 },
-          { name: "塔香蛤蜊", price: 150 },
+          { name: "麻婆紅燒豆腐", price: 120, optType: "tt_tofu_choice" },
+          { name: "糖醋雞柳", price: 140 },
+          { name: "沙茶炒牛肉", price: 150 },
+          { name: "沙茶炒羊肉", price: 150 },
+          { name: "蔥爆牛肉", price: 150 },
+          { name: "蔥爆羊肉", price: 150 },
+          { name: "紅燒糖醋魚片", price: 170, optType: "tt_fish_choice" },
+          { name: "蝦仁烘蛋", price: 160 },
+          { name: "蔭鼓燒蚵仔", price: 160 },
+          { name: "蚵仔酥", price: 160 },
+          { name: "塔香蛤蜊", price: 160 },
           { name: "白飯", price: 15 }
         ]}
       ],
@@ -1857,7 +1857,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       const container = document.getElementById('menuList');
       const navContainer = document.getElementById('categoryNavContainer');
       const eightCategoryTip = document.getElementById('eightCategoryTip');
-      if (eightCategoryTip) eightCategoryTip.hidden = storeName !== '8鍋';
+      if (eightCategoryTip) eightCategoryTip.hidden = !['8鍋', '八方雲集', '好卷不見'].includes(storeName);
+      const categoryTipTitle = document.getElementById('categoryTipTitle');
+      if (categoryTipTitle) categoryTipTitle.textContent = `${storeName}品項較多`;
       const infoContainer = document.getElementById('storeInfoDisplay');
       
       const sInfo = storeDetails[storeName] || { phone: "請參照店家電話" };
@@ -1878,7 +1880,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         }
         
         if (cat.category.includes("拌飯 / 丼飯")) {
-          html += `<div style="font-size:0.78rem; color:#ef4444; font-weight:bold; margin-bottom:0.6rem; background:#fef2f2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">⚠️ 點餐請務必勾選【拌飯】或【丼飯】（若未勾選一律預設為丼飯）</div>`;
+          html += `<div style="font-size:0.78rem; color:#ef4444; font-weight:bold; margin-bottom:0.6rem; background:#fef2f2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">⚠️ 點餐請務必勾選【拌飯】或【丼飯】，未選擇無法送出訂單。</div>`;
         }
 
         cat.items.forEach(item => {
@@ -1887,7 +1889,10 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           let optionsHtml = '';
           let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註 (例如: 不要辣)'));
 
-          if (item.optType === 'eight_pot') {
+          if (['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(item.optType)) {
+            const choices = {tt_egg_choice:['九層塔','菜脯'],tt_tofu_choice:['紅燒','麻婆'],tt_fish_choice:['糖醋','紅燒']}[item.optType];
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}"><div style="font-weight:bold;color:#b91c1c">料理口味（二選一，必選）</div>${choices.map(choice => `<label><input type="radio" name="tt-choice-${id}" value="${choice}" onchange="updateRemark('${id}', '${item.optType}');clearRequiredOptionAttention('${id}')"> ${choice}</label>`).join('')}</div>`;
+          } else if (item.optType === 'eight_pot') {
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
               <div style="font-weight:bold;color:#9c3b30;margin-bottom:5px;">附餐選擇（必選，四選一）</div>
               ${['白飯','冬粉','王子麵','不需要'].map(choice =>
@@ -1904,7 +1909,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
             const cfg = configs[item.optType];
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
               <div style="font-weight:bold;color:#b91c1c;">${cfg.title}</div>
-              ${cfg.choices.map(choice => `<label><input type="radio" name="bf-choice-${id}" value="${choice}" onchange="updateRemark('${id}', '${item.optType}')"> ${choice}</label>`).join('')}
+              ${cfg.choices.map(choice => `<label><input type="radio" name="bf-choice-${id}" value="${choice}" onchange="updateRemark('${id}', '${item.optType}');clearRequiredOptionAttention('${id}')"> ${choice}</label>`).join('')}
             </div>`;
           } else if (item.optType === 'hl_wonton') {
             placeholderText = '辣度必選；加麵可選填';
@@ -2012,14 +2017,14 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <button type="button" class="tt-spice-clear" onclick="clearFnSpice('${id}')">清除辣度選擇</button>
               </div>`;
           } else if (item.optType === 'tteokbokki_noodle') {
-            placeholderText = '須選擇口味，沒勾選視為原味';
+            placeholderText = '其他備註 (例如: 不要辣)';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="tteok-orig-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'orig')"> 原味</label>
                 <label><input type="checkbox" id="tteok-spicy-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'spicy')"> 辣味</label>
               </div>`;
           } else if (item.optType === 'shin_ramen') {
-            placeholderText = '須選擇口味，沒勾選視為泡菜';
+            placeholderText = '其他備註 (例如: 不要辣)';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="shin-kimchi-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'kimchi')"> 泡菜</label>
@@ -2027,14 +2032,14 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <label><input type="checkbox" id="shin-cheese-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'cheese')"> 起司 +$10</label>
               </div>`;
           } else if (item.optType === 'rice_bowl') {
-            placeholderText = '請勾選拌飯/丼飯，未選擇一律視為丼飯';
+            placeholderText = '其他備註 (例如: 不要辣)';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="rb-rice-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'rice')"> 拌飯</label>
                 <label><input type="checkbox" id="rb-bowl-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'bowl')"> 丼飯</label>
               </div>`;
           } else if (item.optType === 'chungwu' || item.optType === 'light_box') {
-            placeholderText = '請記得選擇肉品，未選取一律視為雞肉';
+            placeholderText = '其他備註 (例如: 不要辣)';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="meat-chicken-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'chicken')"> 雞肉</label>
@@ -2079,6 +2084,20 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       updateRemark(id, 'hl_dumpling');
     }
 
+    function clearRequiredOptionAttention(id) {
+      document.getElementById(`options-group-${id}`)?.closest('.menu-item')?.classList.remove('eight-side-needs-attention');
+    }
+
+    function requiredChoiceMissing(id, message) {
+      const itemBox = document.getElementById(`options-group-${id}`)?.closest('.menu-item');
+      if (itemBox) {
+        itemBox.classList.add('eight-side-needs-attention');
+        itemBox.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      }
+      alert(`⚠️「${id}」${message}\n已自動定位到該餐點，請完成選擇。`);
+      return false;
+    }
+
     function validateBafangRequiredOptions() {
       for (const [id, item] of Object.entries(currentOrder)) {
         if (item.qty > 0 && item.optType === 'eight_pot') {
@@ -2096,10 +2115,16 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         }
         if (item.qty > 0 && ['bf_wonton','bf_short_rib','bf_soup_dumpling','bf_tofu','bf_soymilk'].includes(item.optType)) {
           const selected = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
-          if (!selected) {
-            alert(`⚠️「${id}」請先選擇必選口味！`);
-            return false;
-          }
+          if (!selected) return requiredChoiceMissing(id, '請先選擇必選口味！');
+        }
+        if (item.qty > 0 && ['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(item.optType)) {
+          if (![...document.getElementsByName(`tt-choice-${id}`)].some(r => r.checked))
+            return requiredChoiceMissing(id, '請先選擇料理口味（二選一）！');
+        }
+        if (item.qty > 0 && ['rice_bowl','chungwu','tteokbokki_noodle','shin_ramen'].includes(item.optType)) {
+          const prefixes = {rice_bowl:['rb-rice','rb-bowl'],chungwu:['meat-chicken','meat-pork','meat-beef'],tteokbokki_noodle:['tteok-orig','tteok-spicy'],shin_ramen:['shin-kimchi','shin-milk','shin-cheese']}[item.optType];
+          if (!prefixes.some(prefix => document.getElementById(`${prefix}-${id}`)?.checked))
+            return requiredChoiceMissing(id, '請先選擇必選口味！');
         }
       }
       return true;
@@ -2201,6 +2226,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
 
       updateRemark(id, group === 'meat' ? 'chungwu' : (group === 'rb' ? 'rice_bowl' : (group === 'shin' ? 'shin_ramen' : 'tteokbokki_noodle')));
+      clearRequiredOptionAttention(id);
     }
 
     function checkRemarkClick(e) {
@@ -2305,6 +2331,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         if (optType === 'eight_pot') {
           const side = [...document.getElementsByName(`eight-side-${id}`)].find(r => r.checked);
           if (side) remarks.push('附餐：' + side.value);
+        } else if (['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(optType)) {
+          const chosen = [...document.getElementsByName(`tt-choice-${id}`)].find(r => r.checked);
+          if (chosen) remarks.push(chosen.value);
         } else if (['bf_wonton','bf_short_rib','bf_soup_dumpling','bf_tofu','bf_soymilk'].includes(optType)) {
           const chosen = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
           if (chosen) remarks.push(chosen.value);
@@ -2555,6 +2584,10 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
             const spice = [...document.getElementsByName(`fn-spice-${k}`)].find(r => r.checked);
             if (spice) options.push('fn-spice-' + spice.value);
           }
+          // 天天下廚新增料理口味：以正式 options 傳送，由後端重建並保存備註。
+          const ttChoice = ['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(currentOrder[k].optType)
+            ? [...document.getElementsByName(`tt-choice-${k}`)].find(r => r.checked)?.value : null;
+          if (ttChoice) options.push('tt-choice-' + ttChoice);
           const note = document.getElementById(`remark-${k}`)?.value.trim() || '';
           items.push({ name: k, qty: currentOrder[k].qty, price: currentOrder[k].price,
             options, note, remark: currentOrder[k].remark });
@@ -2992,6 +3025,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       return lines.join('\n');
     }
 
+    function getAdminStorePhoneHtml(store) {
+      const phone = String(storeDetails[store]?.phone || '尚未提供店家電話');
+      const numbers = phone.match(/(?:\d[\d\s-]{6,}\d)/g) || [];
+      const links = numbers.map(number => `<a href="tel:${number.replace(/[^\d+]/g, '')}" style="display:inline-block;padding:3px 9px;margin:2px 4px 2px 0;border-radius:7px;background:#dcfce7;color:#166534;font-weight:bold;text-decoration:none">📞 ${escapeHTML(number.trim())}（點擊撥號）</a>`).join('');
+      return `<div style="padding:8px 10px;margin-bottom:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;color:#166534"><b>${escapeHTML(store)}｜店家電話：</b> ${links || escapeHTML(phone)}</div>`;
+    }
+
     function calculateQuickSummary(targetBatch) {
       adminSummaryBatchV14 = targetBatch;
       const selectedKey = document.getElementById('adminEventFilter').value;
@@ -2999,6 +3039,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 
       const [date, ...summaryStoreParts] = selectedKey.split('_');
       const store = summaryStoreParts.join('_');
+      const phoneHtml = getAdminStorePhoneHtml(store);
       let eventOrders = globalAllOrders.filter(o => o.eventKey === selectedKey && !o.cancelled);
 
       if (targetBatch !== 'all') {
@@ -3007,13 +3048,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 
       if (eventOrders.length === 0) {
         const batchTag = targetBatch === 'all' ? '全單' : `第 ${targetBatch} 單`;
-        document.getElementById('quickSummaryBox').innerHTML = `⚠️ 尚無【${escapeHTML(batchTag)}】有效點餐資料`;
+        document.getElementById('quickSummaryBox').innerHTML = `${phoneHtml}⚠️ 尚無【${escapeHTML(batchTag)}】有效點餐資料`;
         return;
       }
 
       if (store === '8鍋') {
         const title = targetBatch === 'all' ? '【全單彙整試算結果】' : `【第 ${targetBatch} 單試算結果】`;
-        document.getElementById('quickSummaryBox').innerHTML = `<div style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85">${escapeHTML(buildEightPackingText(eventOrders, title))}</div>`;
+        document.getElementById('quickSummaryBox').innerHTML = `${phoneHtml}<div style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85">${escapeHTML(buildEightPackingText(eventOrders, title))}</div>`;
         return;
       }
 
@@ -3051,7 +3092,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         📦 總品項份數：<b>${totalItemsCount}</b> 份<br>
         💰 應收總金額：<b>$${totalAmount}</b> 元 (${eventOrders.length} 筆有效訂單)
       </div>`;
-      document.getElementById('quickSummaryBox').innerHTML = summaryHtml;
+      document.getElementById('quickSummaryBox').innerHTML = phoneHtml + summaryHtml;
     }
 
     async function setBatchCutoff(batchNum) {
