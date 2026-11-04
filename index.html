@@ -3402,7 +3402,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       compactTip.hidden=!store || hasUsedCategory;
       var rect=original.getBoundingClientRect();
       var orderRect=order.getBoundingClientRect();
-      var show=rect.top<0 && orderRect.bottom>clone.offsetHeight+12 && original.children.length>0;
+      // 分類列本身是 position:sticky，吸頂後 top 會固定為 0，不會小於 0。
+      var show=rect.top<=1 && orderRect.bottom>clone.offsetHeight+12 && original.children.length>0;
       if(show){
         if(lastHTML!==original.innerHTML){buttons.innerHTML=original.innerHTML;lastHTML=original.innerHTML;}
         clone.classList.add('v2020-visible');
