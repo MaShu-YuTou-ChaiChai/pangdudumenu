@@ -974,6 +974,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 
     // V16：逾時涵蓋連線及 JSON 讀取；僅停止等待，不代表寫入已撤回。
     async function fetchJSONV16(url, options = {}, timeoutMs = 30000) {
+      const startedAtV36 = performance.now();
+      const requestTypeV36 = (options.method || 'GET').toUpperCase();
+      let requestErrorV36 = '';
       const controller = new AbortController();
       const externalSignal = options.signal;
       let timer, onAbort;
@@ -1003,7 +1006,17 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
             }
           })(), cancelled
         ]);
+      } catch (err) {
+        requestErrorV36 = (err && err.message) || 'unknown';
+        throw err;
       } finally {
+        // V36：僅將慢請求／失敗寫在本機瀏覽器 Console，不送回 GAS、不中斷操作。
+        const elapsedV36 = Math.round(performance.now() - startedAtV36);
+        if (elapsedV36 >= 3000 || requestErrorV36) {
+          console.warn('[V36 cloud timing]', requestTypeV36,
+            'durationMs=' + elapsedV36,
+            requestErrorV36 ? 'error=' + requestErrorV36 : 'slow');
+        }
         clearTimeout(timer);
         if (externalSignal) externalSignal.removeEventListener('abort', onAbort);
       }
@@ -2851,9 +2864,11 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       const pwd = input.value;
       if (!pwd) { alert('請輸入管理員密碼！'); return; }
       showLoading(true);
+      let credentialsVerifiedV36 = false;
       try {
         const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
+        credentialsVerifiedV36 = true;
         adminToken = result.token;
         lastAdminSyncAtV15 = '';
         setAdminStaleV17(true);
@@ -2864,7 +2879,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         renderAdminData();
         startAdminAutoSyncV14();
       } catch(e) {
-        alert('管理員登入失敗：' + e.message);
+        alert((credentialsVerifiedV36 ? '管理員驗證成功，但後台資料同步失敗：' : '管理員登入失敗：') + e.message);
       } finally {
         showLoading(false);
       }
