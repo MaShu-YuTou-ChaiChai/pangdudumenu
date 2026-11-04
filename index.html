@@ -1009,21 +1009,14 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
     }
 
-    async function postCloudJSON(payload, requestSignal, timeoutMs = 30000) {
+    async function postCloudJSON(payload, requestSignal) {
       const result = await fetchJSONV16(API_URL, {
         method: 'POST', body: JSON.stringify(payload), signal: requestSignal
-      }, timeoutMs);
+      });
       if (!result || result.status !== 'success') {
-        const error = new Error((result && result.message) || '雲端未確認操作成功');
-        error.serverRejected = true;
-        throw error;
+        throw new Error((result && result.message) || '雲端未確認操作成功');
       }
       return result;
-    }
-
-    // 唯讀確認：寫入請求逾時，不代表後端未寫入；查詢不能重新新增訂單。
-    async function checkOrderReceiptV22(order) {
-      return await postCloudJSON({ action: 'checkOrderReceipt', order }, undefined, 20000);
     }
 
     const storeDetails = {
@@ -2559,6 +2552,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       if (!validateHualienSpice()) return;
       if (!validateBafangRequiredOptions()) return;
       orderSubmitInFlight = true;
+      let submitTimeoutV14 = null;
       try {
         closeConfirmModal();
         calculateTotal();
@@ -2632,35 +2626,15 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         try { sessionStorage.setItem(PENDING_ORDER_KEY_V14, JSON.stringify(pendingOrderV14)); }
         catch (err) { /* 儲存空間不可用時仍由目前頁面記住待確認訂單。 */ }
         showLoading(true);
-        let receiptConfirmed = false;
-        try {
-          // 單一逾時計時，避免外層 abort 將逾時誤報成「連線已中止」。
-          await postCloudJSON({ action: 'submitOrder', order: pendingOrderV14.order }, undefined, 45000);
-          receiptConfirmed = true;
-        } catch (submitError) {
-          // 後端明確拒絕時，不轉成成功；只有傳輸未確認才進行唯讀查詢。
-          if (submitError.serverRejected) throw submitError;
-          try {
-            const receipt = await checkOrderReceiptV22(pendingOrderV14.order);
-            if (receipt.received && !receipt.cancelled) receiptConfirmed = true;
-            else if (receipt.received && receipt.cancelled)
-              throw new Error('訂單已寫入但目前為取消狀態，請聯絡管理員確認');
-          } catch (receiptError) {
-            if (receiptError.message.includes('訂單已寫入但目前為取消狀態')) throw receiptError;
-            // 查詢本身失敗時，保留原訂單編號，不能聲稱未寫入。
-            throw new Error('送單回應未確認，收件查詢亦未完成：' + receiptError.message);
-          }
-          if (!receiptConfirmed)
-            throw new Error('送單尚未查到收件紀錄；可能仍在處理中。請先查詢訂單再重試');
-        }
-        if (receiptConfirmed) {
+        const submitControllerV14 = new AbortController();
+        submitTimeoutV14 = setTimeout(() => submitControllerV14.abort(), 30000);
+          await postCloudJSON({ action: 'submitOrder', order: pendingOrderV14.order }, submitControllerV14.signal);
           orderSubmitConfirmed = true;
           pendingOrderV14 = null;
           try { sessionStorage.removeItem(PENDING_ORDER_KEY_V14); } catch (err) {}
           calculateTotal();
           alert('點餐成功！資料已同步寫入雲端。');
           location.reload();
-        }
       } catch(e) {
         if (e.message.includes('此訂單已取消')) {
           pendingOrderV14 = null;
@@ -2668,6 +2642,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         }
         alert('⚠️ 點餐未確認成功：' + e.message + '\n請先查詢訂單是否存在；未確認收件的同內容重試將沿用原訂單編號。');
       } finally {
+        if (submitTimeoutV14 !== null) clearTimeout(submitTimeoutV14);
         orderSubmitInFlight = false;
         showLoading(false);
         calculateTotal();
@@ -2871,28 +2846,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
     }
 
-    // 每個瀏覽器保留一個不含個資的隨機識別碼，供後端分來源限制錯誤登入。
-    // 這不是可信任身分；刻意清除儲存資料或變更識別碼仍可能繞過限制。
-    function adminLoginClientIdV21() {
-      const storageKey = 'pangdudu_admin_login_client_v21';
-      let clientId = localStorage.getItem(storageKey);
-      if (!clientId || !/^adm_[0-9a-f]{32}$/.test(clientId)) {
-        const bytes = new Uint8Array(16);
-        crypto.getRandomValues(bytes);
-        clientId = 'adm_' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
-        localStorage.setItem(storageKey, clientId);
-      }
-      return clientId;
-    }
-
     async function verifyAdminPassword() {
       const input = document.getElementById('adminPasswordInput');
       const pwd = input.value;
       if (!pwd) { alert('請輸入管理員密碼！'); return; }
       showLoading(true);
       try {
-        const clientId = adminLoginClientIdV21();
-        const result = await postCloudJSON({ action: 'adminLogin', password: pwd, clientId });
+        const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
         lastAdminSyncAtV15 = '';
@@ -3611,7 +3571,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 <script id="shiba-feedback-js">
 (function(){'use strict';
   // 正式上線前，填入「獨立意見箱 Apps Script」的 /exec 網址；勿填訂單 API。
-  const FEEDBACK_API_URL = 'https://script.google.com/macros/s/AKfycbyOa1ZoRoqgDOx01rjInrflz0xLKWH6s7_f4pK8c91hyLdpiHho0ey6Lq0vpPKhAWIDqQ/exec';
+  const FEEDBACK_API_URL = '';
   const openBtn=document.getElementById('shibaFeedbackOpen');
   const modal=document.getElementById('shibaFeedbackModal');
   const back=document.getElementById('shibaFeedbackBackdrop');
