@@ -1042,7 +1042,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           { name: "牛肉蛋炒飯", price: 100, optType: "tt_fried_rice" },
           { name: "羊肉蛋炒飯", price: 100, optType: "tt_fried_rice" },
           { name: "蝦仁蛋炒飯", price: 100, optType: "tt_fried_rice" },
-          { name: "蔬菜蛋炒飯", price: 75, optType: "tt_fried_rice" }
+          { name: "蔬菜蛋炒飯", price: 80, optType: "tt_fried_rice" }
         ]},
         { category: "炒麵", items: [
           { name: "豬肉炒麵", price: 90, optType: "tt_fried_noodle" },
@@ -1050,7 +1050,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           { name: "牛肉炒麵", price: 100, optType: "tt_fried_noodle" },
           { name: "羊肉炒麵", price: 100, optType: "tt_fried_noodle" },
           { name: "蝦仁炒麵", price: 100, optType: "tt_fried_noodle" },
-          { name: "蔬菜炒麵", price: 75, optType: "tt_fried_noodle" }
+          { name: "蔬菜炒麵", price: 80, optType: "tt_fried_noodle" }
         ]},
         { category: "湯麵", items: [
           { name: "肉絲湯麵", price: 80 },
@@ -3032,6 +3032,42 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       return `<div style="padding:8px 10px;margin-bottom:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;color:#166534"><b>${escapeHTML(store)}｜店家電話：</b> ${links || escapeHTML(phone)}</div>`;
     }
 
+    // 八方雲集：鍋貼／水餃按每位同仁選擇的顆數分組，不把 5 顆與 10 顆合併。
+    function buildBafangQuickSummary(orders, targetBatch) {
+      const storeOrderList = getStoreMenuOrder('八方雲集');
+      const rank = name => { const idx = storeOrderList.indexOf(name); return idx < 0 ? 9999 : idx; };
+      const groups = new Map();
+      let totalAmount = 0, totalUnits = 0;
+      orders.forEach(order => {
+        totalAmount += Number(order.total) || 0;
+        (order.items || []).forEach(item => {
+          const qty = Number(item.qty) || 0;
+          if (qty <= 0) return;
+          totalUnits += qty;
+          const perPiece = /鍋貼|水餃/.test(item.name);
+          const remark = item.remark || '';
+          const key = JSON.stringify([item.name, remark, perPiece ? qty : null]);
+          if (!groups.has(key)) groups.set(key, {name:item.name, remark, qty:perPiece ? qty : null, count:0, perPiece});
+          groups.get(key).count += perPiece ? 1 : qty;
+        });
+      });
+      const rows = [...groups.values()].sort((a,b) => rank(a.name)-rank(b.name) ||
+        (a.qty || 0)-(b.qty || 0) || a.remark.localeCompare(b.remark));
+      const batchTag = targetBatch === 'all' ? '全單彙整' : `第 ${targetBatch} 單`;
+      let html = `<div style="font-weight:bold;color:#0369a1;margin-bottom:2px">📋【${batchTag}試算結果】</div>`;
+      rows.forEach(row => {
+        const label = row.name + (row.remark ? `（${row.remark}）` : '');
+        html += row.perPiece
+          ? `• ${escapeHTML(label)} ${row.qty}個 × <b>${row.count}</b>份<br>`
+          : `• ${escapeHTML(label)}：<b>${row.count}</b>份<br>`;
+      });
+      html += `<div style="margin-top:6px;font-weight:bold;color:#15803d;border-top:1px dashed #bbf7d0;padding-top:4px">
+        📦 總餐點數量：<b>${totalUnits}</b>（鍋貼／水餃以個數計）<br>
+        💰 應收總金額：<b>$${totalAmount}</b> 元 (${orders.length} 筆有效訂單)
+      </div>`;
+      return html;
+    }
+
     function calculateQuickSummary(targetBatch) {
       adminSummaryBatchV14 = targetBatch;
       const selectedKey = document.getElementById('adminEventFilter').value;
@@ -3055,6 +3091,11 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       if (store === '8鍋') {
         const title = targetBatch === 'all' ? '【全單彙整試算結果】' : `【第 ${targetBatch} 單試算結果】`;
         document.getElementById('quickSummaryBox').innerHTML = `${phoneHtml}<div style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85">${escapeHTML(buildEightPackingText(eventOrders, title))}</div>`;
+        return;
+      }
+
+      if (store === '八方雲集') {
+        document.getElementById('quickSummaryBox').innerHTML = phoneHtml + buildBafangQuickSummary(eventOrders, targetBatch);
         return;
       }
 
