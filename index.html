@@ -2846,13 +2846,28 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
     }
 
+    // 每個瀏覽器保留一個不含個資的隨機識別碼，供後端分來源限制錯誤登入。
+    // 這不是可信任身分；刻意清除儲存資料或變更識別碼仍可能繞過限制。
+    function adminLoginClientIdV21() {
+      const storageKey = 'pangdudu_admin_login_client_v21';
+      let clientId = localStorage.getItem(storageKey);
+      if (!clientId || !/^adm_[0-9a-f]{32}$/.test(clientId)) {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        clientId = 'adm_' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+        localStorage.setItem(storageKey, clientId);
+      }
+      return clientId;
+    }
+
     async function verifyAdminPassword() {
       const input = document.getElementById('adminPasswordInput');
       const pwd = input.value;
       if (!pwd) { alert('請輸入管理員密碼！'); return; }
       showLoading(true);
       try {
-        const result = await postCloudJSON({ action: 'adminLogin', password: pwd });
+        const clientId = adminLoginClientIdV21();
+        const result = await postCloudJSON({ action: 'adminLogin', password: pwd, clientId });
         if (!result.token) throw new Error('沒有收到管理員登入憑證');
         adminToken = result.token;
         lastAdminSyncAtV15 = '';
@@ -3571,7 +3586,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 <script id="shiba-feedback-js">
 (function(){'use strict';
   // 正式上線前，填入「獨立意見箱 Apps Script」的 /exec 網址；勿填訂單 API。
-  const FEEDBACK_API_URL = '';
+  const FEEDBACK_API_URL = 'https://script.google.com/macros/s/AKfycbyOa1ZoRoqgDOx01rjInrflz0xLKWH6s7_f4pK8c91hyLdpiHho0ey6Lq0vpPKhAWIDqQ/exec';
   const openBtn=document.getElementById('shibaFeedbackOpen');
   const modal=document.getElementById('shibaFeedbackModal');
   const back=document.getElementById('shibaFeedbackBackdrop');
