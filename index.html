@@ -2126,8 +2126,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           if (![...document.getElementsByName(`tt-choice-${id}`)].some(r => r.checked))
             return requiredChoiceMissing(id, '請先選擇料理口味（二選一）！');
         }
-        if (item.qty > 0 && ['rice_bowl','chungwu','tteokbokki_noodle','shin_ramen'].includes(item.optType)) {
-          const prefixes = {rice_bowl:['rb-rice','rb-bowl'],chungwu:['meat-chicken','meat-pork','meat-beef'],tteokbokki_noodle:['tteok-orig','tteok-spicy'],shin_ramen:['shin-kimchi','shin-milk','shin-cheese']}[item.optType];
+        if (item.qty > 0 && ['rice_bowl','chungwu','light_box','tteokbokki_noodle','shin_ramen'].includes(item.optType)) {
+          const prefixes = {rice_bowl:['rb-rice','rb-bowl'],chungwu:['meat-chicken','meat-pork','meat-beef'],light_box:['meat-chicken','meat-pork','meat-beef'],tteokbokki_noodle:['tteok-orig','tteok-spicy'],shin_ramen:['shin-kimchi','shin-milk','shin-cheese']}[item.optType];
           if (!prefixes.some(prefix => document.getElementById(`${prefix}-${id}`)?.checked))
             return requiredChoiceMissing(id, '請先選擇必選口味！');
         }
