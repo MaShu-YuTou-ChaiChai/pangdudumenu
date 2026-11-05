@@ -971,6 +971,15 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     let cloudDataEpochV14 = 0;
     let adminSummaryBatchV14 = 'all';
     let lastAdminSyncAtV15 = ''; // 僅顯示目前頁面最近一次成功取得訂單的時間。
+    // V37：前景同步優先；背景失敗暫退避，成功後恢復每 30 秒。
+    let adminForegroundSyncInFlightV37 = false;
+    let adminBackgroundControllerV37 = null;
+    let adminSyncFailuresV37 = 0;
+    let adminSyncNextAllowedV37 = 0;
+    let adminSnapshotSignatureV37 = '';
+    function adminSnapshotSignatureOfV37(events, orders) {
+      return JSON.stringify([events, orders]);
+    }
 
     // V16：逾時涵蓋連線及 JSON 讀取；僅停止等待，不代表寫入已撤回。
     async function fetchJSONV16(url, options = {}, timeoutMs = 30000) {
@@ -1719,20 +1728,28 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       showLoading(true);
       const requestId = ++latestCloudLoadRequestV18;
       const token = adminToken;
+      if (token) {
+        adminForegroundSyncInFlightV37 = true;
+        if (adminBackgroundControllerV37) adminBackgroundControllerV37.abort();
+      }
       try {
-        const data = await fetchJSONV16(`${API_URL}?action=getSystemData`, {}, 20000);
+        // V37：管理員單次雲端請求同時取得場次與訂單；一般訪客維持公開 GET。
+        const data = token
+          ? await postCloudJSON({ action: 'getAdminSnapshot', token })
+          : await fetchJSONV16(`${API_URL}?action=getSystemData`, {}, 20000);
         if (!data || data.status !== 'success' || !Array.isArray(data.activeEvents))
           throw new Error('場次同步格式錯誤');
-        let orders = [];
-        if (token) {
-          const result = await postCloudJSON({ action: 'getAdminOrders', token });
-          if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
-          orders = result.orders;
-        }
+        const orders = token ? data.orders : [];
+        if (token && !Array.isArray(orders)) throw new Error('訂單同步格式錯誤');
         if (token !== adminToken || requestId !== latestCloudLoadRequestV18) return false;
         // V17：場次與訂單都成功讀取後才一起提交，避免顯示混合的新舊資料。
         globalActiveEvents = data.activeEvents;
         globalAllOrders = orders;
+        if (token) {
+          adminSnapshotSignatureV37 = adminSnapshotSignatureOfV37(data.activeEvents, orders);
+          adminSyncFailuresV37 = 0;
+          adminSyncNextAllowedV37 = 0;
+        }
         sortActiveEventsByDate();
         renderEventDropdown();
         if (token) {
@@ -1757,7 +1774,10 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           } else updateAdminSyncStatusV15('error');
         }
         return false;
-      } finally { showLoading(false); }
+      } finally {
+        if (token && requestId === latestCloudLoadRequestV18) adminForegroundSyncInFlightV37 = false;
+        showLoading(false);
+      }
     }
 
     function renderEventDropdown() {
@@ -2793,6 +2813,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       adminSyncGenerationV14++;
       if (adminSyncTimerV14 !== null) clearInterval(adminSyncTimerV14);
       adminSyncTimerV14 = null;
+      if (adminBackgroundControllerV37) adminBackgroundControllerV37.abort();
     }
 
     function startAdminAutoSyncV14() {
@@ -2807,35 +2828,42 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         return;
       }
       if (document.hidden || adminSyncInFlightV14 ||
+          adminForegroundSyncInFlightV37 || adminResyncInFlightV17 ||
           document.getElementById('loadingOverlay').classList.contains('active') ||
           confirmCheckInFlight || orderSubmitInFlight) return;
+      if (Date.now() < adminSyncNextAllowedV37) return;
       const token = adminToken, generation = adminSyncGenerationV14, epoch = cloudDataEpochV14;
       adminSyncInFlightV14 = true;
       const controller = new AbortController();
+      adminBackgroundControllerV37 = controller;
       const timeout = setTimeout(() => controller.abort(), 20000);
       try {
-        const res = await fetch(`${API_URL}?action=getSystemData`, {signal: controller.signal});
-        if (!res.ok) throw new Error('場次同步失敗');
-        const system = await res.json();
+        // V37：原本一輪 GET + POST 改成一輪 POST，保留 30 秒頻率及逾時保護。
+        const system = await postCloudJSON({action: 'getAdminSnapshot', token}, controller.signal);
         if (!system || system.status !== 'success' || !Array.isArray(system.activeEvents))
           throw new Error('場次同步格式錯誤');
-        const result = await postCloudJSON({action: 'getAdminOrders', token}, controller.signal);
-        if (!Array.isArray(result.orders)) throw new Error('訂單同步格式錯誤');
+        if (!Array.isArray(system.orders)) throw new Error('訂單同步格式錯誤');
         // 前景操作、關閉或重登之後，捨棄較早發出的背景回應。
         if (token !== adminToken || generation !== adminSyncGenerationV14 ||
             epoch !== cloudDataEpochV14 || !modal.classList.contains('active') || document.hidden) return;
-        const content = modal.querySelector('.modal-content');
-        const scrollTop = content ? content.scrollTop : 0;
-        const summaryBatch = adminSummaryBatchV14;
-        const selectedEvent = document.getElementById('adminEventFilter').value;
-        globalActiveEvents = system.activeEvents;
-        globalAllOrders = result.orders;
-        renderEventDropdown();
-        renderAdminData();
-        if (document.getElementById('adminEventFilter').value === selectedEvent)
-          calculateQuickSummary(summaryBatch);
-        if (content) content.scrollTop = scrollTop;
-        calculateTotal();
+        const signature = adminSnapshotSignatureOfV37(system.activeEvents, system.orders);
+        if (signature !== adminSnapshotSignatureV37) {
+          const content = modal.querySelector('.modal-content');
+          const scrollTop = content ? content.scrollTop : 0;
+          const summaryBatch = adminSummaryBatchV14;
+          const selectedEvent = document.getElementById('adminEventFilter').value;
+          globalActiveEvents = system.activeEvents;
+          globalAllOrders = system.orders;
+          renderEventDropdown();
+          renderAdminData();
+          if (document.getElementById('adminEventFilter').value === selectedEvent)
+            calculateQuickSummary(summaryBatch);
+          if (content) content.scrollTop = scrollTop;
+          calculateTotal();
+          adminSnapshotSignatureV37 = signature;
+        }
+        adminSyncFailuresV37 = 0;
+        adminSyncNextAllowedV37 = 0;
         setAdminStaleV17(false);
         updateAdminSyncStatusV15('success');
       } catch (err) {
@@ -2848,13 +2876,20 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           updateAdminSyncStatusV15('expired');
           alert('管理員登入已失效，請重新登入');
           openAdminModal();
-        } else {
+        } else if (token === adminToken && generation === adminSyncGenerationV14 &&
+                   epoch === cloudDataEpochV14 && modal.classList.contains('active') &&
+                   !controller.signal.aborted) {
+          // 僅背景讀取退避；不自動重送下單、取消或管理寫入操作。
+          adminSyncFailuresV37++;
+          const delay = Math.min(120000, 30000 * Math.pow(2, Math.min(adminSyncFailuresV37 - 1, 2)));
+          adminSyncNextAllowedV37 = Date.now() + delay;
           if (token === adminToken && generation === adminSyncGenerationV14 && epoch === cloudDataEpochV14 &&
               modal.classList.contains('active')) updateAdminSyncStatusV15('error');
           console.warn('後台背景同步未完成，下次將重試：' + err.message);
         }
       } finally {
         clearTimeout(timeout);
+        if (adminBackgroundControllerV37 === controller) adminBackgroundControllerV37 = null;
         adminSyncInFlightV14 = false;
       }
     }
