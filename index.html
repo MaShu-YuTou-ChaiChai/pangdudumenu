@@ -953,6 +953,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
   <div id="printSection" style="display:none;"></div>
 
   <script>
+    // V38 正式站：沿用 V37 正式點餐後端；意見箱維持原本獨立連線。
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
@@ -3305,21 +3306,25 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       } finally { showLoading(false); }
     }
 
+    // V38：防止連點查詢造成重複雲端請求。
+    let userSearchInFlightV38 = false;
     async function searchUserOrder() {
+      if (userSearchInFlightV38) return;
       const name = document.getElementById('cancelName').value.trim();
       const deptVal = document.getElementById('cancelDept').value.trim();
       if(!name || !deptVal) { alert('請輸入姓名與部門！'); return; }
 
+      userSearchInFlightV38 = true;
       showLoading(true);
       let userOrders;
       try {
-        if (!(await loadCloudData())) {
-          throw new Error('無法取得最新場次狀態，請確認網路後重新搜尋');
-        }
-        // 外層查詢已持有載入遮罩；同步函式只會釋放自己的計數。
-        // V13 #15：由後端篩選，不再下載全體同事訂單到一般使用者網頁。
+        // V38：一次 POST 同時取得最新場次與個人訂單，避免先 GET 再 POST。
+        // V13 #15：仍只由後端篩選回傳本人訂單。
         const result = await postCloudJSON({ action: 'searchUserOrders', name, dept: deptVal });
-        if (!Array.isArray(result.orders)) throw new Error('訂單查詢回應格式錯誤');
+        if (!Array.isArray(result.orders) || !Array.isArray(result.activeEvents))
+          throw new Error('訂單查詢或場次資料回應格式錯誤');
+        globalActiveEvents = result.activeEvents;
+        sortActiveEventsByDate();
         searchedUserOrders = result.orders;
         userOrders = searchedUserOrders;
       } catch (err) {
@@ -3328,6 +3333,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         alert('查詢訂單失敗：' + err.message);
         return;
       } finally {
+        userSearchInFlightV38 = false;
         showLoading(false);
       }
 
