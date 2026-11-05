@@ -3620,8 +3620,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 </section>
 <script id="shiba-feedback-js">
 (function(){'use strict';
-  // 正式上線前，填入「獨立意見箱 Apps Script」的 /exec 網址；勿填訂單 API。
-  const FEEDBACK_API_URL = '';
+  // 意見回饋獨立 Apps Script，不與正式點餐訂單 API 混用。
+  const FEEDBACK_API_URL = 'https://script.google.com/macros/s/AKfycbyOa1ZoRoqgDOx01rjInrflz0xLKWH6s7_f4pK8c91hyLdpiHho0ey6Lq0vpPKhAWIDqQ/exec';
   const openBtn=document.getElementById('shibaFeedbackOpen');
   const modal=document.getElementById('shibaFeedbackModal');
   const back=document.getElementById('shibaFeedbackBackdrop');
