@@ -953,7 +953,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
   <div id="printSection" style="display:none;"></div>
 
   <script>
-    // V38 正式站：沿用 V37 正式點餐後端；意見箱維持原本獨立連線。
+    // V39 正式版：點餐沿用 V38 正式後端，意見回饋沿用 V37/V38 獨立連線。
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
@@ -1045,6 +1045,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     const storeDetails = {
       "8鍋": { phone: "2903-4863" },
       "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
+      "焗之森": { phone: "02-8200-1536" },
       "好卷不見": { phone: "0958-688-461" },
       "湘園 燒臘": { phone: "02-2681-1890" },
       "金門雞腿丸": { phone: "02-2675-0199" },
@@ -1137,6 +1138,421 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           { name: "香煎鮭魚", price: 140, optType: "xiangyuan_rice" }
         ]}
       ],
+      "焗之森": [
+  {
+    "category": "✨ 全新推出",
+    "items": [
+      {
+        "name": "松露奶香干貝乳酪燉飯",
+        "price": 175,
+        "optType": "forest_risotto",
+        "forestNoSwap": true
+      },
+      {
+        "name": "松露奶香干貝焗烤飯",
+        "price": 180,
+        "optType": "forest_gratin",
+        "forestNoSwap": true
+      },
+      {
+        "name": "松露奶香干貝義大利麵",
+        "price": 165,
+        "optType": "forest_pasta",
+        "forestNoSwap": true
+      },
+      {
+        "name": "墨西哥辣肉醬乳酪燉飯",
+        "price": 140,
+        "optType": "forest_risotto",
+        "forestNoSwap": true
+      },
+      {
+        "name": "墨西哥辣肉醬焗烤飯",
+        "price": 145,
+        "optType": "forest_gratin",
+        "forestNoSwap": true
+      },
+      {
+        "name": "墨西哥辣肉醬義大利麵",
+        "price": 125,
+        "optType": "forest_pasta",
+        "forestNoSwap": true
+      }
+    ]
+  },
+  {
+    "category": "🍝 義大利麵",
+    "items": [
+      {
+        "name": "經典肉醬義大利麵",
+        "price": 110,
+        "optType": "forest_pasta"
+      },
+      {
+        "name": "奶香培根義大利麵",
+        "price": 125,
+        "optType": "forest_pasta",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香燻雞義大利麵",
+        "price": 125,
+        "optType": "forest_pasta",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香蛤蜊義大利麵",
+        "price": 135,
+        "optType": "forest_pasta",
+        "forestFlags": "g"
+      },
+      {
+        "name": "奶香白酒蛤蜊義大利麵",
+        "price": 150,
+        "optType": "forest_pasta"
+      },
+      {
+        "name": "番茄牛肉義大利麵",
+        "price": 135,
+        "optType": "forest_pasta",
+        "forestFlags": "k"
+      },
+      {
+        "name": "番茄海鮮義大利麵",
+        "price": 135,
+        "optType": "forest_pasta",
+        "forestFlags": "k"
+      },
+      {
+        "name": "番茄田園蔬菜義大利麵",
+        "price": 135,
+        "optType": "forest_pasta"
+      },
+      {
+        "name": "粉紅宮保雞丁義大利麵",
+        "price": 125,
+        "optType": "forest_pasta"
+      },
+      {
+        "name": "粉紅野菇燻雞義大利麵",
+        "price": 135,
+        "optType": "forest_pasta"
+      },
+      {
+        "name": "玉醬蔬食義大利麵",
+        "price": 130,
+        "optType": "forest_pasta"
+      }
+    ]
+  },
+  {
+    "category": "🧀 焗烤飯",
+    "items": [
+      {
+        "name": "經典肉醬焗烤飯",
+        "price": 130,
+        "optType": "forest_gratin"
+      },
+      {
+        "name": "奶香夏威夷焗烤飯",
+        "price": 135,
+        "optType": "forest_gratin",
+        "forestFlags": "g"
+      },
+      {
+        "name": "奶香培根焗烤飯",
+        "price": 145,
+        "optType": "forest_gratin",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香燻雞焗烤飯",
+        "price": 145,
+        "optType": "forest_gratin",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香鮪魚焗烤飯",
+        "price": 145,
+        "optType": "forest_gratin",
+        "forestFlags": "g"
+      },
+      {
+        "name": "番茄牛肉焗烤飯",
+        "price": 155,
+        "optType": "forest_gratin",
+        "forestFlags": "k"
+      },
+      {
+        "name": "番茄海鮮焗烤飯",
+        "price": 155,
+        "optType": "forest_gratin",
+        "forestFlags": "k"
+      },
+      {
+        "name": "番茄田園蔬菜焗烤飯",
+        "price": 155,
+        "optType": "forest_gratin"
+      },
+      {
+        "name": "粉紅宮保雞丁焗烤飯",
+        "price": 145,
+        "optType": "forest_gratin"
+      },
+      {
+        "name": "粉紅蝦仁鳳梨焗烤飯",
+        "price": 155,
+        "optType": "forest_gratin"
+      },
+      {
+        "name": "粉紅野菇燻雞焗烤飯",
+        "price": 155,
+        "optType": "forest_gratin"
+      },
+      {
+        "name": "玉醬蔬食焗烤飯",
+        "price": 150,
+        "optType": "forest_gratin"
+      }
+    ]
+  },
+  {
+    "category": "🍚 乳酪燉飯",
+    "items": [
+      {
+        "name": "奶香培根乳酪燉飯",
+        "price": 140,
+        "optType": "forest_risotto",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香燻雞乳酪燉飯",
+        "price": 140,
+        "optType": "forest_risotto",
+        "forestFlags": "gt"
+      },
+      {
+        "name": "奶香野菇日式豬排燉飯",
+        "price": 169,
+        "optType": "forest_risotto",
+        "forestFlags": "g"
+      },
+      {
+        "name": "番茄牛肉乳酪燉飯",
+        "price": 150,
+        "optType": "forest_risotto",
+        "forestFlags": "k"
+      },
+      {
+        "name": "泡菜日式豬排燉飯",
+        "price": 169,
+        "optType": "forest_risotto"
+      },
+      {
+        "name": "粉紅宮保雞丁乳酪燉飯",
+        "price": 140,
+        "optType": "forest_risotto"
+      }
+    ]
+  },
+  {
+    "category": "🍜 鍋燒麵",
+    "items": [
+      {
+        "name": "招牌鍋燒麵",
+        "price": 100,
+        "optType": "forest_hotpot"
+      },
+      {
+        "name": "宮保鍋燒麵",
+        "price": 105,
+        "optType": "forest_hotpot"
+      },
+      {
+        "name": "海鮮鍋燒麵",
+        "price": 115,
+        "optType": "forest_hotpot"
+      },
+      {
+        "name": "蛤蜊鍋燒麵",
+        "price": 115,
+        "optType": "forest_hotpot"
+      }
+    ]
+  },
+  {
+    "category": "🎁 超值套餐",
+    "items": [
+      {
+        "name": "超值套餐1｜夏威夷披薩＋可口可樂",
+        "price": 145,
+        "optType": "forest_combo"
+      },
+      {
+        "name": "超值套餐2｜招牌鍋燒麵＋美國脆薯",
+        "price": 135,
+        "optType": "forest_combo_hotpot"
+      },
+      {
+        "name": "超值套餐3｜奶香夏威夷焗烤飯＋可口可樂",
+        "price": 169,
+        "optType": "forest_combo"
+      },
+      {
+        "name": "超值套餐4｜小雞塊＋美國脆薯＋可口可樂",
+        "price": 125,
+        "optType": "forest_combo"
+      },
+      {
+        "name": "超值套餐5｜奶香培根義大利麵＋可口可樂",
+        "price": 160,
+        "optType": "forest_combo_pasta"
+      },
+      {
+        "name": "超值套餐6｜泡菜日式豬排燉飯＋可口可樂",
+        "price": 205,
+        "optType": "forest_combo"
+      }
+    ]
+  },
+  {
+    "category": "🍕 披薩",
+    "items": [
+      {
+        "name": "橙汁鳳梨披薩",
+        "price": 99,
+        "optType": "forest_pizza"
+      },
+      {
+        "name": "夏威夷披薩",
+        "price": 109,
+        "optType": "forest_pizza"
+      },
+      {
+        "name": "燻雞披薩",
+        "price": 119,
+        "optType": "forest_pizza"
+      },
+      {
+        "name": "鮪魚披薩",
+        "price": 119,
+        "optType": "forest_pizza"
+      },
+      {
+        "name": "宮保雞丁披薩",
+        "price": 129,
+        "optType": "forest_pizza"
+      },
+      {
+        "name": "牛肉披薩",
+        "price": 129,
+        "optType": "forest_pizza",
+        "forestFlags": "k"
+      },
+      {
+        "name": "海鮮披薩",
+        "price": 135,
+        "optType": "forest_pizza",
+        "forestFlags": "k"
+      },
+      {
+        "name": "鮮蝦鳳梨披薩",
+        "price": 135,
+        "optType": "forest_pizza"
+      }
+    ]
+  },
+  {
+    "category": "🍟 點心",
+    "items": [
+      {
+        "name": "美國脆薯",
+        "price": 45
+      },
+      {
+        "name": "芝心薯球",
+        "price": 50
+      },
+      {
+        "name": "洋蔥圈",
+        "price": 55
+      },
+      {
+        "name": "卡啦雞米花",
+        "price": 55
+      },
+      {
+        "name": "雞塊（小）",
+        "price": 45
+      },
+      {
+        "name": "雞塊（大）",
+        "price": 60
+      },
+      {
+        "name": "香檸雞柳條",
+        "price": 65
+      },
+      {
+        "name": "焗烤脆薯",
+        "price": 89
+      },
+      {
+        "name": "焗烤薯泥花椰菜",
+        "price": 89
+      },
+      {
+        "name": "日式炸豬排",
+        "price": 85
+      }
+    ]
+  },
+  {
+    "category": "🥣 湯品",
+    "items": [
+      {
+        "name": "玉米濃湯",
+        "price": 40,
+        "optType": "forest_soup"
+      },
+      {
+        "name": "火腿濃湯",
+        "price": 60,
+        "optType": "forest_soup"
+      },
+      {
+        "name": "海鮮濃湯",
+        "price": 60,
+        "optType": "forest_soup"
+      },
+      {
+        "name": "薑絲蛤蜊湯",
+        "price": 60,
+        "optType": "forest_soup"
+      }
+    ]
+  },
+  {
+    "category": "🥤 飲品",
+    "items": [
+      {
+        "name": "雪碧",
+        "price": 45,
+        "optType": "forest_drink"
+      },
+      {
+        "name": "可口可樂",
+        "price": 45,
+        "optType": "forest_drink"
+      },
+      {
+        "name": "ZERO可樂",
+        "price": 45,
+        "optType": "forest_drink"
+      }
+    ]
+  }
+],
       "好卷不見": [
         { category: "🍙 海苔飯卷", items: [
           { name: "泡菜燒肉", price: 70 }, { name: "泡菜牛肉", price: 85 }, { name: "泡菜鮪魚", price: 75 }, { name: "泡菜燻雞", price: 75 }, { name: "泡菜豬排", price: 75 },
@@ -1160,8 +1576,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         ]},
         { category: "✨ 獨家風味", items: [
           { name: "德國香腸飯卷", price: 80 },
-          { name: "GDF原/辣三軍飯卷", price: 90 },
-          { name: "GDF原/辣三軍拌飯", price: 110 },
+          { name: "GDF三軍飯卷", price: 90, optType: "gdf_flavor" },
+          { name: "GDF三軍拌飯", price: 110, optType: "gdf_flavor" },
           { name: "烏龍冷麵(夏季供應)", price: 90 },
           { name: "芽花湯泡飯", price: 55 }
         ]},
@@ -1172,7 +1588,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         ]},
         { category: "🍜 麵食系列", items: [
           { name: "柴魚烏龍麵(湯)", price: 90 }, { name: "泡菜烏龍麵(湯)", price: 100 }, { name: "麻辣燒肉(乾)", price: 100 }, { name: "壽喜豬肉(乾)", price: 95 }, { name: "壽喜嫩雞(乾)", price: 95 },
-          { name: "辛拉麵", price: 100, optType: "shin_ramen" }, { name: "奶奶Q拉麵", price: 120 }
+          { name: "辛拉麵", price: 100, optType: "shin_ramen" }, { name: "奶司Q拉麵", price: 120 }
         ]},
         { category: "🥗 經典小菜", items: [
           { name: "韓式甜漬蘿蔔", price: 40 }, { name: "涼拌海帶芽", price: 40 }, { name: "日式牛蒡絲", price: 40 },
@@ -1891,12 +2307,100 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
     }
 
+
+    // V39：焗之森點餐選項；與後端 itemOptions_ 規格保持一致。
+    const forestOptionLabelsV39 = {
+      'fs-pasta-straight':['直麵',0], 'fs-pasta-spiral':['螺旋麵',0],
+      'fs-hotpot-意麵':['意麵',0], 'fs-hotpot-冬粉':['冬粉',0],
+      'fs-hotpot-烏龍麵':['烏龍麵',0], 'fs-hotpot-刀削麵':['刀削麵',0],
+      'fs-sauce-milk':['改奶香',0], 'fs-sauce-tomato':['改番茄',0], 'fs-sauce-green':['改青醬',35],
+      'fs-truffle':['加松露',30], 'fs-egg':['加蛋',15], 'fs-bake':['加焗烤',35],
+      'fs-cheese':['加起司',35], 'fs-kimchi':['加泡菜',20],
+      'fs-pizza-cheese':['起司加量',35], 'fs-hotpot-sacha':['加沙茶',15],
+      'fs-hotpot-kimchi':['加泡菜',20], 'fs-hotpot-spicy':['加麻辣',20],
+      'fs-soup-egg':['加蛋',15],
+      'fs-drink-plum':['加話梅',5], 'fs-meal-A':['A套餐：美國脆薯＋可口可樂',75],
+      'fs-meal-B':['B套餐：小雞塊＋可口可樂',75], 'fs-meal-C':['C套餐：玉米濃湯＋可口可樂',75]
+    };
+    function forestOptionKeysV39(item) {
+      const t=item.optType||'', keys=[];
+      const pasta=t==='forest_pasta'||t==='forest_combo_pasta';
+      const hotpot=t==='forest_hotpot'||t==='forest_combo_hotpot';
+      const main=['forest_pasta','forest_risotto','forest_gratin','forest_hotpot','forest_pizza'].includes(t);
+      if(pasta) keys.push('fs-pasta-straight','fs-pasta-spiral');
+      if(hotpot) keys.push('fs-hotpot-意麵','fs-hotpot-冬粉','fs-hotpot-烏龍麵','fs-hotpot-刀削麵');
+      if(main){
+        if(item.forestNoSwap){
+          // 全新推出：只有兩道義大利麵提供加焗烤，其他四道不提供單點加料。
+          if(t==='forest_pasta')keys.push('fs-bake');
+        }else{
+          if(item.name.includes('奶香')) keys.push('fs-sauce-tomato');
+          else if(item.name.includes('番茄')) keys.push('fs-sauce-milk');
+          if((item.forestFlags||'').includes('g')) keys.push('fs-sauce-green');
+          if((item.forestFlags||'').includes('t')) keys.push('fs-truffle');
+          if((item.forestFlags||'').includes('k')) keys.push('fs-kimchi');
+          if(t==='forest_pasta')keys.push('fs-egg','fs-bake');
+          if(t==='forest_risotto')keys.push('fs-egg');
+          if(t==='forest_gratin')keys.push('fs-egg','fs-cheese');
+          if(t==='forest_pizza')keys.push('fs-pizza-cheese');
+          if(t==='forest_hotpot')keys.push('fs-hotpot-sacha','fs-hotpot-kimchi','fs-hotpot-spicy');
+        }
+        if(t!=='forest_pizza')keys.push('fs-meal-A','fs-meal-B','fs-meal-C');
+      }
+      // 固定超值套餐 3、5 也能免費變更奶香為番茄；其他套餐不提供換口味。
+      if(t==='forest_combo_pasta' && item.name.startsWith('超值套餐5｜'))keys.push('fs-sauce-tomato');
+      if(t==='forest_combo' && item.name.startsWith('超值套餐3｜'))keys.push('fs-sauce-tomato');
+      if(t==='forest_soup')keys.push('fs-soup-egg');
+      if(t==='forest_drink')keys.push('fs-drink-plum');
+      return keys;
+    }
+    function forestSelectedOptionsV39(id){
+      const group=document.getElementById('options-group-'+id);
+      return group?Array.from(group.querySelectorAll('input:checked')).map(cb=>cb.id.slice(0,-(id.length+1))):[];
+    }
+    function forestExtraPriceV39(id){return forestSelectedOptionsV39(id).reduce((n,k)=>n+(forestOptionLabelsV39[k]?.[1]||0),0);}
+    function forestChooseV39(id,key){
+      if(isEventExpired())return;
+      const group=document.getElementById('options-group-'+id), check=document.getElementById(key+'-'+id);
+      if(check?.checked){
+        let peers=[];
+        if(key.startsWith('fs-pasta-'))peers=['fs-pasta-straight','fs-pasta-spiral'];
+        if(key.startsWith('fs-hotpot-') && !key.startsWith('fs-hotpot-sacha') && !key.startsWith('fs-hotpot-kimchi') && !key.startsWith('fs-hotpot-spicy'))peers=['fs-hotpot-意麵','fs-hotpot-冬粉','fs-hotpot-烏龍麵','fs-hotpot-刀削麵'];
+        if(key.startsWith('fs-sauce-'))peers=['fs-sauce-milk','fs-sauce-tomato','fs-sauce-green'];
+        if(key.startsWith('fs-meal-'))peers=['fs-meal-A','fs-meal-B','fs-meal-C'];
+        peers.filter(k=>k!==key).forEach(k=>{const cb=document.getElementById(k+'-'+id);if(cb)cb.checked=false;});
+      }
+      updateRemark(id,currentOrder[id]?.optType||'');
+      clearRequiredOptionAttention(id);
+    }
+    function forestOptionsHtmlV39(item,id){
+      const keys=forestOptionKeysV39(item);
+      if(!keys.length)return '';
+      const pasta=keys.some(k=>k.startsWith('fs-pasta-'));
+      const hotpot=keys.some(k=>['fs-hotpot-意麵','fs-hotpot-冬粉','fs-hotpot-烏龍麵','fs-hotpot-刀削麵'].includes(k));
+      const noodleKeys=keys.filter(k=>k.startsWith('fs-pasta-')||['fs-hotpot-意麵','fs-hotpot-冬粉','fs-hotpot-烏龍麵','fs-hotpot-刀削麵'].includes(k));
+      const regular=keys.filter(k=>!k.startsWith('fs-meal-')&&!noodleKeys.includes(k));
+      const meals=keys.filter(k=>k.startsWith('fs-meal-'));
+      const label=k=>'<label style="font-size:.73rem;font-weight:500;gap:3px;white-space:nowrap"><input type="checkbox" id="'+k+'-'+id+'" onchange="forestChooseV39('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(k).replace(/"/g,'&quot;')+')"> '+(k==='fs-sauce-tomato'?'換番茄口味（免費）':k==='fs-sauce-milk'?'換奶香口味（免費）':forestOptionLabelsV39[k][0])+(forestOptionLabelsV39[k][1]?' +$'+forestOptionLabelsV39[k][1]:'')+'</label>';
+      const noodleLabel=k=>'<label style="font-size:.78rem;font-weight:600;gap:4px;white-space:nowrap"><input type="radio" name="fs-noodle-'+id+'" id="'+k+'-'+id+'" onchange="forestChooseV39('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(k).replace(/"/g,'&quot;')+')"> '+forestOptionLabelsV39[k][0]+'</label>';
+      return '<div class="item-options disabled-option" id="options-group-'+id+'" style="display:block;margin-top:5px">'+
+        (noodleKeys.length?'<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;margin-bottom:6px"><span style="font-size:.8rem;font-weight:700;color:#99402d">麵條（必選）</span>'+noodleKeys.map(noodleLabel).join('')+'</div>':'')+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px 11px;align-items:center">'+regular.map(label).join('')+'</div>'+
+        (meals.length?'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd9c9"><div style="font-size:.78rem;font-weight:700;color:#99402d;margin-bottom:5px">套餐升級</div><div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center">'+meals.map(label).join('')+'</div></div>':'')+'</div>';
+    }
+    function validateForestChoiceV39(id,item){
+      const keys=forestSelectedOptionsV39(id);
+      if(['forest_pasta','forest_combo_pasta'].includes(item.optType) && keys.filter(k=>k.startsWith('fs-pasta-')).length!==1)return requiredChoiceMissing(id,'請先選擇直麵或螺旋麵！');
+      if(['forest_hotpot','forest_combo_hotpot'].includes(item.optType) && keys.filter(k=>['fs-hotpot-意麵','fs-hotpot-冬粉','fs-hotpot-烏龍麵','fs-hotpot-刀削麵'].includes(k)).length!==1)return requiredChoiceMissing(id,'請先選擇鍋燒麵條！');
+      return true;
+    }
+
     function renderMenu(storeName) {
       const menu = allStoresData[storeName] || [];
       const container = document.getElementById('menuList');
       const navContainer = document.getElementById('categoryNavContainer');
       const eightCategoryTip = document.getElementById('eightCategoryTip');
-      if (eightCategoryTip) eightCategoryTip.hidden = !['8鍋', '八方雲集', '好卷不見'].includes(storeName);
+      if (eightCategoryTip) eightCategoryTip.hidden = !['8鍋', '八方雲集', '好卷不見', '焗之森'].includes(storeName);
       const categoryTipTitle = document.getElementById('categoryTipTitle');
       if (categoryTipTitle) categoryTipTitle.textContent = `${storeName}品項較多`;
       const infoContainer = document.getElementById('storeInfoDisplay');
@@ -1928,7 +2432,11 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           let optionsHtml = '';
           let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註 (例如: 不要辣)'));
 
-          if (['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(item.optType)) {
+          if (item.optType?.startsWith('forest_')) {
+            optionsHtml = forestOptionsHtmlV39(item, id);
+            placeholderText = forestOptionKeysV39(item).some(k=>k==='fs-sauce-tomato'||k==='fs-sauce-milk')
+              ? '備註（未選換口味則依品名原口味製作）' : '其他備註';
+          } else if (['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(item.optType)) {
             const choices = {tt_egg_choice:['九層塔','菜脯'],tt_tofu_choice:['紅燒','麻婆'],tt_fish_choice:['糖醋','紅燒']}[item.optType];
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}"><div style="font-weight:bold;color:#b91c1c">料理口味（二選一，必選）</div>${choices.map(choice => `<label><input type="radio" name="tt-choice-${id}" value="${choice}" onchange="updateRemark('${id}', '${item.optType}');clearRequiredOptionAttention('${id}')"> ${choice}</label>`).join('')}</div>`;
           } else if (item.optType === 'eight_pot') {
@@ -2062,6 +2570,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <label><input type="checkbox" id="tteok-orig-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'orig')"> 原味</label>
                 <label><input type="checkbox" id="tteok-spicy-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'spicy')"> 辣味</label>
               </div>`;
+          } else if (item.optType === 'gdf_flavor') {
+            placeholderText = '其他備註';
+            optionsHtml = `
+              <div class="item-options disabled-option" id="options-group-${id}">
+                <label><input type="checkbox" id="gdf-orig-${id}" onchange="toggleSpecialOption('${id}', 'gdf', 'orig')"> 原味</label>
+                <label><input type="checkbox" id="gdf-spicy-${id}" onchange="toggleSpecialOption('${id}', 'gdf', 'spicy')"> 辣味</label>
+              </div>`;
           } else if (item.optType === 'shin_ramen') {
             placeholderText = '其他備註 (例如: 不要辣)';
             optionsHtml = `
@@ -2160,8 +2675,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           if (![...document.getElementsByName(`tt-choice-${id}`)].some(r => r.checked))
             return requiredChoiceMissing(id, '請先選擇料理口味（二選一）！');
         }
-        if (item.qty > 0 && ['rice_bowl','chungwu','light_box','tteokbokki_noodle','shin_ramen'].includes(item.optType)) {
-          const prefixes = {rice_bowl:['rb-rice','rb-bowl'],chungwu:['meat-chicken','meat-pork','meat-beef'],light_box:['meat-chicken','meat-pork','meat-beef'],tteokbokki_noodle:['tteok-orig','tteok-spicy'],shin_ramen:['shin-kimchi','shin-milk','shin-cheese']}[item.optType];
+        if (item.qty > 0 && item.optType?.startsWith('forest_') && !validateForestChoiceV39(id,item)) return false;
+        if (item.qty > 0 && ['rice_bowl','chungwu','light_box','tteokbokki_noodle','shin_ramen','gdf_flavor'].includes(item.optType)) {
+          const prefixes = {rice_bowl:['rb-rice','rb-bowl'],chungwu:['meat-chicken','meat-pork','meat-beef'],light_box:['meat-chicken','meat-pork','meat-beef'],tteokbokki_noodle:['tteok-orig','tteok-spicy'],shin_ramen:['shin-kimchi','shin-milk','shin-cheese'],gdf_flavor:['gdf-orig','gdf-spicy']}[item.optType];
           if (!prefixes.some(prefix => document.getElementById(`${prefix}-${id}`)?.checked))
             return requiredChoiceMissing(id, '請先選擇必選口味！');
         }
@@ -2238,7 +2754,12 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     function toggleSpecialOption(id, group, type) {
       if (isEventExpired()) return;
 
-      if (group === 'tteok') {
+      if (group === 'gdf') {
+        const orig = document.getElementById(`gdf-orig-${id}`);
+        const spicy = document.getElementById(`gdf-spicy-${id}`);
+        if (type === 'orig' && orig.checked) spicy.checked = false;
+        if (type === 'spicy' && spicy.checked) orig.checked = false;
+      } else if (group === 'tteok') {
         const orig = document.getElementById(`tteok-orig-${id}`);
         const spicy = document.getElementById(`tteok-spicy-${id}`);
         if (type === 'orig' && orig.checked) spicy.checked = false;
@@ -2264,7 +2785,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         if (type === 'beef' && b.checked) { c.checked = false; p.checked = false; }
       }
 
-      updateRemark(id, group === 'meat' ? 'chungwu' : (group === 'rb' ? 'rice_bowl' : (group === 'shin' ? 'shin_ramen' : 'tteokbokki_noodle')));
+      updateRemark(id, group === 'meat' ? 'chungwu' : (group === 'rb' ? 'rice_bowl' : (group === 'shin' ? 'shin_ramen' : (group === 'gdf' ? 'gdf_flavor' : 'tteokbokki_noodle'))));
       clearRequiredOptionAttention(id);
     }
 
@@ -2301,7 +2822,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
 
       let finalPrice = basePrice;
-      if (optType === 'bf_soup_dumpling') {
+      if (optType?.startsWith('forest_')) {
+        finalPrice += forestExtraPriceV39(id);
+      } else if (optType === 'bf_soup_dumpling') {
         const chosen = [...document.getElementsByName(`bf-choice-${id}`)].find(r => r.checked);
         if (chosen?.value.startsWith('蔬食')) finalPrice += 4;
         if (chosen?.value.startsWith('鮮蝦')) finalPrice += 28;
@@ -2367,7 +2890,11 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       if (currentOrder[id]) {
         let remarks = [];
         
-        if (optType === 'eight_pot') {
+        if (optType?.startsWith('forest_')) {
+          const selectedForest = forestSelectedOptionsV39(id);
+          remarks.push(...selectedForest.map(k => forestOptionLabelsV39[k][0]));
+          currentOrder[id].price = currentOrder[id].basePrice + forestExtraPriceV39(id);
+        } else if (optType === 'eight_pot') {
           const side = [...document.getElementsByName(`eight-side-${id}`)].find(r => r.checked);
           if (side) remarks.push('附餐：' + side.value);
         } else if (['tt_egg_choice','tt_tofu_choice','tt_fish_choice'].includes(optType)) {
@@ -2448,6 +2975,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const fnSpice = [...document.getElementsByName(`fn-spice-${id}`)].find(r => r.checked);
           if (fnSpice) remarks.push(fnSpice.value);
           currentOrder[id].price = currentOrder[id].basePrice + addPrice;
+        } else if (optType === 'gdf_flavor') {
+          if (document.getElementById(`gdf-orig-${id}`)?.checked) remarks.push('原味');
+          if (document.getElementById(`gdf-spicy-${id}`)?.checked) remarks.push('辣味');
         } else if (optType === 'tteokbokki_noodle') {
           if (document.getElementById(`tteok-orig-${id}`)?.checked) remarks.push('原味');
           if (document.getElementById(`tteok-spicy-${id}`)?.checked) remarks.push('辣味');
@@ -2598,7 +3128,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         for (let k in currentOrder) {
           // V9：加購選項獨立傳送，後端不從自由備註猜測價格。
           const group = document.getElementById(`options-group-${k}`);
-          const options = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked'))
+          const options = group ? Array.from(group.querySelectorAll(currentOrder[k].optType?.startsWith('forest_') ? 'input:checked' : 'input[type="checkbox"]:checked'))
             .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
           if (currentOrder[k].optType === 'eight_pot') {
             const side = [...document.getElementsByName(`eight-side-${k}`)].find(r => r.checked);
