@@ -953,7 +953,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
   <div id="printSection" style="display:none;"></div>
 
   <script>
-    // V39 正式版：點餐沿用 V38 正式後端，意見回饋沿用 V37/V38 獨立連線。
+    // V40 正式版：延續 V39 全部功能與 V40_2 驗收菜單，點餐沿用正式後端；意見回饋維持原獨立連線。
     const API_URL = "https://script.google.com/macros/s/AKfycbzQ8lq7b9Zq9W-7RDlOA4rmJfjdymvMxCpNW3n_5kU36HGuN33Q46TIvkg7mOyQ_-jH/exec";
     // 管理員短期憑證只暫存在目前開啟的網頁記憶體，重新整理後需再次登入。
     let adminToken = '';
@@ -1045,6 +1045,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     const storeDetails = {
       "8鍋": { phone: "2903-4863" },
       "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
+      "樹林小雞飯": { phone: "02-2685-2955" },
+      "鐤記燴飯大王": { phone: "02-2203-9206" },
       "焗之森": { phone: "02-8200-1536" },
       "好卷不見": { phone: "0958-688-461" },
       "湘園 燒臘": { phone: "02-2681-1890" },
@@ -1138,6 +1140,329 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           { name: "香煎鮭魚", price: 140, optType: "xiangyuan_rice" }
         ]}
       ],
+      "樹林小雞飯": [
+  {
+    "category": "便當",
+    "items": [
+      {
+        "name": "小雞飯",
+        "price": 120,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "炸雞腿飯",
+        "price": 120,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "滷雞腿飯",
+        "price": 120,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "炸排骨飯",
+        "price": 110,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "滷排骨飯",
+        "price": 110,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "蝦卷飯",
+        "price": 100,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "焢肉飯",
+        "price": 100,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "瓜仔肉便當",
+        "price": 85,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "菜飯便當",
+        "price": 80,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "鱈魚排飯",
+        "price": 120,
+        "optType": "xiangyuan_rice"
+      },
+      {
+        "name": "鯖魚飯",
+        "price": 100,
+        "optType": "xiangyuan_rice"
+      }
+    ]
+  }
+],
+      "鐤記燴飯大王": [
+  {
+    "category": "炒飯",
+    "items": [
+      {
+        "name": "純蛋炒飯",
+        "price": 70,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "火腿炒飯",
+        "price": 75,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "肉絲炒飯",
+        "price": 75,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "鳳梨炒飯",
+        "price": 75,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "牛肉炒飯",
+        "price": 85,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "羊肉炒飯",
+        "price": 85,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "蝦仁炒飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      }
+    ]
+  },
+  {
+    "category": "燴飯",
+    "items": [
+      {
+        "name": "豬肉燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "牛肉燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "羊肉燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "海鮮燴飯",
+        "price": 100,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "蝦仁燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "三杯雞燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "咖哩雞燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "宮保雞丁燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "麻婆豆腐燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "五更腸旺燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "滑蛋牛肉燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      },
+      {
+        "name": "滑蛋蝦仁燴飯",
+        "price": 90,
+        "optType": "ding_spicy_rice"
+      }
+    ]
+  },
+  {
+    "category": "炒麵",
+    "items": [
+      {
+        "name": "肉絲炒麵",
+        "price": 75,
+        "optType": "ding_spicy_noodle"
+      },
+      {
+        "name": "牛肉炒麵",
+        "price": 85,
+        "optType": "ding_spicy_noodle"
+      },
+      {
+        "name": "羊肉炒麵",
+        "price": 85,
+        "optType": "ding_spicy_noodle"
+      },
+      {
+        "name": "海鮮炒麵",
+        "price": 100,
+        "optType": "ding_spicy_noodle"
+      },
+      {
+        "name": "宮保雞丁炒麵",
+        "price": 95,
+        "optType": "ding_spicy_noodle"
+      },
+      {
+        "name": "招牌雞+羊炒麵",
+        "price": 95,
+        "optType": "ding_spicy_noodle"
+      }
+    ]
+  },
+  {
+    "category": "炒烏龍",
+    "items": [
+      {
+        "name": "肉絲炒烏龍",
+        "price": 75,
+        "optType": "ding_spicy_udon"
+      },
+      {
+        "name": "牛肉炒烏龍",
+        "price": 85,
+        "optType": "ding_spicy_udon"
+      },
+      {
+        "name": "羊肉炒烏龍",
+        "price": 85,
+        "optType": "ding_spicy_udon"
+      },
+      {
+        "name": "海鮮炒烏龍",
+        "price": 100,
+        "optType": "ding_spicy_udon"
+      },
+      {
+        "name": "宮保雞丁炒烏龍",
+        "price": 95,
+        "optType": "ding_spicy_udon"
+      },
+      {
+        "name": "招牌雞+羊炒烏龍",
+        "price": 95,
+        "optType": "ding_spicy_udon"
+      }
+    ]
+  },
+  {
+    "category": "湯麵",
+    "items": [
+      {
+        "name": "海鮮湯麵",
+        "price": 100
+      },
+      {
+        "name": "海鮮湯烏龍",
+        "price": 100
+      }
+    ]
+  },
+  {
+    "category": "湯類",
+    "items": [
+      {
+        "name": "蛋花湯",
+        "price": 45
+      },
+      {
+        "name": "蛤蜊湯",
+        "price": 55
+      },
+      {
+        "name": "豬肝湯",
+        "price": 55
+      }
+    ]
+  },
+  {
+    "category": "加購",
+    "items": [
+      {
+        "name": "白飯",
+        "price": 15
+      },
+      {
+        "name": "奶茶",
+        "price": 25
+      }
+    ]
+  },
+  {
+    "category": "熱炒",
+    "items": [
+      {
+        "name": "九層蛋",
+        "price": 60
+      },
+      {
+        "name": "炒蛤蜊",
+        "price": 140
+      },
+      {
+        "name": "宮保雞丁",
+        "price": 140
+      },
+      {
+        "name": "蝦仁煎蛋",
+        "price": 130
+      },
+      {
+        "name": "五更腸旺",
+        "price": 130
+      },
+      {
+        "name": "麻婆豆腐",
+        "price": 130
+      },
+      {
+        "name": "麻油豬肝",
+        "price": 120
+      },
+      {
+        "name": "沙茶炒牛肉",
+        "price": 140
+      },
+      {
+        "name": "沙茶炒羊肉",
+        "price": 140
+      }
+    ]
+  }
+],
       "焗之森": [
   {
     "category": "✨ 全新推出",
@@ -2395,6 +2720,11 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       return true;
     }
 
+    function toggleDingSpiceV40(id,spice) {
+      const selected=document.getElementById('ding-spice-'+spice+'-'+id);
+      if(selected?.checked)['小辣','中辣','大辣'].filter(s=>s!==spice).forEach(s=>{const other=document.getElementById('ding-spice-'+s+'-'+id);if(other)other.checked=false;});
+      updateRemark(id,currentOrder[id]?.optType||'ding_spicy');
+    }
     function renderMenu(storeName) {
       const menu = allStoresData[storeName] || [];
       const container = document.getElementById('menuList');
@@ -2432,7 +2762,14 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           let optionsHtml = '';
           let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註 (例如: 不要辣)'));
 
-          if (item.optType?.startsWith('forest_')) {
+          if (item.optType?.startsWith('ding_spicy')) {
+            placeholderText = '備註（未選辣度則為不辣）';
+            optionsHtml = '<div class="item-options disabled-option" id="options-group-'+id+'">'+
+              ['小辣','中辣','大辣'].map(spice=>'<label><input type="checkbox" id="ding-spice-'+spice+'-'+id+'" onchange="toggleDingSpiceV40('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(spice).replace(/"/g,'&quot;')+')"> '+spice+'</label>').join('')+
+              (item.optType==='ding_spicy_noodle'?'<label><input type="checkbox" id="ding-extra-noodle-'+id+'" onchange="updateRemark('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(item.optType).replace(/"/g,'&quot;')+')"> 加麵 +$20</label>':'')+
+              (item.optType==='ding_spicy_udon'?'<label><input type="checkbox" id="ding-extra-udon-'+id+'" onchange="updateRemark('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(item.optType).replace(/"/g,'&quot;')+')"> 加烏龍麵 +$20</label>':'')+
+              (item.optType==='ding_spicy_rice'?'<label><input type="checkbox" id="ding-extra-rice-'+id+'" onchange="updateRemark('+JSON.stringify(id).replace(/"/g,'&quot;')+','+JSON.stringify(item.optType).replace(/"/g,'&quot;')+')"> 加飯 +$15</label>':'')+'</div>';
+          } else if (item.optType?.startsWith('forest_')) {
             optionsHtml = forestOptionsHtmlV39(item, id);
             placeholderText = forestOptionKeysV39(item).some(k=>k==='fs-sauce-tomato'||k==='fs-sauce-milk')
               ? '備註（未選換口味則依品名原口味製作）' : '其他備註';
@@ -2822,6 +3159,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
 
       let finalPrice = basePrice;
+      if (optType === 'ding_spicy_noodle' && document.getElementById('ding-extra-noodle-'+id)?.checked) finalPrice += 20;
+      if (optType === 'ding_spicy_udon' && document.getElementById('ding-extra-udon-'+id)?.checked) finalPrice += 20;
+      if (optType === 'ding_spicy_rice' && document.getElementById('ding-extra-rice-'+id)?.checked) finalPrice += 15;
       if (optType?.startsWith('forest_')) {
         finalPrice += forestExtraPriceV39(id);
       } else if (optType === 'bf_soup_dumpling') {
@@ -2941,6 +3281,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const extraEgg = !!document.getElementById(`zl-egg-${id}`)?.checked;
           if (extraEgg) remarks.push('額外加一顆蛋 +15元');
           currentOrder[id].price = currentOrder[id].basePrice + (extraEgg ? 15 : 0);
+        } else if (optType?.startsWith('ding_spicy')) {
+          const spice=['小辣','中辣','大辣'].find(s=>document.getElementById('ding-spice-'+s+'-'+id)?.checked);
+          if(spice)remarks.push(spice);
+          const extra=optType==='ding_spicy_noodle'?'ding-extra-noodle':optType==='ding_spicy_udon'?'ding-extra-udon':optType==='ding_spicy_rice'?'ding-extra-rice':'';
+          const add=extra && document.getElementById(extra+'-'+id)?.checked;
+          if(add)remarks.push(optType==='ding_spicy_noodle'?'加麵 +20元':optType==='ding_spicy_udon'?'加烏龍麵 +20元':'加飯 +15元');
+          currentOrder[id].price=currentOrder[id].basePrice+(add?(optType==='ding_spicy_rice'?15:20):0);
         } else if (optType === 'xiangyuan_rice') {
           if (document.getElementById(`xy-half-${id}`)?.checked) remarks.push('半飯');
           if (document.getElementById(`xy-none-${id}`)?.checked) remarks.push('不飯');
