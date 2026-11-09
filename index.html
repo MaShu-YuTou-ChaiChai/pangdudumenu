@@ -2039,8 +2039,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           { name: "貢丸湯", price: 40, optType: "hl_soup" }
         ]},
         { category: "麵類", items: [
-          { name: "蘭陽乾麵", price: 40, optType: "hl_large" },
-          { name: "紅油辣麵", price: 45, optType: "hl_large" }
+          { name: "蘭陽乾麵", price: 40, optType: "hl_large15" },
+          { name: "紅油辣麵", price: 45, optType: "hl_large15" }
         ]},
         { category: "飯類", items: [
           { name: "蘋果咖哩飯", price: 85 },
@@ -2055,7 +2055,12 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
         ]},
         { category: "鍋貼與水餃", items: [
           { name: "鮮蝦高麗菜鍋貼(10粒)", price: 85 },
-          { name: "鮮肉韭菜鍋貼(10粒)", price: 75 }
+          { name: "鮮肉韭菜鍋貼(10粒)", price: 75 },
+          { name: "高麗菜水餃(10粒)", price: 75 },
+          { name: "韭菜水餃(10粒)", price: 75 }
+        ]},
+        { category: "青菜", items: [
+          { name: "燙青菜", price: 40 }
         ]}
       ],
       "鑫吉野烤肉飯（民安西店）": [
@@ -2816,9 +2821,10 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
               <label><input type="checkbox" id="hl-noodle-${id}" onchange="updateRemark('${id}', 'hl_soup')"> 加麵 +10元</label>
             </div>`;
-          } else if (item.optType === 'hl_large') {
+          } else if (item.optType === 'hl_large' || item.optType === 'hl_large15') {
+            const largeCost = item.optType === 'hl_large15' ? 15 : 10;
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
-              <label><input type="checkbox" id="hl-large-${id}" onchange="updateRemark('${id}', 'hl_large')"> 加大 +10元</label>
+              <label><input type="checkbox" id="hl-large-${id}" onchange="updateRemark('${id}', '${item.optType}')"> 加大 +${largeCost}元</label>
             </div>`;
           } else if (item.optType === 'qin_braised_rice') {
             optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}">
@@ -3246,7 +3252,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const upcharge = optType === 'bf_soup_dumpling' && chosen ?
             (chosen.value.startsWith('蔬食') ? 4 : chosen.value.startsWith('鮮蝦') ? 28 : 0) : 0;
           currentOrder[id].price = currentOrder[id].basePrice + upcharge;
-        } else if (optType === 'hl_wonton' || optType === 'hl_dumpling' || optType === 'hl_soup' || optType === 'hl_large') {
+        } else if (optType === 'hl_wonton' || optType === 'hl_dumpling' || optType === 'hl_soup' || optType === 'hl_large' || optType === 'hl_large15') {
           if (optType === 'hl_wonton') {
             const spice = [...document.getElementsByName(`hl-spice-${id}`)].find(r => r.checked);
             if (spice) remarks.push(spice.value);
@@ -3254,7 +3260,10 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           let addPrice = 0;
           if (document.getElementById(`hl-noodle-${id}`)?.checked) { remarks.push('加麵 +10元'); addPrice = 10; }
           if (document.getElementById(`hl-rice-${id}`)?.checked) { remarks.push('加飯 +10元'); addPrice = 10; }
-          if (document.getElementById(`hl-large-${id}`)?.checked) { remarks.push('加大 +10元'); addPrice = 10; }
+          if (document.getElementById(`hl-large-${id}`)?.checked) {
+            const largeCost = optType === 'hl_large15' ? 15 : 10;
+            remarks.push('加大 +' + largeCost + '元'); addPrice = largeCost;
+          }
           currentOrder[id].price = currentOrder[id].basePrice + addPrice;
         } else if (optType === 'tt_fried_rice' || optType === 'tt_fried_noodle') {
           let extra = 0;
@@ -3313,8 +3322,8 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           if (document.getElementById(`fri-nocucumber-${id}`)?.checked) remarks.push('不小黃瓜');
         } else if (optType === 'hl_wonton' || optType === 'hl_soup' || optType === 'hl_dumpling') {
         if (document.getElementById(`hl-noodle-${id}`)?.checked || document.getElementById(`hl-rice-${id}`)?.checked) finalPrice += 10;
-      } else if (optType === 'hl_large') {
-        if (document.getElementById(`hl-large-${id}`)?.checked) finalPrice += 10;
+      } else if (optType === 'hl_large' || optType === 'hl_large15') {
+        if (document.getElementById(`hl-large-${id}`)?.checked) finalPrice += optType === 'hl_large15' ? 15 : 10;
       } else if (optType === 'fried_noodle') {
           let addPrice = 0;
           if (document.getElementById(`fn-egg-${id}`)?.checked) { remarks.push('加蛋'); addPrice += 15; }
