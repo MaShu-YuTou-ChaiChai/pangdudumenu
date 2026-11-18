@@ -1043,6 +1043,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     }
 
     const storeDetails = {
+      "SUGOI-焗之森飲料店": {phone:"02-8200-1537"},
       "8鍋": { phone: "2903-4863" },
       "嬌麻雞 精緻自助餐": { phone: "02-2901-5299" },
       "南部灶咖": { phone: "02-2675-3534" },
@@ -1066,6 +1067,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
     };
 
     const allStoresData = {
+      "SUGOI-焗之森飲料店": [{"category": "手工熬煮", "items": [{"name": "綠豆冰沙", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": true, "sugoiNoTopping": true}, {"name": "綠豆冰沙鮮乳", "price": 65, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": true, "sugoiNoTopping": true}, {"name": "仙草冰沙", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": true, "sugoiNoTopping": true}]}, {"category": "清香茗茶", "items": [{"name": "紅茶", "price": 30, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "綠茶", "price": 30, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "四季春茶", "price": 35, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "焙烏龍茶", "price": 35, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}]}, {"category": "無咖啡因茶", "items": [{"name": "玄米蕎麥茶", "price": 30, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "決明大麥茶", "price": 30, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "古早味冬瓜茶", "price": 30, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}]}, {"category": "醇厚飲品", "items": [{"name": "香醇奶茶", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "芋香奶茶", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "濃情可可", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}]}, {"category": "天然蜂蜜", "items": [{"name": "蜂蜜綠茶", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "蜂蜜四季春", "price": 50, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "蜂蜜奶茶", "price": 60, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "蜂蜜檸檬", "price": 70, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}]}, {"category": "小農鮮乳茶", "items": [{"name": "紅茶鮮乳茶", "price": 65, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "冬瓜鮮乳茶", "price": 65, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "四季春鮮乳茶", "price": 69, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "焙烏龍鮮乳茶", "price": 69, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}]}, {"category": "鮮調好茶", "items": [{"name": "百香青茶", "price": 50, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "脆梅綠", "price": 55, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "金桔冬瓜茶", "price": 45, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "QQ百香青", "price": 50, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "仙草奶凍", "price": 50, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}]}, {"category": "好喝多多", "items": [{"name": "綠茶多多", "price": 50, "optType": "sugoi_drink", "sugoiFixedSugar": false, "sugoiFixedIce": false}, {"name": "檸檬多多", "price": 70, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}, {"name": "紅心芭樂多多", "price": 70, "optType": "sugoi_drink", "sugoiFixedSugar": true, "sugoiFixedIce": false}]}],
       "南部灶咖": [{"category":"便當","items":[{"name":"滷大排便當","price":100,"optType":"nanbu_bento"},{"name":"滷雞腿便當","price":100,"optType":"nanbu_bento"},{"name":"滷腿庫便當","price":100,"optType":"nanbu_bento"},{"name":"滷焢肉便當","price":100,"optType":"nanbu_bento"},{"name":"滷豬腳便當","price":100,"optType":"nanbu_bento"},{"name":"港式臘腸便當","price":100,"optType":"nanbu_bento"},{"name":"魯肉飯便當","price":80,"optType":"nanbu_bento"},{"name":"灶咖菜飯","price":80,"optType":"nanbu_veg"}]},{"category":"魯肉飯","items":[{"name":"魯肉飯（小）","price":40,"optType":"nanbu_rice_egg"},{"name":"魯肉飯（大）","price":60,"optType":"nanbu_rice_egg"}]},{"category":"單點","items":[{"name":"滷雞腿","price":60},{"name":"滷豬腳（3塊）","price":100},{"name":"滷排骨（2片）","price":100},{"name":"滷腿庫（2塊）","price":100},{"name":"滷焢肉（2塊）","price":100},{"name":"滷蛋蛋","price":15},{"name":"滷筍絲","price":40},{"name":"炒青菜","price":40},{"name":"油豆腐","price":40}]}],
       "8鍋": [{"category":"特色鍋系列","items":[{"name":"大腸臭臭鍋","price":170,"optType":"eight_pot"},{"name":"腸旺鴨血鍋","price":175,"optType":"eight_pot"}]},{"category":"素食鍋系列","items":[{"name":"素食鮮菇鍋","price":165,"optType":"eight_pot"},{"name":"沙茶素食鍋","price":170,"optType":"eight_pot"},{"name":"養生素食鍋","price":175,"optType":"eight_pot"},{"name":"南瓜素食鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜原味","items":[{"name":"原味豬肉鍋","price":165,"optType":"eight_pot"},{"name":"原味雞肉鍋","price":165,"optType":"eight_pot"},{"name":"原味牛肉鍋","price":170,"optType":"eight_pot"},{"name":"原味羊肉鍋","price":170,"optType":"eight_pot"},{"name":"原味海鮮鍋","price":170,"optType":"eight_pot"},{"name":"原味鮮魚鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜沙茶","items":[{"name":"沙茶豬肉鍋","price":170,"optType":"eight_pot"},{"name":"沙茶雞肉鍋","price":170,"optType":"eight_pot"},{"name":"沙茶牛肉鍋","price":175,"optType":"eight_pot"},{"name":"沙茶羊肉鍋","price":175,"optType":"eight_pot"},{"name":"沙茶魚頭鍋","price":195,"optType":"eight_pot"},{"name":"沙茶鮮魚鍋","price":185,"optType":"eight_pot"}]},{"category":"鍋物｜山藥薏仁","items":[{"name":"山藥薏仁豬肉鍋","price":175,"optType":"eight_pot"},{"name":"山藥薏仁雞肉鍋","price":175,"optType":"eight_pot"},{"name":"山藥薏仁牛肉鍋","price":180,"optType":"eight_pot"},{"name":"山藥薏仁羊肉鍋","price":180,"optType":"eight_pot"}]},{"category":"鍋物｜南瓜","items":[{"name":"南瓜豬肉鍋","price":180,"optType":"eight_pot"},{"name":"南瓜雞肉鍋","price":180,"optType":"eight_pot"},{"name":"南瓜牛肉鍋","price":185,"optType":"eight_pot"},{"name":"南瓜羊肉鍋","price":185,"optType":"eight_pot"},{"name":"南瓜海鮮鍋","price":185,"optType":"eight_pot"},{"name":"南瓜鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜麻油","items":[{"name":"麻油豬肉鍋","price":180,"optType":"eight_pot"},{"name":"麻油雞肉鍋","price":180,"optType":"eight_pot"},{"name":"麻油牛肉鍋","price":185,"optType":"eight_pot"},{"name":"麻油羊肉鍋","price":185,"optType":"eight_pot"},{"name":"麻油鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜清膳","items":[{"name":"清膳豬肉鍋","price":175,"optType":"eight_pot"},{"name":"清膳雞肉鍋","price":175,"optType":"eight_pot"},{"name":"清膳牛肉鍋","price":180,"optType":"eight_pot"},{"name":"清膳羊肉鍋","price":180,"optType":"eight_pot"},{"name":"清膳鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜牛奶","items":[{"name":"牛奶豬肉鍋","price":180,"optType":"eight_pot"},{"name":"牛奶牛肉鍋","price":185,"optType":"eight_pot"},{"name":"牛奶羊肉鍋","price":185,"optType":"eight_pot"},{"name":"牛奶海鮮鍋","price":185,"optType":"eight_pot"},{"name":"牛奶鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜牛奶起士","items":[{"name":"牛奶起士豬肉鍋","price":190,"optType":"eight_pot"},{"name":"牛奶起士牛肉鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士羊肉鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士海鮮鍋","price":195,"optType":"eight_pot"},{"name":"牛奶起士鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜麻辣牛奶","items":[{"name":"麻辣牛奶豬肉鍋","price":190,"optType":"eight_pot"},{"name":"麻辣牛奶雞肉鍋","price":190,"optType":"eight_pot"},{"name":"麻辣牛奶牛肉鍋","price":195,"optType":"eight_pot"},{"name":"麻辣牛奶羊肉鍋","price":195,"optType":"eight_pot"},{"name":"麻辣牛奶鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜南瓜牛奶","items":[{"name":"南瓜牛奶豬肉鍋","price":190,"optType":"eight_pot"},{"name":"南瓜牛奶雞肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶牛肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶羊肉鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶海鮮鍋","price":195,"optType":"eight_pot"},{"name":"南瓜牛奶鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"鍋物｜叻沙","items":[{"name":"叻沙豬肉鍋","price":185,"optType":"eight_pot"},{"name":"叻沙雞肉鍋","price":185,"optType":"eight_pot"},{"name":"叻沙牛肉鍋","price":190,"optType":"eight_pot"},{"name":"叻沙羊肉鍋","price":190,"optType":"eight_pot"},{"name":"叻沙鮮魚鍋","price":200,"optType":"eight_pot"}]},{"category":"鍋物｜香蒜","items":[{"name":"香蒜豬肉鍋","price":175,"optType":"eight_pot"},{"name":"香蒜雞肉鍋","price":175,"optType":"eight_pot"},{"name":"香蒜牛肉鍋","price":180,"optType":"eight_pot"},{"name":"香蒜羊肉鍋","price":180,"optType":"eight_pot"},{"name":"香蒜鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜蕃茄","items":[{"name":"蕃茄豬肉鍋","price":175,"optType":"eight_pot"},{"name":"蕃茄雞肉鍋","price":175,"optType":"eight_pot"},{"name":"蕃茄牛肉鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄羊肉鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄海鮮鍋","price":180,"optType":"eight_pot"},{"name":"蕃茄鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜泡菜","items":[{"name":"泡菜年糕鍋","price":175,"optType":"eight_pot"},{"name":"泡菜豬肉鍋","price":175,"optType":"eight_pot"},{"name":"泡菜雞肉鍋","price":175,"optType":"eight_pot"},{"name":"泡菜牛肉鍋","price":180,"optType":"eight_pot"},{"name":"泡菜羊肉鍋","price":180,"optType":"eight_pot"},{"name":"泡菜鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜椰香咖哩","items":[{"name":"椰香咖哩豬肉鍋","price":180,"optType":"eight_pot"},{"name":"椰香咖哩雞肉鍋","price":180,"optType":"eight_pot"},{"name":"椰香咖哩牛肉鍋","price":185,"optType":"eight_pot"},{"name":"椰香咖哩羊肉鍋","price":185,"optType":"eight_pot"},{"name":"椰香咖哩鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜香濃青醬","items":[{"name":"香濃青醬豬肉鍋","price":195,"optType":"eight_pot"},{"name":"香濃青醬雞肉鍋","price":195,"optType":"eight_pot"},{"name":"香濃青醬牛肉鍋","price":200,"optType":"eight_pot"},{"name":"香濃青醬羊肉鍋","price":200,"optType":"eight_pot"},{"name":"香濃青醬鮮魚鍋","price":210,"optType":"eight_pot"}]},{"category":"鍋物｜泰式酸辣","items":[{"name":"泰式酸辣豬肉鍋","price":180,"optType":"eight_pot"},{"name":"泰式酸辣雞肉鍋","price":180,"optType":"eight_pot"},{"name":"泰式酸辣牛肉鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣羊肉鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣海鮮鍋","price":185,"optType":"eight_pot"},{"name":"泰式酸辣鮮魚鍋","price":195,"optType":"eight_pot"}]},{"category":"鍋物｜麻辣","items":[{"name":"麻辣豬肉鍋","price":175,"optType":"eight_pot"},{"name":"麻辣雞肉鍋","price":175,"optType":"eight_pot"},{"name":"麻辣臭臭鍋","price":175,"optType":"eight_pot"},{"name":"麻辣鴨血鍋","price":175,"optType":"eight_pot"},{"name":"麻辣牛肉鍋","price":180,"optType":"eight_pot"},{"name":"麻辣羊肉鍋","price":180,"optType":"eight_pot"},{"name":"麻辣海鮮鍋","price":180,"optType":"eight_pot"},{"name":"麻辣鮮魚鍋","price":190,"optType":"eight_pot"}]},{"category":"鍋物｜蝦醬金湯","items":[{"name":"蝦醬金湯豬肉鍋","price":190,"optType":"eight_pot"},{"name":"蝦醬金湯雞肉鍋","price":190,"optType":"eight_pot"},{"name":"蝦醬金湯牛肉鍋","price":195,"optType":"eight_pot"},{"name":"蝦醬金湯羊肉鍋","price":195,"optType":"eight_pot"},{"name":"蝦醬金湯鮮魚鍋","price":205,"optType":"eight_pot"}]},{"category":"單點系列","items":[{"name":"起士片","price":20},{"name":"貢丸","price":25},{"name":"魚丸","price":25},{"name":"鑫鑫腸","price":25},{"name":"百頁豆腐","price":25},{"name":"甜不辣","price":25},{"name":"手工臭豆腐","price":25},{"name":"韓式泡菜","price":30},{"name":"寧波年糕","price":30},{"name":"蛋餃","price":30},{"name":"魚餃","price":30},{"name":"麻辣滷鴨血","price":30},{"name":"蛤蜊","price":30},{"name":"香菇","price":30},{"name":"秀珍菇","price":30},{"name":"金針菇","price":30},{"name":"玉米筍","price":30},{"name":"豆皮","price":30},{"name":"高麗菜","price":35},{"name":"青菜","price":35},{"name":"魚頭","price":70},{"name":"雞肉片","price":60},{"name":"豬肉片","price":60},{"name":"熟白蝦","price":70},{"name":"鯛魚片","price":70},{"name":"大腸","price":70},{"name":"牛肉片","price":70},{"name":"羊肉片","price":70},{"name":"白飯","price":15},{"name":"冬粉","price":15},{"name":"王子麵","price":15}]}],
       "天天下廚": [
@@ -2767,7 +2769,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const id = item.name;
           
           let optionsHtml = '';
-          let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註 (例如: 不要辣)'));
+          let placeholderText = item.name === '其他主餐' && storeName === '鑫吉野烤肉飯（民安西店）' ? '須求品項請打在備註上' : (item.optType === 'bf_soup_dumpling' ? '蔬食及鮮蝦口味勾選須補價差' : (item.optType === 'zhulin_rice' ? '飯類內含有一顆半熟蛋/須熟蛋請打勾' : '其他備註'));
 
           if (item.optType?.startsWith('ding_spicy')) {
             placeholderText = '備註（未選辣度則為不辣）';
@@ -2859,6 +2861,20 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
               <label><input type="checkbox" id="zl-egg-${id}" onchange="updateRemark('${id}', 'zhulin_rice')"> 額外加一顆蛋 +15元</label>
             </div>`;
 
+          } else if (item.optType === 'sugoi_drink') {
+            const sugarChoices = ['無糖','三分糖','五分糖','七分糖','全糖'];
+            const iceChoices = ['溫熱','去冰','微冰','少冰','多冰'];
+            const toppings = ['珍珠','椰果','布丁','仙草','黑磚'];
+            const row = (choices,prefix,title) => `<div style="display:flex;flex-wrap:wrap;gap:7px 13px;align-items:center;">
+              <strong style="font-size:.85rem;">${title}</strong>
+              ${choices.map(x=>`<label><input type="radio" name="${prefix}-${id}" id="${prefix}-${x}-${id}" onchange="updateRemark('${id}','sugoi_drink');clearRequiredOptionAttention('${id}')"> ${x}</label>`).join('')}
+              </div>`;
+            optionsHtml = `<div class="item-options disabled-option" id="options-group-${id}" style="display:flex;flex-direction:column;gap:8px;">
+              ${item.sugoiFixedSugar ? '<div>甜度固定</div>' : row(sugarChoices,'sg-sugar','甜度')}
+              ${item.sugoiFixedIce ? '<div>冰量固定</div>' : row(iceChoices,'sg-ice','冰量')}
+              ${item.sugoiNoTopping ? '' : `<div style="display:flex;flex-wrap:wrap;gap:7px 13px;border-top:1px dashed #ddd;padding-top:7px;">
+                ${toppings.map(x=>`<label><input type="checkbox" id="sg-top-${x}-${id}" onchange="toggleSugoiToppingV410('${id}',this)"> ${x} +$5</label>`).join('')}
+              </div><small>加料最多選 2 種</small>`}</div>`;
           } else if (item.optType === 'nanbu_bento' || item.optType === 'nanbu_veg') {
             const pairs = [['魯肉',35],['港式臘腸',35],['豬腳',35],['大排',55],['腿庫',55],['雞腿',55],['焢肉',55]];
             const riceOptions = `<div style="display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;">
@@ -2925,7 +2941,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <button type="button" class="tt-spice-clear" onclick="clearFnSpice('${id}')">清除辣度選擇</button>
               </div>`;
           } else if (item.optType === 'tteokbokki_noodle') {
-            placeholderText = '其他備註 (例如: 不要辣)';
+            placeholderText = '其他備註';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="tteok-orig-${id}" onchange="toggleSpecialOption('${id}', 'tteok', 'orig')"> 原味</label>
@@ -2939,7 +2955,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <label><input type="checkbox" id="gdf-spicy-${id}" onchange="toggleSpecialOption('${id}', 'gdf', 'spicy')"> 辣味</label>
               </div>`;
           } else if (item.optType === 'shin_ramen') {
-            placeholderText = '其他備註 (例如: 不要辣)';
+            placeholderText = '其他備註';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="shin-kimchi-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'kimchi')"> 泡菜</label>
@@ -2947,14 +2963,14 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
                 <label><input type="checkbox" id="shin-cheese-${id}" onchange="toggleSpecialOption('${id}', 'shin', 'cheese')"> 起司 +$10</label>
               </div>`;
           } else if (item.optType === 'rice_bowl') {
-            placeholderText = '其他備註 (例如: 不要辣)';
+            placeholderText = '其他備註';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="rb-rice-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'rice')"> 拌飯</label>
                 <label><input type="checkbox" id="rb-bowl-${id}" onchange="toggleSpecialOption('${id}', 'rb', 'bowl')"> 丼飯</label>
               </div>`;
           } else if (item.optType === 'chungwu' || item.optType === 'light_box') {
-            placeholderText = '其他備註 (例如: 不要辣)';
+            placeholderText = '其他備註';
             optionsHtml = `
               <div class="item-options disabled-option" id="options-group-${id}">
                 <label><input type="checkbox" id="meat-chicken-${id}" onchange="toggleSpecialOption('${id}', 'meat', 'chicken')"> 雞肉</label>
@@ -2979,9 +2995,9 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
               
               ${optionsHtml}
 
-              <div class="item-remark-input disabled-option" id="remark-group-${id}">
+              ${item.optType === 'sugoi_drink' ? '' : `<div class="item-remark-input disabled-option" id="remark-group-${id}">
                 <input type="text" id="remark-${id}" placeholder="${placeholderText}" oninput="updateRemark('${id}', '${item.optType || ''}')" onclick="checkRemarkClick(event)">
-              </div>
+              </div>`}
             </div>
           `;
         });
@@ -3046,6 +3062,26 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       return true;
     }
 
+    // V41_4：漏選甜度或冰量時，帶回對應的飲料卡片並標記待補項目。
+    // 固定甜度／固定冰量的飲料不要求額外選擇。
+    function validateSugoiRequiredOptionsV414() {
+      const sug = allStoresData['SUGOI-焗之森飲料店'];
+      if (!sug) return true;
+      const drinks = sug.flatMap(group => group.items);
+      for (const [id, orderItem] of Object.entries(currentOrder)) {
+        if (orderItem.qty <= 0 || orderItem.optType !== 'sugoi_drink') continue;
+        const drink = drinks.find(item => item.name === id);
+        if (!drink) continue;
+        if (!drink.sugoiFixedSugar && ![...document.getElementsByName(`sg-sugar-${id}`)].some(el => el.checked)) {
+          return requiredChoiceMissing(id, '尚未選擇甜度，請先選擇甜度！');
+        }
+        if (!drink.sugoiFixedIce && ![...document.getElementsByName(`sg-ice-${id}`)].some(el => el.checked)) {
+          return requiredChoiceMissing(id, '尚未選擇冰量，請先選擇冰量！');
+        }
+      }
+      return true;
+    }
+
     function validateHualienSpice() {
       for (const [id, item] of Object.entries(currentOrder)) {
         if (item.qty > 0 && item.optType === 'hl_wonton') {
@@ -3068,6 +3104,13 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       if (selected?.checked && other) other.checked = false;
       updateRemark(id, currentOrder[id]?.optType || 'nanbu_bento');
     }
+    function toggleSugoiToppingV410(id, changed) {
+      if (isEventExpired()) { changed.checked = false; return; }
+      const selected = [...document.querySelectorAll(`[id^="sg-top-"][id$="-${id}"]:checked`)];
+      if (selected.length > 2) { changed.checked = false; alert('加料最多只能選 2 種'); }
+      updateRemark(id,'sugoi_drink');
+    }
+
     function toggleNanbuPairV405(id, choice) {
       if (isEventExpired()) return;
       const selected = document.getElementById(`nb-pair-${choice}-${id}`);
@@ -3201,6 +3244,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       }
 
       let finalPrice = basePrice;
+      if (optType === 'sugoi_drink') finalPrice += 5 * [...document.querySelectorAll(`[id^="sg-top-"][id$="-${id}"]:checked`)].length;
       if (optType === 'nanbu_bento') {
         const add = ['魯肉','港式臘腸','豬腳','大排','腿庫','雞腿','焢肉'].find(x => document.getElementById(`nb-pair-${x}-${id}`)?.checked);
         if (add) finalPrice += ['魯肉','港式臘腸','豬腳'].includes(add) ? 35 : 55;
@@ -3281,6 +3325,21 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const selectedForest = forestSelectedOptionsV39(id);
           remarks.push(...selectedForest.map(k => forestOptionLabelsV39[k][0]));
           currentOrder[id].price = currentOrder[id].basePrice + forestExtraPriceV39(id);
+        } else if (optType === 'sugoi_drink') {
+          const menuItem = allStoresData['SUGOI-焗之森飲料店']?.flatMap(g=>g.items).find(x=>x.name===id);
+          if (menuItem?.sugoiFixedSugar) remarks.push('甜度固定');
+          else {
+            const sugar = ['無糖','三分糖','五分糖','七分糖','全糖'].find(x=>document.getElementById(`sg-sugar-${x}-${id}`)?.checked);
+            if (sugar) remarks.push(sugar);
+          }
+          if (menuItem?.sugoiFixedIce) remarks.push('冰量固定');
+          else {
+            const ice = ['溫熱','去冰','微冰','少冰','多冰'].find(x=>document.getElementById(`sg-ice-${x}-${id}`)?.checked);
+            if (ice) remarks.push(ice);
+          }
+          const tops = ['珍珠','椰果','布丁','仙草','黑磚'].filter(x=>document.getElementById(`sg-top-${x}-${id}`)?.checked);
+          tops.forEach(x=>remarks.push('加'+x+' +5元'));
+          currentOrder[id].price = currentOrder[id].basePrice + tops.length*5;
         } else if (optType === 'eight_pot') {
           const side = [...document.getElementsByName(`eight-side-${id}`)].find(r => r.checked);
           if (side) remarks.push('附餐：' + side.value);
@@ -3404,7 +3463,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           else { currentOrder[id].price = currentOrder[id].basePrice; }
         }
 
-        const textRemark = document.getElementById(`remark-${id}`).value.trim();
+        const textRemark = document.getElementById(`remark-${id}`)?.value.trim() || '';
         if (textRemark && optType !== 'friday_only_1' && optType !== 'friday_only_2') {
           remarks.push(textRemark);
         }
@@ -3457,6 +3516,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           return; 
         }
 
+        if (!validateSugoiRequiredOptionsV414()) return;
         if (!validateHualienSpice()) return;
         if (!validateBafangRequiredOptions()) return;
 
@@ -3521,6 +3581,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
 
     async function submitOrder() {
       if (orderSubmitInFlight || orderSubmitConfirmed) return;
+      if (!validateSugoiRequiredOptionsV414()) return;
       if (!validateHualienSpice()) return;
       if (!validateBafangRequiredOptions()) return;
       orderSubmitInFlight = true;
@@ -3538,6 +3599,12 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
           const group = document.getElementById(`options-group-${k}`);
           const options = group ? Array.from(group.querySelectorAll(currentOrder[k].optType?.startsWith('forest_') ? 'input:checked' : 'input[type="checkbox"]:checked'))
             .map(cb => cb.id.slice(0, -(k.length + 1))) : [];
+          if (currentOrder[k].optType === 'sugoi_drink') {
+            for (const prefix of ['sg-sugar','sg-ice']) {
+              const checked = [...document.getElementsByName(`${prefix}-${k}`)].find(x=>x.checked);
+              if (checked) options.push(checked.id.slice(0,-(k.length+1)));
+            }
+          }
           if (currentOrder[k].optType === 'eight_pot') {
             const side = [...document.getElementsByName(`eight-side-${k}`)].find(r => r.checked);
             if (side) options.push('eight-side-' + side.value);
