@@ -1061,7 +1061,7 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       "秦小家排骨": { phone: "02-2683-0071" },
       "日日鴻 咖哩炒麵": { phone: "0925-339-282" },
       "八方雲集": { phone: "02-2686-6988" },
-      "竹林雞肉（中華店）": { phone: "請參照店家電話" },
+      "竹林雞肉（中華店）": { phone: "02-8992-0789" },
       "天天下廚": { phone: "02-2675-0025" }
     };
 
@@ -4107,15 +4107,17 @@ html body .hdept-control .dept-word strong{color:#425e38!important;font-size:14p
       });
 
       const storeOrderList = getStoreMenuOrder(store);
-      const sortedKeys = Object.keys(quickSummary).sort((a, b) => {
-        const nameA = a.split('(')[0];
-        const nameB = b.split('(')[0];
-        let idxA = storeOrderList.indexOf(nameA);
-        let idxB = storeOrderList.indexOf(nameB);
-        if (idxA === -1) idxA = 999;
-        if (idxB === -1) idxB = 999;
-        return idxA - idxB;
-      });
+      // V40_8：菜名本身可能包含括號，例如「銷魂雞飯(含一顆蛋)」。
+      // 不可用 split('(') 截斷菜名，否則所有變體都會被誤判為未收錄品項。
+      const menuRank = key => {
+        const idx = storeOrderList.findIndex(name =>
+          key === name || key.startsWith(name + '(') || key.startsWith(name + '（')
+        );
+        return idx < 0 ? 9999 : idx;
+      };
+      const sortedKeys = Object.keys(quickSummary).sort((a, b) =>
+        menuRank(a) - menuRank(b) || a.localeCompare(b, 'zh-TW')
+      );
 
       const batchTag = targetBatch === 'all' ? '全單彙整' : `第 ${targetBatch} 單`;
       let summaryHtml = `<div style="font-weight:bold; color:#0369a1; margin-bottom:2px;">📋【${batchTag}試算結果】</div>`;
